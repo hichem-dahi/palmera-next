@@ -1,0 +1,25 @@
+<template>
+  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">Add product</v-btn>
+  <v-dialog v-model="dialog" max-width="400px">
+    <CreateProduct v-model="dialog" />
+  </v-dialog>
+  <v-divider class="ma-5"></v-divider>
+  <v-row justify="start">
+    <v-col v-for="(_, i) in products" :key="i" sm="12" md="4">
+      <ProductCard 
+        v-model="products[i]" 
+      />
+    </v-col>
+  </v-row>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+import CreateProduct from '@/components/CreateProduct.vue';
+import ProductCard from '@/components/ProductCard.vue';
+
+import products from '@/composables/localStore/useProductStore';
+
+const dialog = ref(false)
+</script>
