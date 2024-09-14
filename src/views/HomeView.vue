@@ -4,7 +4,26 @@
 
 <template>
   <div class="menu">
-    <v-btn class="mr-5" size="x-large" icon="mdi-account-group"></v-btn>
-    <v-btn class="mr-5" size="x-large" :to="{ name: 'warehouse' }" icon="mdi-warehouse"></v-btn>
+    <v-btn 
+      color="high-emphasis" 
+      class="mr-5" 
+      size="x-large" 
+      variant="text" 
+      stacked   
+      prepend-icon="mdi-account-group"
+      :to="{ name: 'personnel' }"
+      >
+      عمال
+    </v-btn>
+    <v-btn 
+      color="high-emphasis" 
+      class="mr-5" 
+      size="x-large" 
+      variant="text" 
+      stacked 
+      prepend-icon="mdi-warehouse"
+      :to="{ name: 'warehouse' }">
+      مستودع
+    </v-btn>
   </div>
 </template>

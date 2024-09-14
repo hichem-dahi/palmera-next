@@ -16,7 +16,7 @@
     <v-file-input
       accept="image/*"
       label="Image"
-      v-model="form.image"
+      v-model="form.image as File"
       labe
       :error-messages="!$v.image.$pending && $v.image.$error ? 'Image is required' : ''"
       @blur="$v.image.$touch()"

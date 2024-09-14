@@ -4,7 +4,7 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-      <v-app-bar color="blue" title="Palmera next"></v-app-bar>
+      <v-app-bar color="light-blue" title="Palmera next"></v-app-bar>
 
       <!-- <v-navigation-drawer>
         <v-list>
