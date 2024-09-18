@@ -5,6 +5,7 @@ import { createPinia } from 'pinia'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import { VDateInput } from 'vuetify/labs/VDateInput'
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
@@ -16,7 +17,7 @@ import router from './router'
 
 // Components
 const vuetify = createVuetify({
-  components: { ...components, VDateInput },
+  components: { ...components, VDateInput, VNumberInput },
   directives,
   icons: {
     defaultSet: 'mdi',
