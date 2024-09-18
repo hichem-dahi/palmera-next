@@ -26,8 +26,8 @@
           <div class="d-flex align-center" v-for="(instance, i) in person.history" :key="i">
             {{ format(instance.date, 'yyyy-MM-dd') }}
             <span>
-              &nbsp;{{ instance.type === HistoryType.dept ? `-${instance.value} DA` 
-              : instance.type === HistoryType.absence ? 'Absence' : '' }} 
+              &nbsp;{{ instance.type === HistoryType.Dept ? `-${instance.value} DA` 
+              : instance.type === HistoryType.Absence ? 'Absence' : '' }} 
             </span>
           </div>
         </div>
@@ -74,11 +74,11 @@ const dialog1 = ref(false)
 
 const name = computed(() => `${person.value.first_name} ${person.value.last_name}`)
 const total = computed(() => person.value.history
-  .filter((e: { type: HistoryType; }) => e.type == HistoryType.dept)
+  .filter((e: { type: HistoryType; }) => e.type == HistoryType.Dept)
   .reduce((som: any, e: any) =>  Number(som) + Number(e.value), 0)
 )
 const absence = computed(() => person.value.history
-  .filter((e: { type: HistoryType; }) => e.type == HistoryType.absence)
+  .filter((e: { type: HistoryType; }) => e.type == HistoryType.Absence)
   .length
 )
 
