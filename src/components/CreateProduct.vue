@@ -13,13 +13,13 @@
       :error-messages="!$v.qte.$pending && $v.qte.$error ? 'Quantity must be greater than zero' : ''"
       @blur="$v.qte.$touch()"
     />
-    <v-file-input
-      accept="image/*"
-      label="Image"
-      v-model="form.image as File"
-      labe
-      :error-messages="!$v.image.$pending && $v.image.$error ? 'Image is required' : ''"
-      @blur="$v.image.$touch()"
+
+    <v-text-field
+      label="Price"
+      v-model="form.price"
+      type="number"
+      :error-messages="!$v.price.$pending && $v.price.$error ? 'Price must be greater than zero' : ''"
+      @blur="$v.price.$touch()"
     />
 
     <v-btn block @click="submitForm">Add</v-btn>
@@ -28,24 +28,28 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { v4 as uuidv4 } from 'uuid';
 import useVuelidate from '@vuelidate/core';
 import { required, minValue, numeric } from '@vuelidate/validators';
 
 import products from '@/composables/localStore/useProductStore';
-import { fileToBase64 } from '@/helpers/helpers';
+
+import type { Product } from '@/models/models';
 
 const isOpen = defineModel()
 
-const form = reactive({
+const form = reactive<Product>({
+  id: uuidv4(),
   name: '',
   qte: null,
-  image: null as File | string | null
+  price: null,
 });
 
 const rules = {
+  id: { required },
   name: { required },
   qte: { required, numeric, minValue: minValue(1) },
-  image: { required }
+  price: { required, numeric, minValue: minValue(1) },
 };
 
 const $v = useVuelidate(rules, form);
@@ -53,9 +57,7 @@ const $v = useVuelidate(rules, form);
 async function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
-    const src = await fileToBase64(form.image as File)
-    form.image = src
-    products.value.push({...form, history: [] as any[]})
+    products.value.push(form)
     isOpen.value = false
   } else {
     console.log('Form is invalid');

@@ -27,7 +27,7 @@
     <v-text-field
       label="Value"
       v-model="form.value"
-      :disabled="form.type != HistoryType.dept"
+      :disabled="form.type != HistoryType.Dept"
       :error-messages="!$v.value.$pending && $v.value.$error ? 'Value is required' : ''"
     ></v-text-field>
     
@@ -46,8 +46,8 @@ import personnel from '@/composables/localStore/usePersonnelStore';
 import { HistoryType } from '@/models/models';
 
 const types = [
-  { value: HistoryType.absence, title: 'Absence'},
-  { value: HistoryType.dept, title: 'Endettement'}
+  { value: HistoryType.Absence, title: 'Absence'},
+  { value: HistoryType.Dept, title: 'Endettement'}
 ]
 
 const isOpen = defineModel<boolean>('dialog')
@@ -56,7 +56,7 @@ const person = defineModel<any>('person')
 const form = reactive({
   date: new Date(),
   value: null,
-  type: HistoryType.dept
+  type: HistoryType.Dept
 });
 
 const rules = {
