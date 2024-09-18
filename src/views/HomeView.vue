@@ -5,25 +5,48 @@
 <template>
   <div class="menu">
     <v-btn 
-      color="high-emphasis" 
-      class="mr-5" 
+      class="text-white mr-5" 
       size="x-large" 
-      variant="text" 
+      variant="elevated"
+      rounded="xl"
+      color="grey"      
       stacked   
       prepend-icon="mdi-account-group"
-      :to="{ name: 'personnel' }"
-      >
+      :to="{ name: 'clients' }">
+      زبون
+    </v-btn>
+    <v-btn 
+      class="text-white mr-5" 
+      size="x-large" 
+      variant="elevated"
+      rounded="xl"
+      color="green-lighten-2"      
+      stacked   
+      prepend-icon="mdi-account-hard-hat"
+      :to="{ name: 'personnel' }">
       عمال
     </v-btn>
     <v-btn 
-      color="high-emphasis" 
-      class="mr-5" 
+      class="text-white mr-5" 
       size="x-large" 
-      variant="text" 
+      variant="elevated"
+      rounded="xl"
+      color="red-lighten-2"
       stacked 
       prepend-icon="mdi-warehouse"
       :to="{ name: 'warehouse' }">
       مستودع
+    </v-btn>
+    <v-btn 
+      class="text-white mr-5" 
+      size="x-large" 
+      variant="elevated"
+      rounded="xl"
+      color="blue-lighten-2"
+      stacked 
+      prepend-icon="mdi-receipt-text"
+      :to="{ name: 'orders' }">
+      طلبات
     </v-btn>
   </div>
 </template>
