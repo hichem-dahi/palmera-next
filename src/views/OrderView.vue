@@ -91,11 +91,11 @@ function goInvoicePage(type?: InvoiceType) {
 <style>
 .wrapper {
   display: flex;
-  width: 100%;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .table {
-  width: 70%;
+  min-width: 70%;
 }
 </style>

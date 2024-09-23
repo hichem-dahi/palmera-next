@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
-import { sum } from 'lodash'
+import { max, sum } from 'lodash'
 import { v4 as uuidv4 } from 'uuid';
 import useVuelidate from '@vuelidate/core';
 import { minLength, numeric, required } from '@vuelidate/validators';
@@ -66,9 +66,11 @@ const productsItems = computed(() => products.value
 )
 
 const total_price = computed(() => sum(form.order_lines.map(e => e.total_price)))
+const index = computed(() => (max(orders.value.map(o => o.index)) || 0) + 1)
 
 const form = reactive<Order>({
   id: uuidv4(),
+  index: 0,
   client_id: '',
   order_lines: [{
     id: uuidv4(),      
@@ -93,6 +95,7 @@ const $v = useVuelidate(rules, form);
 
 function submitForm() {
   form.total_price = sum(form.order_lines.map(e => e.total_price))
+  form.index = index.value
   $v.value.$touch();
   if (!$v.value.$invalid) {
     orders.value.push(form)

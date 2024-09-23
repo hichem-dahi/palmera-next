@@ -1,26 +1,13 @@
 <template>
   <v-card
-    class="mx-auto"
+    class="pa-4 mx-auto"
     prepend-icon="mdi-account"
     :title="client?.name"
-  >
+>
   <v-card-subtitle style="line-height: 150%;">
     <div>Address: {{ client?.address }}</div>
-    <div>Phone: {{ client?.phone }}</div>
+    <div>Phone: <a :href="`tel:+${client?.phone}`">{{ client?.phone }}</a> </div>
   </v-card-subtitle>
-
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn
-        :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-        @click="show = !show"
-      ></v-btn>
-    </v-card-actions>
-    <v-expand-transition>
-      <div v-show="show">
-        <v-divider></v-divider>
-      </div>
-    </v-expand-transition>
   <template v-slot:append>
     <v-menu>
       <template v-slot:activator="{ props }">

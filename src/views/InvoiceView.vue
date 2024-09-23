@@ -118,7 +118,7 @@ const totalItems = computed(() => {
   return {
     total: order.value?.total_price,
     'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
-    'T.T.C': round((order.value?.total_price!  * 81) / 100 - 1000, 0) 
+    'T.T.C': round((order.value?.total_price!  * 81) / 100, 0) 
   }
 })
 

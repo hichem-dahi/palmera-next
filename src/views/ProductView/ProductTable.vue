@@ -5,7 +5,6 @@
     :items="items"
     :headers="headers"
     style="background-color: rgb(252, 252, 252)"
-    hide-default-footer
   >
     <template v-slot:top>
       <v-card class="pb-2 d-flex align-end" color="#EFEFF1" elevation="0">
@@ -31,6 +30,9 @@
         Link
       </router-link>
     </template>
+    <template v-slot:item.date="{ item }">
+      <span>{{ format(item.date, 'yyyy-MM-dd p') }}</span>
+    </template>
   </v-data-table>
 </template>
 <script setup lang="ts">
@@ -45,6 +47,7 @@ import ModifyStock from './ModifyStock.vue';
 
 const emits = defineEmits(['close'])
 const route = useRoute()
+
 const modifyStockDialog = ref(false)
 
 const product = computed(() => products.value.find(p => p.id == route.params.product_id))
@@ -54,12 +57,12 @@ const items = computed(() => stockMovements.value?.map((s, i) => {
   return { 
     id: s.id,
     index: i,
-    date: format(s.date, 'yyyy-MM-dd hh:mm') ,
+    date: s.date,
     qte: s.qte_change,
     unity_price: product.value?.price,
     order: s.order_id
    }
-}))
+}).reverse())
 
 const headers = readonly(ref([
   { 

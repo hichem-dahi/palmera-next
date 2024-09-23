@@ -6,7 +6,7 @@
     hover
     variant="elevated" 
     :to="{name: 'order', params: {order_id: order.id}}">
-    <v-card-title>Commande N°{{ 1 }}</v-card-title>
+    <v-card-title>Order N°{{ 1 }}</v-card-title>
 
     <v-card-subtitle class="text-body-2">
       <div class="d-flex">

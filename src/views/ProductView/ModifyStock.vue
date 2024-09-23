@@ -7,12 +7,14 @@
         inset
         control-variant="stacked" 
         :error="!$v.qte.$pending && $v.qte.$error"
+        :error-messages="$v.$errors.map(e => e.$message)"
         v-model="form.qte"
+        type="number" 
       />
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn variant="text">cancel</v-btn>
+        <v-btn variant="text" @click="dialog = false">cancel</v-btn>
         <v-btn variant="text" color="primary" @click="saveStock">save</v-btn>
       </v-card-actions>
     </v-card>
@@ -21,7 +23,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { numeric, required } from '@vuelidate/validators';
+import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 import { adjustStock } from '@/composables/useStockManage';
@@ -31,13 +33,16 @@ import type { Product } from '@/models/models';
 const dialog = defineModel<boolean>()
 const props = defineProps<{product: Product}>()
 
+const notZero = (value: any) => value !== null && value !== undefined && value !== 0;
+
 const form = reactive({
   qte: null
 })
 
 const rules = {
-  qte: { required, numeric },
+  qte: { required, notZero },
 }
+
 const $v = useVuelidate(rules, form);
 
 function saveStock() {

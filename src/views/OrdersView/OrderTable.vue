@@ -118,8 +118,7 @@ import clients from '@/composables/localStore/useClientsStore';
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-
-import { type Order, type OrderLine } from '@/models/models';
+import type { Order, OrderLine } from '@/models/models';
 
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
@@ -128,7 +127,6 @@ const newlineDialog = ref(false)
 const deleteDialog = ref(false)
 
 const isSuccess = ref(false)
-const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
 
 const proxyOrder = ref<Order | undefined>(cloneDeep(order.value)) 
 const selectedOrderline = ref<OrderLine>()
@@ -146,6 +144,7 @@ const headers = readonly(ref([
   { title: 'Actions', key: 'actions', sortable: false },
 ]) as any)
 
+const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
 
 const client = computed(() => clients.value.find(e =>   
   order.value ? e.id === order.value.client_id : null 
@@ -177,7 +176,7 @@ const productsItems = computed(() => products.value
 )
 
 const totalItems = computed(() => {
-  const price_to_pay = round((order.value?.total_price!  * 81) / 100 - 1000, 0) 
+  const price_to_pay = round((order.value?.total_price!  * 81) / 100, 0) 
   return {
     remaining: price_to_pay - (order.value?.paid_price || 0),
     total: order.value?.total_price,
@@ -239,7 +238,7 @@ watch(proxyOrderlines, (orderLines) => {
 
 <style>
 .number-input {
-  max-width: 70px;
+  max-width: 50px;
   .v-field__append-inner {
     display: none;
   }

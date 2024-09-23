@@ -1,5 +1,6 @@
 export interface Order {
   id: string
+  index: number
   client_id: string
   date: Date
   order_lines: OrderLine[]
@@ -29,6 +30,7 @@ export interface Client {
 
 export interface Product {
   id: string
+  ref: string
   name: string
   price: number | null
   qte: number | null
@@ -48,11 +50,6 @@ export interface StockMovement {
   qte_change: number
   date: Date
   order_id?: string // To track the order related to the stock reduction
-}
-
-export enum StockMovementType {
-  Addition = 'Addition',
-  Subtraction = 'Subtraction'
 }
 
 export enum InvoiceType {
