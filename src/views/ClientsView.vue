@@ -18,8 +18,8 @@ import { ref } from 'vue';
 
 import clients from '@/composables/localStore/useClientsStore';
 
-import ClientCard from '@/components/ClientCard.vue';
-import CreateClient from '@/components/CreateClient.vue';
+import ClientCard from '@/views/ClientsView/ClientCard.vue';
+import CreateClient from '@/views/ClientsView/CreateClient.vue';
 
 const dialog = ref(false)
 </script>

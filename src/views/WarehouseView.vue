@@ -16,8 +16,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import CreateProduct from '@/components/CreateProduct.vue';
-import ProductCard from '@/components/ProductCard.vue';
+import CreateProduct from '@/views/WarehouseView/CreateProduct.vue';
+import ProductCard from '@/views/WarehouseView/ProductCard.vue';
 
 import products from '@/composables/localStore/useProductStore';
 

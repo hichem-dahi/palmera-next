@@ -1,0 +1,50 @@
+<template>
+  <v-dialog v-model="dialog" max-width="400">
+    <v-card class="pa-4" title="Modify stock">
+      <v-number-input 
+        label="Quantity" 
+        variant="outlined"
+        inset
+        control-variant="stacked" 
+        :error="!$v.qte.$pending && $v.qte.$error"
+        v-model="form.qte"
+      />
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="text">cancel</v-btn>
+        <v-btn variant="text" color="primary" @click="saveStock">save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue';
+import { numeric, required } from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
+
+import { adjustStock } from '@/composables/useStockManage';
+
+import type { Product } from '@/models/models';
+
+const dialog = defineModel<boolean>()
+const props = defineProps<{product: Product}>()
+
+const form = reactive({
+  qte: null
+})
+
+const rules = {
+  qte: { required, numeric },
+}
+const $v = useVuelidate(rules, form);
+
+function saveStock() {
+ $v.value.$touch()
+ if (!$v.value.$invalid) {
+  adjustStock(props.product.id, form.qte!)
+  dialog.value = false
+ }
+}
+</script>

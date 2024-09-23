@@ -18,8 +18,8 @@ import { ref } from 'vue';
 
 import orders from '@/composables/localStore/useOrdersStore';
 
-import CreateOrder from '@/components/CreateOrder.vue';
-import OrderCard from '@/components/OrderCard.vue';
+import CreateOrder from '@/views/OrdersView/CreateOrder.vue';
+import OrderCard from '@/views/OrdersView/OrderCard.vue';
 
 const dialog = ref(false)
 </script>

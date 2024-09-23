@@ -45,7 +45,7 @@ import orders from '@/composables/localStore/useOrdersStore';
 import clients from '@/composables/localStore/useClientsStore';
 import products from '@/composables/localStore/useProductStore';
 
-import OrderLineForm from '@/components/OrderLineForm.vue'
+import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 
 import type { Order, OrderLine } from '@/models/models';
 
@@ -97,8 +97,6 @@ function submitForm() {
   if (!$v.value.$invalid) {
     orders.value.push(form)
     isOpen.value = false
-  } else {
-    console.log('Form is invalid');
   }
 }
 
