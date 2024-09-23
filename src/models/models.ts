@@ -3,8 +3,8 @@ export interface Order {
   client_id: string
   date: Date
   order_lines: OrderLine[]
-  delivery: string | Delivery
-  payment_method: string
+  delivery?: string | Delivery
+  payment_method?: string
   paid_price: number
   total_price: number
 }
@@ -32,13 +32,6 @@ export interface Product {
   name: string
   price: number | null
   qte: number | null
-  history: ProductHistory[]
-}
-
-export interface ProductHistory {
-  id: string
-  date: Date
-  qte: number
 }
 
 export interface Delivery {

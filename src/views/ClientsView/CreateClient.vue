@@ -106,7 +106,7 @@ const $v = useVuelidate(rules, form);
 async function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
-    clients.value.push({...form, history: [] as any[]})
+    clients.value.push({...form})
     isOpen.value = false
   } else {
     console.log('Form is invalid');
