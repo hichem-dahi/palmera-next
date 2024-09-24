@@ -3,7 +3,6 @@
   <v-dialog v-model="dialog" max-width="400px">
     <CreatePerson v-model="dialog" />
   </v-dialog>
-  <v-divider class="ma-5"></v-divider>
   <v-container>
     <v-row v-for="(_, i) in personnel" :key="i">
       <v-col cols="8">

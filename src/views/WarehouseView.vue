@@ -3,7 +3,6 @@
   <v-dialog v-model="dialog" max-width="400px">
     <CreateProduct v-model="dialog" />
   </v-dialog>
-  <v-divider class="ma-5"></v-divider>
   <v-row justify="start">
     <v-col v-for="(_, i) in products" :key="i" sm="12" md="4">
       <ProductCard 

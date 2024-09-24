@@ -3,7 +3,6 @@
   <v-dialog v-model="dialog" max-width="600px">
     <CreateOrder v-model="dialog" />
   </v-dialog>
-  <v-divider class="ma-5"></v-divider>
   <v-container>
     <v-row v-for="(_, i) in orders" :key="i">
       <v-col cols="6">

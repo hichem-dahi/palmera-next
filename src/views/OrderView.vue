@@ -4,7 +4,8 @@
     size="small" 
     color="grey" 
     variant="text" 
-    prepend-icon="mdi-chevron-left" @click="$router.go(-1)" 
+    prepend-icon="mdi-chevron-left" 
+    @click="$router.go(-1)" 
     text="back" />
   <div class="wrapper">
     <div class="table border">

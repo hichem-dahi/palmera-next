@@ -1,7 +1,15 @@
 <template>
+  <v-btn 
+    class="my-5" 
+    size="small" 
+    color="grey" 
+    variant="text" 
+    prepend-icon="mdi-chevron-left" 
+    @click="$router.go(-1)" 
+    text="back" />
   <div class="product-wrapper">
     <div class="product-table border">
-        <ProductTable />
+      <ProductTable />
     </div>
   </div>
 </template>
