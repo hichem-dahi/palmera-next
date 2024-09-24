@@ -1,5 +1,5 @@
 <template>
-  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">Add client</v-btn>
+  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">{{ $t('add-client') }}</v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreateClient v-model="dialog" />
   </v-dialog>

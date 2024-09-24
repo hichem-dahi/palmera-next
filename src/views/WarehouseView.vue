@@ -1,5 +1,5 @@
 <template>
-  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">Add product</v-btn>
+  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">{{ $t('add-product') }}</v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreateProduct v-model="dialog" />
   </v-dialog>

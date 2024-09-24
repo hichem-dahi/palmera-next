@@ -1,34 +1,34 @@
 <template>
   <v-sheet class="pa-4">
     <v-text-field
-      label="Code"
+      :label="$t('code')"
       v-model="form.code"
-      :error-messages="!$v.code.$pending && $v.code.$error ? 'Code is required' : ''"
+      :error-messages="!$v.code.$pending && $v.code.$error ? $t('Code is required') : ''"
       @blur="$v.code.$touch()"
     />
     <v-text-field
-      label="Name"
+      :label="$t('name')"
       v-model="form.name"
-      :error-messages="!$v.name.$pending && $v.name.$error ? 'Name is required' : ''"
+      :error-messages="!$v.name.$pending && $v.name.$error ? $t('Name is required') : ''"
       @blur="$v.name.$touch()"
     />
     <v-text-field
-      label="Quantity"
+      :label="$t('quantity')"
       v-model="form.qte"
       type="number"
-      :error-messages="!$v.qte.$pending && $v.qte.$error ? 'Quantity must be greater than zero' : ''"
+      :error-messages="!$v.qte.$pending && $v.qte.$error ? $t('Qunatity must be greater than zero'): ''"
       @blur="$v.qte.$touch()"
     />
 
     <v-text-field
-      label="Price"
+      :label="$t('price')"
       v-model="form.price"
       type="number"
-      :error-messages="!$v.price.$pending && $v.price.$error ? 'Price must be greater than zero' : ''"
+      :error-messages="!$v.price.$pending && $v.price.$error ? $t('Price must be greater than zero') : ''"
       @blur="$v.price.$touch()"
     />
 
-    <v-btn block @click="submitForm">Add</v-btn>
+    <v-btn block @click="submitForm">{{ $t('add') }}</v-btn>
   </v-sheet>
 </template>
 

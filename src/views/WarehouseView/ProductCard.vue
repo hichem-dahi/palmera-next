@@ -7,11 +7,11 @@
     <v-card-title v-text="product?.name" />
     <v-card-subtitle class="text-body-2">
       <div class="d-flex">
-        <div class="font-weight-bold">Qte:</div> 
+        <div class="font-weight-bold">{{ $t('qte') }}</div> 
         <div>&nbsp;{{ product?.qte}}</div>
       </div>
       <div class="d-flex">
-        <div class="font-weight-bold">P.U:</div> 
+        <div class="font-weight-bold">{{ $t('U.P') }}</div> 
         <div>&nbsp;{{ product?.price }} DA</div>
       </div>
     </v-card-subtitle>

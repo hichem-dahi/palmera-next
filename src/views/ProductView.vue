@@ -6,7 +6,7 @@
     variant="text" 
     prepend-icon="mdi-chevron-left" 
     @click="$router.go(-1)" 
-    text="back" />
+    :text="$t('back')" />
   <div class="product-wrapper">
     <div class="product-table border">
       <ProductTable />

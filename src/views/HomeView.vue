@@ -1,8 +1,16 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-
-      <v-app-bar color="light-blue" title="LogiNext"></v-app-bar>
+      <v-app-bar color="light-blue" title="LogiNext">
+        <template v-slot:append>
+          <v-select 
+            density="compact" 
+            v-model="$i18n.locale" 
+            :items="$i18n.availableLocales"
+            hide-details
+          />
+        </template>
+      </v-app-bar>
       <v-banner 
         v-if="deferredPrompt"
         class="text-left"
@@ -16,13 +24,12 @@
           <v-btn variant="text"  @click="install">Install</v-btn>
         </template>
       </v-banner>
-
       <v-main>
         <v-container>
           <v-row class="mt-5">
             <MenuBar />
           </v-row>
-          <v-divider class="mt-5 mb-2"></v-divider>
+          <v-divider class="my-5"></v-divider>
             <router-view></router-view>
         </v-container>
       </v-main>

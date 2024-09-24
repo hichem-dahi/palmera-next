@@ -1,0 +1,23 @@
+{
+  "clients": "زبون",
+  "personnel": "عمال",
+  "warehouse": "مستودع",
+  "orders": "طلبات",
+  "back": "رجوع",
+  "code": "كود",
+  "name": "الاسم",
+  "quantity": "الكمية",
+  "price": "السعر",
+  "add": "إضافة",
+  "Code is required": "الكود مطلوب",
+  "Name is required": "الاسم مطلوب",
+  "Qunatity must be greater than zero": "يجب أن تكون الكمية أكبر من صفر",
+  "Price must be greater than zero": "يجب أن يكون السعر أكبر من صفر",
+  "address": "العنوان",
+  "phone": "الهاتف",
+  "delete": "حذف",
+  "add-order": "إضافة طلب",
+  "add-client": "إضافة زبون",
+  "add-product": "إضافة منتج",
+  "activity": "نشاط"
+}

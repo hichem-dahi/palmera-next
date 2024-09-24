@@ -1,0 +1,22 @@
+{
+  "clients": "Clients",
+  "personnel": "Personnel",
+  "warehouse": "Entrepôt",
+  "orders": "Commandes",
+  "back": "Retour",
+  "code": "Code",
+  "name": "Nom",
+  "quantity": "Quantité",
+  "price": "Prix",
+  "add": "Ajouter",
+  "Code is required": "Le code est requis",
+  "Name is required": "Le nom est requis",
+  "Qunatity must be greater than zero": "La quantité doit être supérieure à zéro",
+  "Price must be greater than zero": "Le prix doit être supérieur à zéro",
+  "address": "Adresse",
+  "phone": "Téléphone",
+  "delete": "Supprimer",
+  "add-order": "Ajouter commande",
+  "add-client": "Ajouter un client",
+  "add-product": "Ajouter un produit"
+}

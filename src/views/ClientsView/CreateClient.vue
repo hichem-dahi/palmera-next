@@ -1,7 +1,7 @@
 <template>
   <v-card title="Create client" class="pa-4">
     <v-text-field
-      label="Name"
+      :label="$t('name')"
       v-model.trim="form.name"
       :error-messages="!$v.name.$pending && $v.name.$dirty ? [
         $v.name.required.$invalid ? 'Name is required' : '',
@@ -10,7 +10,7 @@
       @blur="$v.name.$touch()"
     />
     <v-text-field
-      label="Phone"
+      :label="$t('phone')"
       v-model.trim="form.phone"
       :error-messages="!$v.phone.$pending && $v.phone.$dirty ? [
         $v.phone.required.$invalid ? 'Phone is required' : '',
@@ -46,7 +46,7 @@
       @blur="$v.art.$touch()"
     />
     <v-text-field
-      label="Address"
+      :label="$t('address')"
       v-model.trim="form.address"
       :error-messages="!$v.address.$pending && $v.address.$dirty ? [
         $v.address.required.$invalid ? 'Address is required' : '',
@@ -55,7 +55,7 @@
       @blur="$v.address.$touch()"
     />
     <v-text-field
-      label="Activity"
+      :label="$t('activity')"
       v-model.trim="form.activity"
       :error-messages="!$v.activity.$pending && $v.activity.$dirty ? [
         $v.activity.required.$invalid ? 'Activity is required' : ''
@@ -63,7 +63,7 @@
       @blur="$v.activity.$touch()"
     />
 
-    <v-btn block @click="submitForm">Add</v-btn>
+    <v-btn block @click="submitForm">{{ $t('add') }}</v-btn>
   </v-card>
 </template>
 

@@ -8,17 +8,7 @@
       stacked   
       prepend-icon="mdi-account-group"
       :to="{ name: 'clients' }">
-      زبون
-    </v-btn>
-    <v-btn 
-      class="mr-5" 
-      color="medium-emphasis"
-      variant="text"
-      rounded="xl"
-      stacked   
-      prepend-icon="mdi-account-hard-hat"
-      :to="{ name: 'personnel' }">
-      عمال
+      {{ $t('clients') }}
     </v-btn>
     <v-btn 
       class="mr-5" 
@@ -28,7 +18,7 @@
       stacked 
       prepend-icon="mdi-warehouse"
       :to="{ name: 'warehouse' }">
-      مستودع
+      {{ $t('warehouse') }}
     </v-btn>
     <v-btn 
       class="mr-5" 
@@ -38,9 +28,12 @@
       stacked 
       prepend-icon="mdi-receipt-text"
       :to="{ name: 'orders' }">
-      طلبات
+      {{ $t('orders') }}
     </v-btn>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+
+
+</script>
