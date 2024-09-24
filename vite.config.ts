@@ -7,7 +7,27 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), vuetify(), VitePWA({ registerType: 'autoUpdate' })],
+  plugins: [
+    vue(),
+    vuetify(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}']
+      },
+      manifest: {
+        theme_color: '#8936FF',
+        background_color: '#2EC6FE',
+        orientation: 'any',
+        display: 'standalone',
+        lang: 'en-US',
+        name: 'LogiNext',
+        short_name: 'Logi'
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
