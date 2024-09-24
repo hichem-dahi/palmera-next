@@ -7,7 +7,6 @@
         inset
         control-variant="stacked" 
         :error="!$v.qte.$pending && $v.qte.$error"
-        :error-messages="$v.$errors.map(e => e.$message)"
         v-model="form.qte"
         type="number" 
       />
