@@ -7,19 +7,18 @@ import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import 'vuetify/styles'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { aliases, md } from 'vuetify/iconsets/md'
 
-import '@mdi/font/css/materialdesignicons.css'
-import 'material-design-icons-iconfont/dist/material-design-icons.css'
+import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure your project is capable of handling css files
 
 export default createVuetify({
   components: { ...components, VDateInput, VNumberInput },
   directives,
   icons: {
-    defaultSet: 'mdi',
+    defaultSet: 'md',
     aliases,
     sets: {
-      mdi
+      md
     }
   }
 })
