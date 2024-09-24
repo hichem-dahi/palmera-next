@@ -1,6 +1,12 @@
 <template>
   <v-sheet class="pa-4">
     <v-text-field
+      label="Code"
+      v-model="form.code"
+      :error-messages="!$v.code.$pending && $v.code.$error ? 'Code is required' : ''"
+      @blur="$v.code.$touch()"
+    />
+    <v-text-field
       label="Name"
       v-model="form.name"
       :error-messages="!$v.name.$pending && $v.name.$error ? 'Name is required' : ''"
@@ -40,6 +46,7 @@ const isOpen = defineModel()
 
 const form = reactive<Product>({
   id: uuidv4(),
+  code: '',
   name: '',
   qte: null,
   price: null,
@@ -47,6 +54,7 @@ const form = reactive<Product>({
 
 const rules = {
   id: { required },
+  code: { required },
   name: { required },
   qte: { required, numeric, minValue: minValue(1) },
   price: { required, numeric, minValue: minValue(1) },
@@ -59,8 +67,6 @@ async function submitForm() {
   if (!$v.value.$invalid) {
     products.value.push(form)
     isOpen.value = false
-  } else {
-    console.log('Form is invalid');
   }
 }
 </script>

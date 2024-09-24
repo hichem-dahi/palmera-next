@@ -30,7 +30,7 @@ export interface Client {
 
 export interface Product {
   id: string
-  ref: string
+  code: string
   name: string
   price: number | null
   qte: number | null
