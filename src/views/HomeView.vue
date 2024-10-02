@@ -1,7 +1,7 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-      <v-app-bar color="light-blue" title="LogiNext">
+      <v-app-bar color="blue-grey-lighten-2" class="text-white" title="LogiNext">
         <template v-slot:append>
           <v-select 
             density="compact" 
@@ -30,7 +30,7 @@
             <MenuBar />
           </v-row>
           <v-divider class="my-5"></v-divider>
-            <router-view></router-view>
+          <router-view></router-view>
         </v-container>
       </v-main>
     </v-app>
