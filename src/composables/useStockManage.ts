@@ -19,6 +19,8 @@ export function processOrder(order: Order): void {
 }
 
 export function logStockMovement(product_id: string, qte_change: number, order_id?: string): void {
+  if (order_id && stock.value.find((s) => s.order_id == order_id)) return
+
   const movement: StockMovement = {
     id: uuidv4(),
     product_id,
@@ -26,14 +28,14 @@ export function logStockMovement(product_id: string, qte_change: number, order_i
     date: new Date(),
     order_id
   }
-  //saveStockMovement(movement) // Implement save to database or in-memory store
+
   stock.value.push(movement)
 }
 
 export function adjustStock(product_id: string, adjustment: number): void {
   const product = products.value.find((p) => p.id === product_id)
-  if (product && product.qte !== null) {
-    product.qte += adjustment // Adjust stock
+  if (product) {
+    product.qte = Number(product.qte || 0) + Number(adjustment) // Adjust stock
     logStockMovement(product_id, adjustment)
   }
 }
