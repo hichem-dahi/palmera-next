@@ -3,6 +3,8 @@
   "personnel": "Personnel",
   "warehouse": "Entrepôt",
   "orders": "Commandes",
+  "order": "Commande",
+  "history": "Historique",
   "back": "Retour",
   "code": "Code",
   "name": "Nom",
@@ -18,5 +20,9 @@
   "delete": "Supprimer",
   "add-order": "Ajouter commande",
   "add-client": "Ajouter un client",
-  "add-product": "Ajouter un produit"
+  "add-product": "Ajouter un produit",
+  "add-sale": "Ajouter une vente",
+  "activity": "Activité",
+  "U.P": "P.U",
+  "N°": "N°"
 }
