@@ -8,6 +8,8 @@ import OrdersView from '@/views/OrdersView.vue'
 import OrderView from '@/views/OrderView.vue'
 import InvoiceView from '@/views/InvoiceView.vue'
 import ProductView from '@/views/ProductView.vue'
+import TransactionHistoryView from '@/views/TransactionHistoryView.vue'
+import CreateOrder from '@/views/CreateOrder.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +40,11 @@ const router = createRouter({
           component: OrdersView
         },
         {
+          path: '/create-order',
+          name: 'create-order',
+          component: CreateOrder
+        },
+        {
           path: '/order/:order_id',
           name: 'order',
           component: OrderView
@@ -46,6 +53,11 @@ const router = createRouter({
           path: '/product/:product_id',
           name: 'product',
           component: ProductView
+        },
+        {
+          path: '/transaction-history',
+          name: 'transaction-history',
+          component: TransactionHistoryView
         }
       ]
     },
