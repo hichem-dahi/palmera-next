@@ -1,15 +1,17 @@
 <template>   
-  <v-row v-if="form" align="start" no-gutters>
+  <v-row v-if="form" align="end" no-gutters>
     <v-col>      
       <v-select 
         class="mr-3"
         label="Product" 
-        variant="outlined"
+        variant="underlined"
+        inset
         :error="!$v.product_id.$pending && $v.product_id.$error"
         :items="productsItems" 
         item-value="value" 
         v-model="form.product_id"
         hide-no-data
+        hide-details
         >
         <template v-slot:selection>
           <span>{{ product?.name }}</span>
@@ -19,8 +21,9 @@
     <v-col>
       <v-number-input 
         label="Quantity" 
-        variant="outlined"
+        variant="underlined"
         inset
+        hide-details
         control-variant="stacked"        
         :error="!$v.qte.$pending && $v.qte.$error"
         :suffix="`/${product?.qte}`"
@@ -38,11 +41,10 @@
         variant="text" 
         icon="mdi-delete" 
         @click="emits('delete', form)"
-        />
+      />
     </v-col>
   </v-row>
   <slot name="actions" :form="model" :validation="{touch: $v.$touch, invalid: $v.$invalid}"></slot>
-
 </template>
 
 <script setup lang="ts">
@@ -68,12 +70,14 @@ const model = defineModel<OrderLine>({ default: {
 }, 
   required: false 
 });
+
 const props = defineProps<{ productsItems: Item[], isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
 
 const product = computed(() => products.value.find(e => e.id == form.product_id)) 
 
 const form = reactive(model.value)
+
 const orderLineRules = {
   id: { required },
   product_id: { required },
