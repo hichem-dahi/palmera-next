@@ -1,13 +1,28 @@
 export interface Order {
   id: string
   index: number
-  client_id: string
+  company?: Company | string
+  individual?: Individual
   date: Date
   order_lines: OrderLine[]
-  delivery?: string | Delivery
+  delivery?: Delivery
   payment_method?: string
   paid_price: number
   total_price: number
+}
+
+export interface Individual {
+  id: string
+  name: string
+  phone: string
+}
+
+export interface Delivery {
+  id: string
+  driver_name: string
+  phone: string
+  matricule: string //xxxxx xxx xx
+  destination: string
 }
 
 export interface OrderLine {
@@ -17,7 +32,7 @@ export interface OrderLine {
   total_price: number
 }
 
-export interface Client {
+export interface Company {
   id: string
   name: string
   phone: string
@@ -36,14 +51,6 @@ export interface Product {
   qte: number | null
 }
 
-export interface Delivery {
-  id: string
-  driver_name: string
-  phone: string
-  matricule: string //xxxxx xxx xx
-  destination: string
-}
-
 export interface StockMovement {
   id: string
   product_id: string
@@ -52,12 +59,17 @@ export interface StockMovement {
   order_id?: string // To track the order related to the stock reduction
 }
 
-export enum InvoiceType {
-  Receipt = 1,
+export enum DocumentType {
+  Invoice = 1,
   DeliveryNote
 }
 
 export enum HistoryType {
   Dept = 1,
   Absence
+}
+
+export enum ConsumerType {
+  Company = 1,
+  Individual
 }
