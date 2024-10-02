@@ -1,7 +1,6 @@
 <template>
   <div class="menu">
     <v-btn 
-      class="mr-5" 
       color="medium-emphasis"
       variant="text"
       rounded="xl"
@@ -11,7 +10,6 @@
       {{ $t('clients') }}
     </v-btn>
     <v-btn 
-      class="mr-5" 
       color="medium-emphasis"
       variant="text"
       rounded="xl"
@@ -21,7 +19,6 @@
       {{ $t('warehouse') }}
     </v-btn>
     <v-btn 
-      class="mr-5" 
       color="medium-emphasis"
       variant="text"
       rounded="xl"
@@ -29,6 +26,15 @@
       prepend-icon="mdi-receipt-text"
       :to="{ name: 'orders' }">
       {{ $t('orders') }}
+    </v-btn>
+    <v-btn 
+      color="medium-emphasis"
+      variant="text"
+      rounded="xl"
+      stacked 
+      prepend-icon="mdi-history"
+      :to="{ name: 'transaction-history' }">
+      {{ $t('history') }}
     </v-btn>
   </div>
 </template>
