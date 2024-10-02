@@ -73,13 +73,13 @@ import { v4 as uuidv4 } from 'uuid';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, numeric } from '@vuelidate/validators';
 
-import clients from '@/composables/localStore/useClientsStore';
+import companies from '@/composables/localStore/useCompanyStore';
 
-import type { Client } from '@/models/models';
+import type { Company } from '@/models/models';
 
 const isOpen = defineModel()
 
-const form = reactive<Client>({
+const form = reactive<Company>({
   id: uuidv4(),
   name: '',
   phone: '',
@@ -106,7 +106,7 @@ const $v = useVuelidate(rules, form);
 async function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
-    clients.value.push({...form})
+    companies.value.push({...form})
     isOpen.value = false
   } else {
     console.log('Form is invalid');
