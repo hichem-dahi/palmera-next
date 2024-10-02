@@ -7,7 +7,7 @@
         inset
         control-variant="stacked" 
         :error="!$v.qte.$pending && $v.qte.$error"
-        v-model="form.qte"
+        v-model.number="form.qte"
         type="number" 
       />
 
@@ -30,7 +30,7 @@ import { adjustStock } from '@/composables/useStockManage';
 import type { Product } from '@/models/models';
 
 const dialog = defineModel<boolean>()
-const props = defineProps<{product: Product}>()
+const props = defineProps<{ product: Product }>()
 
 const notZero = (value: any) => value !== null && value !== undefined && value !== 0;
 
@@ -46,8 +46,8 @@ const $v = useVuelidate(rules, form);
 
 function saveStock() {
  $v.value.$touch()
- if (!$v.value.$invalid) {
-  adjustStock(props.product.id, form.qte!)
+ if (!$v.value.$invalid && form.qte) {
+  adjustStock(props.product.id, form.qte)
   dialog.value = false
  }
 }

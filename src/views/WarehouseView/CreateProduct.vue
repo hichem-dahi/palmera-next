@@ -14,7 +14,7 @@
     />
     <v-text-field
       :label="$t('quantity')"
-      v-model="form.qte"
+      v-model.number="form.qte"
       type="number"
       :error-messages="!$v.qte.$pending && $v.qte.$error ? $t('Qunatity must be greater than zero'): ''"
       @blur="$v.qte.$touch()"
@@ -22,7 +22,7 @@
 
     <v-text-field
       :label="$t('price')"
-      v-model="form.price"
+      v-model.number="form.price"
       type="number"
       :error-messages="!$v.price.$pending && $v.price.$error ? $t('Price must be greater than zero') : ''"
       @blur="$v.price.$touch()"
