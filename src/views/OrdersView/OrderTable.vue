@@ -11,54 +11,18 @@
       <v-card class="pb-2 d-flex align-end" color="#EFEFF1" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <v-card-title> 
-            <div>Commande N°{{ 1 }}</div>
+            <div>{{ $t('order') }} {{ $t('N°') }} {{ order.index  }}</div>
             <div class="text-medium-emphasis text-subtitle-2">
-              <div>{{ client?.name }}</div>
+              <div>{{ consumerName }}</div>
             </div>
             <div class="text-medium-emphasis text-subtitle-2">
               {{ format(order.date, 'yyyy-MM-dd')  }}
             </div>
           </v-card-title>
         </div>
-        <v-divider
-          class="mx-4"
-          inset
-          vertical
-        ></v-divider>
-        <div class="col-2">
-          <v-dialog v-model="newlineDialog" max-width="400">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                variant="text"
-                size="small"
-                append-icon="mdi-plus"
-                color="primary"
-                :disabled="!productsItems.length"
-                v-bind="props"
-              >
-                New product
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>Edit line</v-card-title>
-              <v-card-text>
-                <OrderLineForm 
-                  :is-new="true"
-                  :products-items="productsItems"
-                >
-                <template v-slot:actions="{ form, validation }">
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" color="blue" @click="addOrderline(form, validation)">save</v-btn>
-                  </v-card-actions>
-                </template>
-              </OrderLineForm>
-              </v-card-text>
-            </v-card>
-          </v-dialog>
-        </div>
       </v-card>
     </template>
+     <!-- 
     <template v-slot:item.qte="{ item }">
       <v-number-input v-if="proxyOrderlines?.[item.index]?.qte"
         class="number-input"
@@ -82,6 +46,7 @@
         @click="deleteItem(item)" />
       <DeleteItemModal v-model="deleteDialog" @close="closeDelete" @confirm="deleteItemConfirm" />
     </template>
+     -->
   </v-data-table>
   <v-card class="pa-4 pb-2" border="0" elevation="0">
     <div class="total-info d-flex justify-end">
@@ -113,12 +78,12 @@ import { cloneDeep, isEqual, round, sum } from 'lodash';
 import { format } from 'date-fns';
 
 import products from '@/composables/localStore/useProductStore';
-import clients from '@/composables/localStore/useClientsStore';
+import companies from '@/composables/localStore/useCompanyStore';
 
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import type { Order, OrderLine } from '@/models/models';
+import { ConsumerType, DocumentType, type Order, type OrderLine } from '@/models/models';
 
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
@@ -141,14 +106,15 @@ const headers = readonly(ref([
   { title: 'Quantity', key: 'qte', align: 'start' },
   { title: 'P.U (DA)', key: 'unity_price' },
   { title: 'Total (DA)', key: 'total_price' },
-  { title: 'Actions', key: 'actions', sortable: false },
 ]) as any)
 
 const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
 
-const client = computed(() => clients.value.find(e =>   
-  order.value ? e.id === order.value.client_id : null 
-))
+const consumerName = computed(() => 
+  companies.value.find(e => e.id === order.value?.company)?.name || 
+  order.value?.individual?.name)
+
+const consumerType = computed(() => order.value?.company ? ConsumerType.Company : ConsumerType.Individual)
 
 const proxyOrderlines = computed(() => proxyOrder.value?.order_lines)
 
@@ -176,13 +142,23 @@ const productsItems = computed(() => products.value
 )
 
 const totalItems = computed(() => {
-  const price_to_pay = round((order.value?.total_price!  * 81) / 100, 0) 
-  return {
-    remaining: price_to_pay - (order.value?.paid_price || 0),
-    total: order.value?.total_price,
-    'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
-    'T.T.C': price_to_pay
-  }
+  const isCompany = consumerType.value == ConsumerType.Company
+  const total =  order.value?.total_price || 0
+  const ttc =  round((total!  * 81) / 100, 0)  
+  const paid_price = order.value?.paid_price || 0
+  
+  if (isCompany) {
+    return {
+      remaining: ttc - paid_price,
+      total,
+      'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
+      'T.T.C': ttc
+    } 
+  } else
+    return {
+      remaining: total - paid_price,
+      total: order.value?.total_price,
+    } 
 })
 
 const getProduct = (id: string) => products.value.find(e => e.id == id)
@@ -238,7 +214,8 @@ watch(proxyOrderlines, (orderLines) => {
 
 <style>
 .number-input {
-  max-width: 50px;
+  max-width: 70px;
+  min-width: 50px;
   .v-field__append-inner {
     display: none;
   }

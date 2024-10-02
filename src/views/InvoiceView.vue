@@ -1,6 +1,6 @@
 <template>
   <div class="invoice-wrapper">
-    <div ref="invoice" class="invoice">
+    <div v-if="order" ref="invoice" class="invoice">
       <div class="row-1">
         <h3>Sarl palmera star</h3>
         <div>PRODUCTION MATERIAUX DE CONSTRUCTION</div>
@@ -10,8 +10,8 @@
         <div>NIS: 001722010000279</div>
         <div>N.ART: 22870119091</div>
         <div>N O TEL: 0560313249</div>
-        <h3 class="type">{{ title }} N°: 0011/2024</h3>
-        <div v-for="(value, key) in client" :key="key">
+        <h3 class="type">{{ title }} N°: {{ padStart(order.index.toString(), 4, '0')  }}/2024</h3>
+        <div v-for="(value, key) in consumer" :key="key">
           {{ key }}: {{ value }}
         </div>
         <table cellpadding="10" cellspacing="0" width="100%">
@@ -39,13 +39,13 @@
             </tr>
           </tfoot>
         </table>
-        <div class="payment-method mt-5">
+        <div v-if="order?.payment_method" class="payment-method mt-5">
           Mode de payment: {{ order?.payment_method }}</div>
-        <div class="preforma">
+        <div v-if="preforma" class="preforma">
           Arréter la préforma a la somme de: <b>{{ preforma }}</b>
         </div>
       </div>
-      <div class="delivery-info row-2 pa-4 border" v-if="($route.query.type as any) == InvoiceType.DeliveryNote">
+      <div class="delivery-info row-2 pa-4 border" v-if="($route.query.type as any) == DocumentType.DeliveryNote">
         <div class="d-flex align-center" v-for="(value, key) in deliveryInfo" :key="key">
           <div class="font-weight-bold">{{key}}:</div> 
           <div>&nbsp;{{ value }}</div>
@@ -62,25 +62,29 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { pick, round } from 'lodash';
+import { pick, round, padStart } from 'lodash';
 import html2pdf from 'html2pdf.js';
 import n2words from 'n2words'
 
 import orders from '@/composables/localStore/useOrdersStore';
-import clients from '@/composables/localStore/useClientsStore';
 import products from '@/composables/localStore/useProductStore';
-import deliveries from '@/composables/localStore/useDeliveryStore';
+import companies from '@/composables/localStore/useCompanyStore';
 
-import { InvoiceType } from '@/models/models';
+import { ConsumerType, DocumentType } from '@/models/models';
 
 const route = useRoute()
 
 const invoice = ref()
 
-const title = computed(() =>  route.query.type as any == InvoiceType.Receipt ? 'facture' : 'bon de livraison')
+const title = computed(() => route.query.type as any == DocumentType.Invoice ? 'facture' : 'bon de livraison')
+
 const order = computed(() => orders.value.find(o => o.id == route.params.order_id))
+
+const consumerType = computed(() => order.value?.company ? ConsumerType.Company : ConsumerType.Individual)
+
 const preforma = computed(() => {
-  let number = totalItems.value['T.T.C'];
+  if (consumerType.value === ConsumerType.Individual) return undefined
+  let number = totalItems.value['T.T.C'] || 0;
   let integerPart = Math.floor(number);
   let decimalPart = number % 1;
 
@@ -93,14 +97,26 @@ const preforma = computed(() => {
 
 const deliveryInfo = computed(() => {
   const deliveryInfoKeys = ['driver_name', 'phone', 'matricule', 'destination']
-  return pick(deliveries.value.find(d => d.id == order.value?.delivery), deliveryInfoKeys)
+  let delivery = {...order.value?.delivery}
+  
+  return pick(delivery, deliveryInfoKeys)
 })
 
-const client = computed(() => {
-  let client = {...clients.value.find(c => c.id === order.value?.client_id)}
-  client = {...client, client: client.name} as any
-  const desiredOrder = ['client', 'rc', 'nif', 'art', 'address', 'activity'];
-  return pick(client, desiredOrder)
+const consumer = computed(() => {
+  let company = {...companies.value.find(c => c.id === order.value?.company)}
+  let individual = order.value?.individual as any
+
+  if (Object.keys(company).length) {
+    company = {...company, client: company.name} as any
+    const desiredOrder = ['client', 'rc', 'nif', 'art', 'address', 'activity'];
+    return pick(company, desiredOrder)
+
+  } else if (Object.keys(individual).length) {
+    individual = { ...individual, client: individual.name} 
+    const desiredOrder = ['client', 'phone'];
+    return pick(individual, desiredOrder)
+  } else 
+    return ''
 })
 
 const items = computed(() => order.value?.order_lines.map((o, i) => {
@@ -115,11 +131,17 @@ const items = computed(() => order.value?.order_lines.map((o, i) => {
 }))
 
 const totalItems = computed(() => {
-  return {
-    total: order.value?.total_price,
-    'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
-    'T.T.C': round((order.value?.total_price!  * 81) / 100, 0) 
-  }
+  const isCompany = consumerType.value == ConsumerType.Company
+  if (isCompany) {
+    return {
+      total: order.value?.total_price,
+      'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
+      'T.T.C': round((order.value?.total_price!  * 81) / 100, 0)  
+    } 
+  } else
+    return {
+      total: order.value?.total_price,
+    } 
 })
 
 const getProduct = (id: string) => products.value.find(e => e.id == id)

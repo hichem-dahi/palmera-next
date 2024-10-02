@@ -5,13 +5,13 @@
     class="pa-4" 
     hover
     variant="elevated" 
-    :to="{name: 'order', params: {order_id: order.id}}">
-    <v-card-title>Order N°{{ 1 }}</v-card-title>
+    :to="{ name: 'order', params: {order_id: order.id}}" >
+    <v-card-title>{{$t('order')}} N°{{ order.index }}</v-card-title>
 
-    <v-card-subtitle class="text-body-2">
+    <v-card-subtitle class="order-info">
       <div class="d-flex">
         <div class="font-weight-bold">Client:</div> 
-        <div>&nbsp;{{ client?.name }}</div>
+        <div>&nbsp;{{ consumerName }}</div>
       </div>
       <div class="d-flex">
         <div class="font-weight-bold">Date:</div> 
@@ -33,9 +33,18 @@
 import { computed } from 'vue';
 import { format } from 'date-fns';
 
-import clients from '@/composables/localStore/useClientsStore';
+import companies from '@/composables/localStore/useCompanyStore';
 
 import { type Order } from '@/models/models';
+
 const order = defineModel<Order>('order')
-const client = computed(() => clients.value.find(e => e.id === order.value?.client_id))
+
+const consumerName = computed(() => 
+  companies.value.find(e => e.id === order.value?.company)?.name || 
+  order.value?.individual?.name)
 </script>
+
+<style>
+.order-info {
+  font-size: 0.8rem;
+}</style>

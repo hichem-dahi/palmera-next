@@ -6,7 +6,7 @@
     variant="text" 
     prepend-icon="mdi-chevron-left" 
     @click="$router.go(-1)" 
-    text="back" />
+    :text="$t('back')" />
   <div class="wrapper">
     <div class="table border">
       <OrderTable :order="order" />
@@ -18,10 +18,10 @@
         color="green" 
         @click="paymentDialog = true">add payment</v-btn>
       <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
-      <v-btn 
+      <v-btn v-if="documentType == DocumentType.DeliveryNote"
         variant="text" 
         prepend-icon="mdi-truck-check" 
-        @click="goInvoicePage(InvoiceType.DeliveryNote)"
+        @click="goInvoicePage(DocumentType.DeliveryNote)"
         target="_blank"
         text="Delivery note" />
         <v-dialog v-model="deliveryDialog" max-width="400">
@@ -31,10 +31,10 @@
             v-model:order="order" 
             @go-invoice="goInvoicePage()" />
         </v-dialog>
-      <v-btn 
+      <v-btn v-if="documentType == DocumentType.Invoice"
         variant="text" 
         prepend-icon="mdi-receipt-text" 
-        @click="goInvoicePage(InvoiceType.Receipt)"
+        @click="goInvoicePage(DocumentType.Invoice)"
         target="_blank"
         text="invoice" />
         <PaymentMethodModal 
@@ -49,14 +49,13 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import orders from '@/composables/localStore/useOrdersStore';
-import { processOrder } from '@/composables/useStockManage';
 
 import OrderTable from './OrdersView/OrderTable.vue';
 import CreateDelivery from './OrdersView/CreateDelivery.vue';
 import PaymentMethodModal from './OrdersView/PaymentMethodModal.vue'
 import PaymentModal from './OrdersView/PaymentModal.vue';
 
-import { InvoiceType } from '@/models/models';
+import { ConsumerType, DocumentType } from '@/models/models';
 
 const route = useRoute()
 const router = useRouter()
@@ -68,20 +67,22 @@ const selectedInvoiceType = ref()
 
 const order = computed(() => orders.value.find(o => o.id == route.params.order_id))
 
-function goInvoicePage(type?: InvoiceType) {
+const documentType = computed(() => order.value?.delivery ? DocumentType.DeliveryNote : DocumentType.Invoice)
+const consumerType = computed(() => order.value?.company ? ConsumerType.Company : ConsumerType.Individual)
+
+function goInvoicePage(type?: DocumentType) {
   if (type) {
     selectedInvoiceType.value = type
   }
-  if (!order.value?.payment_method) { 
+  if (!order.value?.payment_method && consumerType.value == ConsumerType.Company) { 
     paymentMethodDialog.value = true 
     return
   }
   if (!order.value?.delivery && 
-    (selectedInvoiceType.value == InvoiceType.DeliveryNote)) {
+    (selectedInvoiceType.value == DocumentType.DeliveryNote)) {
     deliveryDialog.value = true
     return
   }
-  processOrder(order.value)
   router.push({  
     name: 'invoice', 
     params: { order_id: order.value?.id }, 
