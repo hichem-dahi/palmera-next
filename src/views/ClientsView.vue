@@ -4,9 +4,14 @@
     <CreateClient v-model="dialog" />
   </v-dialog>
   <v-container>
-    <v-row v-for="(_, i) in clients" :key="i">
+    <v-row v-for="(_, i) in companies" :key="i">
       <v-col cols="8">
-        <ClientCard v-model="clients[i]"/> 
+        <ClientCard v-model="companies[i]"/> 
+      </v-col>
+    </v-row>
+    <v-row v-for="(_, i) in individuals" :key="i">
+      <v-col cols="8">
+        <ClientCard v-model="individuals[i]"/> 
       </v-col>
     </v-row>
   </v-container>
@@ -15,7 +20,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import clients from '@/composables/localStore/useClientsStore';
+import companies from '@/composables/localStore/useCompanyStore';
+import { individuals } from '@/composables/localStore/useIndividualsStore';
 
 import ClientCard from '@/views/ClientsView/ClientCard.vue';
 import CreateClient from '@/views/ClientsView/CreateClient.vue';
