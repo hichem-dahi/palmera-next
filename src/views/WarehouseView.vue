@@ -5,9 +5,7 @@
   </v-dialog>
   <v-row justify="start">
     <v-col v-for="(_, i) in products" :key="i" sm="12" md="4">
-      <ProductCard 
-        v-model="products[i]" 
-      />
+      <ProductCard v-model="products[i]" />
     </v-col>
   </v-row>
 </template>
