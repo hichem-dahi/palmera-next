@@ -40,7 +40,7 @@
       <v-btn v-if="!isNew"
         color="medium-emphasis" 
         variant="text" 
-        icon="mdi-delete" 
+        :icon="mdiDelete" 
         size="small"
         @click="emits('delete', form)"
       />
@@ -54,6 +54,7 @@ import { reactive, watchEffect, computed } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import useVuelidate from '@vuelidate/core';
 import { minValue, numeric, required } from '@vuelidate/validators';
+import { mdiDelete } from '@mdi/js';
 
 import products from '@/composables/localStore/useProductStore';
 

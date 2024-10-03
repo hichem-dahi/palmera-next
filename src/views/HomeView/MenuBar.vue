@@ -6,7 +6,7 @@
         variant="text"
         rounded="xl"
         stacked   
-        prepend-icon="mdi-account-group"
+        :prepend-icon="mdiAccountGroup"
         :to="{ name: 'clients' }">
         {{ $t('clients') }}
       </v-btn>
@@ -15,7 +15,7 @@
         variant="text"
         rounded="xl"
         stacked 
-        prepend-icon="mdi-warehouse"
+        :prepend-icon="mdiWarehouse"
         :to="{ name: 'warehouse' }">
         {{ $t('warehouse') }}
       </v-btn>
@@ -24,7 +24,7 @@
         variant="text"
         rounded="xl"
         stacked 
-        prepend-icon="mdi-receipt-text"
+        :prepend-icon="mdiReceiptText"
         :to="{ name: 'orders' }">
         {{ $t('orders') }}
       </v-btn>
@@ -33,7 +33,7 @@
         variant="text"
         rounded="xl"
         stacked 
-        prepend-icon="mdi-history"
+        :prepend-icon="mdiHistory"
         :to="{ name: 'transaction-history' }">
         {{ $t('history') }}
       </v-btn>
@@ -42,4 +42,5 @@
 </template>
 
 <script setup lang="ts">
+import { mdiAccountGroup, mdiHistory, mdiWarehouse, mdiReceiptText } from '@mdi/js'
 </script>

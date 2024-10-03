@@ -30,7 +30,7 @@
         variant="text"
         size="small"
         color="light-blue"
-        icon="mdi-open-in-new" 
+        :icon="mdiOpenInNew" 
         :to="{ name: 'order', params: { order_id: item.order }}">
       </v-btn>
     </template>
@@ -43,8 +43,9 @@
 import { ref, readonly, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-
 import { format } from 'date-fns';
+
+import { mdiOpenInNew } from '@mdi/js';
 
 import products from '@/composables/localStore/useProductStore';
 import stock from '@/composables/localStore/useStockStore';

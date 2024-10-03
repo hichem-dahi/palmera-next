@@ -32,18 +32,20 @@
         variant="text"
         size="small"
         color="light-blue"
-        icon="mdi-open-in-new" 
+        :icon="mdiOpenInNew" 
         :to="{ name: 'order', params: { order_id: item.orderId }}">
       </v-btn>
     </template>
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { ref, readonly, computed } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { format } from 'date-fns';
 import { sortBy } from 'lodash';
+
+import { mdiOpenInNew } from '@mdi/js';
 
 import products from '@/composables/localStore/useProductStore';
 import companies from '@/composables/localStore/useCompanyStore';

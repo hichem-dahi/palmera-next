@@ -4,7 +4,7 @@
     size="small" 
     color="grey" 
     variant="text" 
-    prepend-icon="mdi-chevron-left" 
+    :prepend-icon="mdiChevronLeft" 
     @click="$router.go(-1)" 
     :text="$t('back')" />
   <div class="text-h5 pa-4 my-4">{{ $t('order') }} {{ $t('N°') }} {{ order?.index  }}</div>
@@ -15,14 +15,14 @@
     <div class="invoice-actions d-flex flex-column align-start ga-1">
       <v-btn 
         variant="text" 
-        prepend-icon="mdi-cash-sync"  
+        :prepend-icon="mdiCashSync"  
         color="green" 
         size="small"
         @click="paymentDialog = true">{{ $t('add-payment') }}</v-btn>
       <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
       <v-btn v-if="documentType == DocumentType.DeliveryNote"
         variant="text" 
-        prepend-icon="mdi-truck-check" 
+        :prepend-icon="mdiTruckCheck" 
         size="small"
         @click="goInvoicePage(DocumentType.DeliveryNote)"
         target="_blank"
@@ -36,7 +36,7 @@
         </v-dialog>
       <v-btn v-if="documentType == DocumentType.Invoice"
         variant="text" 
-        prepend-icon="mdi-receipt-text" 
+        :prepend-icon="mdiReceiptText" 
         size="small"
         @click="goInvoicePage(DocumentType.Invoice)"
         target="_blank"
@@ -51,6 +51,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+import { mdiCashSync, mdiChevronLeft, mdiReceiptText, mdiTruckCheck } from '@mdi/js';
 
 import orders from '@/composables/localStore/useOrdersStore';
 

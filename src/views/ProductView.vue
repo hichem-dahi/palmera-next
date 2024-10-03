@@ -4,7 +4,7 @@
     size="small" 
     color="grey" 
     variant="text" 
-    prepend-icon="mdi-chevron-left" 
+    :prepend-icon="mdiChevronLeft" 
     @click="$router.go(-1)" 
     :text="$t('back')" />
   <div class="text-h5 pa-4 my-4">Fiche de Stock: {{ product?.name }}</div>
@@ -17,6 +17,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+
+import { mdiChevronLeft } from '@mdi/js';
 
 import products from '@/composables/localStore/useProductStore';
 

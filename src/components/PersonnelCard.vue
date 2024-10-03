@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="mx-auto"
-    prepend-icon="mdi-account"
+    :prepend-icon="mdiAccount"
     :title="name"
   >
   <v-card-subtitle style="line-height: 150%;">
@@ -14,7 +14,7 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn
-        :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+        :icon="show ? mdiChevronUp : mdiChevronDown"
         @click="show = !show"
       ></v-btn>
     </v-card-actions>
@@ -40,7 +40,7 @@
         <v-btn class="ml-auto" 
           v-bind="props" 
           variant="text"
-          icon="mdi-dots-vertical" />
+          :icon="mdiDotsVertical" />
         </template>
       <v-list density="compact">
         <v-list-item density="compact" >
@@ -61,10 +61,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { format } from 'date-fns';
+import { mdiAccount, mdiChevronDown, mdiChevronUp, mdiDotsVertical } from '@mdi/js';
 
 import personnel from '@/composables/localStore/usePersonnelStore';
 
 import AddHistory from './addHistory.vue';
+
 import { HistoryType } from '@/models/models';
 
 const person = defineModel<any>()

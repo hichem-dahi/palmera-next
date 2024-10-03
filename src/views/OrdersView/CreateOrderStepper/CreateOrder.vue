@@ -15,7 +15,7 @@
       block
       variant="text" 
       :text="$t('add')" 
-      append-icon="mdi-plus" 
+      :append-icon="mdiPlus" 
       @click="addEmptyOrderline" 
     />
   </div>
@@ -27,6 +27,9 @@ import { computed } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import { required, numeric, minValue } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import { mdiPlus } from '@mdi/js';
+
+
 
 import products from '@/composables/localStore/useProductStore';
 

@@ -21,6 +21,7 @@ const i18n = createI18n({
     ar: ar // Arabic translations
   }
 })
+
 app.use(i18n)
 app.use(createPinia())
 app.use(router)

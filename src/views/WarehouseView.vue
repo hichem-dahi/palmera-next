@@ -1,5 +1,5 @@
 <template>
-  <v-btn class="my-5" append-icon="mdi-plus" @click="dialog = true">{{ $t('add-product') }}</v-btn>
+  <v-btn class="my-5" :append-icon="mdiPlus" @click="dialog = true">{{ $t('add-product') }}</v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreateProduct v-model="dialog" />
   </v-dialog>
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { mdiPlus } from '@mdi/js';
 
 import CreateProduct from '@/views/WarehouseView/CreateProduct.vue';
 import ProductCard from '@/views/WarehouseView/ProductCard.vue';

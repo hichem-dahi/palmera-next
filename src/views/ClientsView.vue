@@ -1,5 +1,5 @@
 <template>
-  <v-btn class="my-5" append-icon="mdi-plus" @click="dialog = true">{{ $t('add-client') }}</v-btn>
+  <v-btn class="my-5" :append-icon="mdiPlus" @click="dialog = true">{{ $t('add-client') }}</v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreateClient v-model="dialog" />
   </v-dialog>
@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { mdiPlus } from '@mdi/js';
 
 import companies from '@/composables/localStore/useCompanyStore';
 import { individuals } from '@/composables/localStore/useIndividualsStore';

@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="500px">
     <v-card 
-      prepend-icon="mdi-delete-outline" 
+      :prepend-icon="mdiDeleteOutline" 
       title="Are you sure you want to delete this item?">
       <template v-slot:prepend>
         <v-icon color="red" size="x-large"></v-icon>
@@ -17,6 +17,10 @@
 </template>
 
 <script setup lang="ts">
+import { mdiDeleteOutline } from '@mdi/js';
+
 const dialog = defineModel<boolean>()
 const emits = defineEmits(['close', 'confirm'])
+
+
 </script>
