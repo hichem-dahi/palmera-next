@@ -1,28 +1,27 @@
 <template>
   <v-radio-group v-model="documentType">
-    <v-radio label="Delivery note" :value="DocumentType.DeliveryNote" />
-    <v-radio label="Invoice" :value="DocumentType.Invoice" />
+    <v-radio :label="$t('delivery-note')" :value="DocumentType.DeliveryNote" />
+    <v-radio :label="$t('invoice')" :value="DocumentType.Invoice" />
   </v-radio-group>
   <v-number-input 
-      label="Paid price" 
-      inset
-      controlVariant="stacked"
-      :error="!$v.paid_price.$pending && $v.paid_price.$error"
-      :suffix="`/${form.total_price} DA`"
-      :max="form.total_price"
-      :min="0"
-      v-model="form.paid_price"
-    />
-    <v-text-field v-if="form?.company"
-      label="Payment method"
-      :error="!$v.payment_method.$pending && $v.payment_method.$error"
-      v-model="form.payment_method" 
-    />
+    :label="$t('payment')" 
+    inset
+    controlVariant="stacked"
+    :error="!$v.paid_price.$pending && $v.paid_price.$error"
+    :suffix="`/${form.total_price} DA`"
+    :max="form.total_price"
+    :min="0"
+    v-model="form.paid_price"
+  />
+  <v-text-field v-if="form?.company"
+    :label="$t('payment-method')" 
+    :error="!$v.payment_method.$pending && $v.payment_method.$error"
+    v-model="form.payment_method" 
+  />
   <CreateDelivery 
     v-if="documentType == DocumentType.DeliveryNote" 
     v-model="form.delivery" 
   />
-
   <slot name="actions" :v="$v"></slot>
 </template>
 

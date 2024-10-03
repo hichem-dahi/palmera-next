@@ -4,20 +4,21 @@
       v-for="(_,i) in form.order_lines" 
       :key="i" 
       v-model="form.order_lines[i]" 
-      :is-new="false"
+      :is-new="i == 0"
       :products-items="productsItems"
       @delete="deleteOrderline" 
       />
+      
     <v-btn 
       class="mt-6" 
       size="small" 
       block
       variant="text" 
-      text="Add line" 
+      :text="$t('add')" 
       append-icon="mdi-plus" 
       @click="addEmptyOrderline" 
     />
-</div>
+  </div>
   <slot name="actions" :v="$v"></slot>
 </template>
 

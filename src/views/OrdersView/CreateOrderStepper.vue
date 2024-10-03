@@ -8,7 +8,6 @@
             :complete="e1 > n"
             :step="`Step {{ n }}`"
             :value="n"
-            editable
           ></v-stepper-item>
 
           <v-divider
@@ -24,9 +23,9 @@
               <SelectConsumer>
                 <template v-slot:actions="{ v }">
                   <v-card-actions>
-                    <v-btn @click="dialog">cancel</v-btn>
+                    <v-btn @click="dialog">{{ $t('cancel') }}</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn @click="nextStep(v)">next</v-btn>
+                    <v-btn @click="nextStep(v)">{{ $t('next') }}</v-btn>
                   </v-card-actions>
                 </template>
               </SelectConsumer>
@@ -36,9 +35,9 @@
               <CreateOrder>
                 <template v-slot:actions="{ v }">
                   <v-card-actions>
-                    <v-btn @click="e1--">back</v-btn>
+                    <v-btn @click="e1--">{{ $t('back') }}</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn @click="nextStep(v)">next</v-btn>
+                    <v-btn @click="nextStep(v)">{{ $t('next') }}</v-btn>
                   </v-card-actions>
                 </template>
               </CreateOrder>
@@ -48,9 +47,9 @@
               <ExtraInfo>
                 <template v-slot:actions="{ v }">
                   <v-card-actions>
-                    <v-btn @click="e1--">back</v-btn>
+                    <v-btn @click="e1--">{{ $t('back') }}</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn @click="nextStep(v)">confirm</v-btn>
+                    <v-btn @click="nextStep(v)">{{ $t('confirm') }}</v-btn>
                   </v-card-actions>
                 </template>
               </ExtraInfo>
@@ -59,7 +58,6 @@
       </v-stepper-window>
     </template>
   </v-stepper>
-
 </template>
 
 <script setup lang="ts">
@@ -92,7 +90,7 @@ function nextStep(v: Validation) {
     if (e1.value === 3) {
       const order = cloneDeep(form)
       orders.value.unshift(order)
-      if (form.individual)
+      if (order.individual)
         upsertIndividuals(order.individual)
       processOrder(order)
       emits('success')

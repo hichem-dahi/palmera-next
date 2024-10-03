@@ -26,9 +26,13 @@
       </v-card>
     </template>
     <template v-slot:item.order="{ item }">
-      <router-link v-if="item.order" :to="{ name: 'order', params: { order_id: item.order }}">
-        Link
-      </router-link>
+      <v-btn v-if="item.order" 
+        variant="text"
+        size="small"
+        color="light-blue"
+        icon="mdi-open-in-new" 
+        :to="{ name: 'order', params: { order_id: item.order }}">
+      </v-btn>
     </template>
     <template v-slot:item.date="{ item }">
       <span>{{ format(item.date, 'yyyy-MM-dd p') }}</span>
@@ -38,6 +42,8 @@
 <script setup lang="ts">
 import { ref, readonly, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
 import { format } from 'date-fns';
 
 import products from '@/composables/localStore/useProductStore';
@@ -47,6 +53,8 @@ import ModifyStock from './ModifyStock.vue';
 
 const emits = defineEmits(['close'])
 const route = useRoute()
+
+const { t } = useI18n()
 
 const modifyStockDialog = ref(false)
 
@@ -61,18 +69,18 @@ const items = computed(() => stockMovements.value?.map((s, i) => {
     qte: s.qte_change,
     unity_price: product.value?.price,
     order: s.order_id
-   }
+  }
 }).reverse())
 
-const headers = readonly(ref([
+const headers = computed(()=>[
   { 
-    title: 'Date',
+    title: t('date'),
     align: 'start',
     sortable: false,
     key: 'date'
   },
-  { title: 'Quantity change', key: 'qte', align: 'start' },
-  { title: 'P.U (DA)', key: 'unity_price' },
-  { title: 'Order', key: 'order' },
-]) as any)
+  { title: t('quantity'), key: 'qte', align: 'start' },
+  { title: `${t('U.P')} (DA)`, key: 'unity_price' },
+  { title: ``, key: 'order' },
+]) as any
 </script>

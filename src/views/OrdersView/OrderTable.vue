@@ -11,7 +11,6 @@
       <v-card class="pb-2 d-flex align-end" color="#EFEFF1" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <v-card-title> 
-            <div>{{ $t('order') }} {{ $t('N°') }} {{ order.index  }}</div>
             <div class="text-medium-emphasis text-subtitle-2">
               <div>{{ consumerName }}</div>
             </div>
@@ -52,18 +51,20 @@
     <div class="total-info d-flex justify-end">
       <div class="info">
         <div class="d-flex align-center" v-for="(value, key) in totalItems"  :key="key">
-          <div class="font-weight-bold">
-            {{key}}:&nbsp;  
+          <div class="font-weight-medium">
+            {{ $t(key) }}:&nbsp;  
           </div> 
           <div :class="{'text-red': key === 'remaining'}">{{ value }} DA</div>
         </div> 
       </div>
     </div>
-    <v-divider class="my-4"></v-divider>
-    <v-card-actions class="align-start justify-end">
+    <!-- 
+    <v-divider class="my-4" />
+    <v-card-actions  class="align-start justify-end">
       <v-btn :disabled="!isModified" variant="text" @click="cancelEdit">Cancel</v-btn>
       <v-btn :disabled="!isModified" variant="text" color="blue" @click="confirmEdit">save</v-btn>
     </v-card-actions>
+     -->
   </v-card>
   <v-snackbar
     v-model="isSuccess"
@@ -73,8 +74,9 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, ref, readonly, watch } from 'vue';
-import { cloneDeep, isEqual, round, sum } from 'lodash';
+import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { cloneDeep, isEqual, sum } from 'lodash';
 import { format } from 'date-fns';
 
 import products from '@/composables/localStore/useProductStore';
@@ -88,6 +90,8 @@ import { ConsumerType, DocumentType, type Order, type OrderLine } from '@/models
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
 
+const { t } = useI18n()
+
 const newlineDialog = ref(false)
 const deleteDialog = ref(false)
 
@@ -96,17 +100,17 @@ const isSuccess = ref(false)
 const proxyOrder = ref<Order | undefined>(cloneDeep(order.value)) 
 const selectedOrderline = ref<OrderLine>()
 
-const headers = readonly(ref([
+const headers = computed(() => [
  {
-    title: 'Product',
+    title: t('product'),
     align: 'start',
     sortable: false,
     key: 'product_name',
   },
-  { title: 'Quantity', key: 'qte', align: 'start' },
-  { title: 'P.U (DA)', key: 'unity_price' },
-  { title: 'Total (DA)', key: 'total_price' },
-]) as any)
+  { title: t('quantity'), key: 'qte', align: 'start' },
+  { title:  t('U.P'), key: 'unity_price' },
+  { title: t('total'), key: 'total_price' },
+] as any)
 
 const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
 
@@ -140,25 +144,11 @@ const productsItems = computed(() => products.value
     return !alreadySelected?.includes(e.value)
   })
 )
-
 const totalItems = computed(() => {
-  const isCompany = consumerType.value == ConsumerType.Company
-  const total =  order.value?.total_price || 0
-  const ttc =  round((total!  * 81) / 100, 0)  
-  const paid_price = order.value?.paid_price || 0
-  
-  if (isCompany) {
-    return {
-      remaining: ttc - paid_price,
-      total,
-      'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
-      'T.T.C': ttc
-    } 
-  } else
-    return {
-      remaining: total - paid_price,
-      total: order.value?.total_price,
-    } 
+  return {
+    remaining: (order.value?.total_price || 0) - (order.value?.paid_price || 0),
+    total: order.value?.total_price,
+  }
 })
 
 const getProduct = (id: string) => products.value.find(e => e.id == id)
