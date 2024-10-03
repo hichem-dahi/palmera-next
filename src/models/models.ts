@@ -9,6 +9,8 @@ export interface Order {
   payment_method?: string
   paid_price: number
   total_price: number
+  tva?: number
+  ttc?: number
 }
 
 export interface Individual {

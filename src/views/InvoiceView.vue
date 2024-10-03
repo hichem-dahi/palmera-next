@@ -92,7 +92,7 @@ const preforma = computed(() => {
   if (decimalPart !== 0) {
       words += ' virgule ' + n2words(Math.floor(decimalPart * 10), { lang: 'fr' });
   }
-  return words
+  return `${words} dinars alg`
 })
 
 const deliveryInfo = computed(() => {
@@ -135,8 +135,8 @@ const totalItems = computed(() => {
   if (isCompany) {
     return {
       total: order.value?.total_price,
-      'T.V.A 19%': round((order.value?.total_price! * 81) / 100, 0),
-      'T.T.C': round((order.value?.total_price!  * 81) / 100, 0)  
+      'T.V.A 19%': round((order.value?.total_price! * 19) / 100, 0),
+      'T.T.C': round((order.value?.total_price!  * 119) / 100, 0)  
     } 
   } else
     return {
