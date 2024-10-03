@@ -3,7 +3,7 @@
     <v-col>      
       <v-select 
         class="mr-3"
-        label="Product" 
+        :label="$t('product')" 
         variant="underlined"
         inset
         :error="!$v.product_id.$pending && $v.product_id.$error"
@@ -20,9 +20,10 @@
     </v-col>
     <v-col>
       <v-number-input 
-        label="Quantity" 
+        :label="$t('quantity')" 
         variant="underlined"
         inset
+        :disabled="!form.product_id"
         hide-details
         control-variant="stacked"        
         :error="!$v.qte.$pending && $v.qte.$error"
@@ -33,13 +34,14 @@
       />
     </v-col>
     <v-col cols="2">
-      <div class="pa-2 text-medium-emphasis text-caption">total: {{ form.total_price }}DA</div>
+      <div class="pa-2 text-medium-emphasis text-caption">{{$t('total')}}: {{ form.total_price }}DA</div>
     </v-col>
-    <v-col cols="1" v-if="!isNew">
-      <v-btn 
+    <v-col cols="1">
+      <v-btn v-if="!isNew"
         color="medium-emphasis" 
         variant="text" 
         icon="mdi-delete" 
+        size="small"
         @click="emits('delete', form)"
       />
     </v-col>
