@@ -10,6 +10,7 @@ import InvoiceView from '@/views/InvoiceView.vue'
 import ProductView from '@/views/ProductView.vue'
 import TransactionHistoryView from '@/views/TransactionHistoryView.vue'
 import CreateOrder from '@/views/CreateOrder.vue'
+import ClientHistoryView from '@/views/ClientsView/ClientHistory.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,11 @@ const router = createRouter({
           path: '/order/:order_id',
           name: 'order',
           component: OrderView
+        },
+        {
+          path: '/client-history/:client_id',
+          name: 'client-history',
+          component: ClientHistoryView
         },
         {
           path: '/product/:product_id',
