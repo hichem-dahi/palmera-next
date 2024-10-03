@@ -1,14 +1,10 @@
 <template>
-  <v-btn 
-    class="mb-5" 
-    append-icon="mdi-plus"
-    :to="{ name: 'create-order' }"
-  >
+  <v-btn class="my-5" append-icon="mdi-plus" :to="{ name: 'create-order' }">
     {{ $t('add-order') }}
   </v-btn>
   <v-container>
     <v-row v-for="(_, i) in orders" :key="i">
-      <v-col cols="6">
+      <v-col sm="12" md="6">
         <OrderCard v-model:order="orders[i]"/> 
       </v-col>
     </v-row>

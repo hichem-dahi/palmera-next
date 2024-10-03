@@ -1,18 +1,19 @@
 <template>
   <v-row>
-    <v-col cols="6">
+    <v-col sm="6" md="12">
       <v-list
         lines="three"
         item-props
+        density="compact"
       >
         <template v-for="item in historyItems" :key="item.orderId || item.title">
           <!-- Check if the item has an orderId and wrap the whole item in a router-link -->
        
           <!-- Non-clickable items like dividers or subheaders -->
-          <v-list-item density="compact" v-if="item.type === 'subheader'">
-            <v-list-subheader>{{ item.title }}</v-list-subheader>
-          </v-list-item>
-
+           <div v-if="item.type === 'subheader'">       
+              <div class="pa-6 pb-2 text-medium-emphasis">{{ item.title }}</div>
+          </div>
+   
           <div v-else-if="item.orderId">
             <v-list-item
               :to="{ name: 'order', params: { order_id: item.orderId } }">
@@ -21,7 +22,6 @@
                   <div v-html="item.subtitle"></div>
                 </v-list-item-subtitle>
             </v-list-item>
-            <v-divider inset />
           </div>
         </template>
       </v-list>
@@ -73,7 +73,7 @@ const historyItems = computed(() => {
       return item;
     }));
 
-    const firstItem = { type: 'subheader', title: isToday(date) ? 'Today' : format(date, 'yyyy-MM-dd') };
+    const firstItem = { type: 'subheader', title: isToday(date) ? t('Today') : format(date, 'yyyy-MM-dd') };
     items.push(firstItem);
     items = items.concat(sortedItems);
   }

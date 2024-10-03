@@ -1,5 +1,5 @@
 <template>
-  <v-btn class="mb-5" append-icon="mdi-plus" @click="dialog = true">Add person</v-btn>
+  <v-btn class="my-5" append-icon="mdi-plus" @click="dialog = true">Add person</v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreatePerson v-model="dialog" />
   </v-dialog>

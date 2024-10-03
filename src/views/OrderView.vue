@@ -1,29 +1,32 @@
 <template>    
   <v-btn 
-    class="my-5" 
+    class="mt-3" 
     size="small" 
     color="grey" 
     variant="text" 
     prepend-icon="mdi-chevron-left" 
     @click="$router.go(-1)" 
     :text="$t('back')" />
+  <div class="text-h5 pa-4 my-4">{{ $t('order') }} {{ $t('N°') }} {{ order?.index  }}</div>
   <div class="wrapper">
     <div class="table border">
       <OrderTable :order="order" />
     </div>          
-    <div class="invoice-actions d-flex flex-column align-start">
+    <div class="invoice-actions d-flex flex-column align-start ga-1">
       <v-btn 
         variant="text" 
         prepend-icon="mdi-cash-sync"  
         color="green" 
-        @click="paymentDialog = true">add payment</v-btn>
+        size="small"
+        @click="paymentDialog = true">{{ $t('add-payment') }}</v-btn>
       <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
       <v-btn v-if="documentType == DocumentType.DeliveryNote"
         variant="text" 
         prepend-icon="mdi-truck-check" 
+        size="small"
         @click="goInvoicePage(DocumentType.DeliveryNote)"
         target="_blank"
-        text="Delivery note" />
+        :text="$t('delivery-note')" />
         <v-dialog v-model="deliveryDialog" max-width="400">
           <CreateDelivery 
             v-if="order" 
@@ -34,9 +37,10 @@
       <v-btn v-if="documentType == DocumentType.Invoice"
         variant="text" 
         prepend-icon="mdi-receipt-text" 
+        size="small"
         @click="goInvoicePage(DocumentType.Invoice)"
         target="_blank"
-        text="invoice" />
+        :text="$t('invoice')" />
         <PaymentMethodModal 
           v-model:dialog="paymentMethodDialog" 
           v-model:order="order" 
@@ -95,6 +99,7 @@ function goInvoicePage(type?: DocumentType) {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  gap: 3rem;
 }
 
 .table {

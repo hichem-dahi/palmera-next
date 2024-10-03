@@ -26,10 +26,10 @@
       </v-banner>
       <v-main>
         <v-container>
-          <v-row class="mt-5">
+          <v-row class="my-10" align="center">
             <MenuBar />
           </v-row>
-          <v-divider class="my-5"></v-divider>
+          <v-divider class="my-5" />
           <router-view></router-view>
         </v-container>
       </v-main>
