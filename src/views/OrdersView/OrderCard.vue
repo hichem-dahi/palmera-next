@@ -6,23 +6,23 @@
     hover
     variant="elevated" 
     :to="{ name: 'order', params: {order_id: order.id}}" >
-    <v-card-title>{{$t('order')}} N°{{ order.index }}</v-card-title>
+    <v-card-title>{{ $t('order') }} {{ $t('N°') }} {{ order.index }}</v-card-title>
 
     <v-card-subtitle class="order-info">
       <div class="d-flex">
-        <div class="font-weight-bold">Client:</div> 
+        <div class="font-weight-bold">{{ $t('client') }}:</div> 
         <div>&nbsp;{{ consumerName }}</div>
       </div>
       <div class="d-flex">
-        <div class="font-weight-bold">Date:</div> 
+        <div class="font-weight-bold">{{ $t('date') }}:</div> 
         <div>&nbsp;{{ format(order.date, 'yyyy-MM-dd' ) }}</div>
       </div>
       <div class="d-flex">
-        <div class="font-weight-bold">Total:</div> 
+        <div class="font-weight-bold">{{ $t('total') }}:</div> 
         <div>&nbsp;{{ order.total_price }}DA</div>
       </div>
       <div class="d-flex">
-        <div class="font-weight-bold">Remaining:</div> 
+        <div class="font-weight-bold"> {{$t('remaining')}}:</div> 
         <div class="text-red">&nbsp;{{ order.total_price - order.paid_price }}DA</div>
       </div>
     </v-card-subtitle>

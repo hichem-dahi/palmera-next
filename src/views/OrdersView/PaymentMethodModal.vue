@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
-    <v-card class="pa-4" title="Add payment method">
+    <v-card class="pa-4" :title="$t('add-payment-method')">
       <template v-slot:text>
         <v-text-field 
           label="payment method"
@@ -9,8 +9,8 @@
       </template> 
       <template v-slot:actions>
         <v-spacer></v-spacer>
-        <v-btn @click="dialog = false">cancel</v-btn>
-        <v-btn @click="addPaymentMethod">Confirm</v-btn>
+        <v-btn @click="dialog = false">{{ $t('cancel') }}</v-btn>
+        <v-btn @click="addPaymentMethod">{{ $t('confirm') }}</v-btn>
       </template>
     </v-card>
   </v-dialog>

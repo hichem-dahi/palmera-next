@@ -1,5 +1,5 @@
 <template>
-  <v-card title="Create client" class="pa-4">
+  <v-card :title="$t('create-client')" class="pa-4">
     <v-text-field
       :label="$t('name')"
       v-model.trim="form.name"
@@ -20,16 +20,15 @@
       @blur="$v.phone.$touch()"
     />
     <v-text-field
-      label="RC"
+      :label="$t('R.C')"
       v-model.trim="form.rc"
       :error-messages="!$v.rc.$pending && $v.rc.$dirty ? [
-        $v.rc.required.$invalid ? 'RC is required' : '',
-        $v.rc.numeric.$invalid ? 'RC must be numeric' : ''
+        $v.rc.required.$invalid ? 'RC is required' : ''
       ].filter(Boolean) : []"
       @blur="$v.rc.$touch()"
     />
     <v-text-field
-      label="NIF"
+      :label="$t('NIF')"
       v-model.trim="form.nif"
       :error-messages="!$v.nif.$pending && $v.nif.$dirty ? [
         $v.nif.required.$invalid ? 'NIF is required' : '',
@@ -38,12 +37,20 @@
       @blur="$v.nif.$touch()"
     />
     <v-text-field
-      label="ART"
+      :label="$t('N.ART')"
       v-model.trim="form.art"
       :error-messages="!$v.art.$pending && $v.art.$dirty ? [
         $v.art.numeric.$invalid ? 'ART must be numeric' : ''
       ].filter(Boolean) : []"
       @blur="$v.art.$touch()"
+    />
+    <v-text-field
+      :label="$t('N.ART')"
+      v-model.trim="form.nis"
+      :error-messages="!$v.nis.$pending && $v.nis.$dirty ? [
+        $v.nis.numeric.$invalid ? 'ART must be numeric' : ''
+      ].filter(Boolean) : []"
+      @blur="$v.nis.$touch()"
     />
     <v-text-field
       :label="$t('address')"
@@ -84,8 +91,9 @@ const form = reactive<Company>({
   name: '',
   phone: '',
   rc: '',
-  nif: '',
-  art: '',
+  nif: 0,
+  nis: 0,
+  art: 0,
   address: '',
   activity: ''
 })
@@ -94,16 +102,17 @@ const rules = {
   id: { required },
   name: { required, minLength: minLength(3) },
   phone: { required, minLength: minLength(10), numeric },
-  rc: { required, numeric },
+  rc: { required },
   nif: { required, numeric },
-  art: { numeric },
+  nis: { required, numeric },
+  art: { required, numeric },
   address: { required, minLength: minLength(10) },
   activity: { required }
 };
 
 const $v = useVuelidate(rules, form);
 
-async function submitForm() {
+function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
     companies.value.push({...form})

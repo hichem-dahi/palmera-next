@@ -99,7 +99,7 @@ const historyItems = computed(() => {
 
 const headers = computed(() => [
   { 
-    title: t('Date'),
+    title: t('date'),
     align: 'start',
     sortable: false,
     key: 'date'

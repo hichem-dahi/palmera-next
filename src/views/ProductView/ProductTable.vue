@@ -12,15 +12,17 @@
           <v-card-title> 
             <div>{{ product?.name }}</div>
             <div class="text-medium-emphasis text-subtitle-2">
-              Quantity: {{ product?.qte }}
+              {{ $t('quantity') }}: {{ product?.qte }}
             </div>
             <div class="text-medium-emphasis text-subtitle-2">
-              P.U: {{ product?.price }} DA
+              {{ $t('U.P') }}: {{ product?.price }} DA
             </div>
           </v-card-title>
         </div>
         <div class="col-2">
-          <v-btn variant="text" color="primary" size="small" @click="modifyStockDialog = true">Modify stock</v-btn>
+          <v-btn variant="text" color="primary" size="small" @click="modifyStockDialog = true">
+            {{$t('modify-stock')}}
+          </v-btn>
           <ModifyStock v-model="modifyStockDialog" :product="product" />
         </div>
       </v-card>
@@ -40,7 +42,7 @@
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { ref, readonly, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { format } from 'date-fns';

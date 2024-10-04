@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
-    <v-card class="pa-4" title="Add payment">
+    <v-card class="pa-4" :title="$t('add-payment')">
       <template v-slot:text>
         <v-number-input 
           inset

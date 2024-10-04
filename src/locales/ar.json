@@ -1,5 +1,6 @@
 {
-  "clients": "زبون",
+  "clients": "زبائن",
+  "client": "زبون",
   "personnel": "عمال",
   "warehouse": "مستودع",
   "orders": "طلبات",
@@ -26,6 +27,9 @@
   "activity": "نشاط",
   "U.P": "س.و",
   "N°": "رقم ",
+  "R.C": "رقم التسجيل",
+  "NIF": "الرقم التعريفي الضريبي",
+  "N.ART": "رقم المادة",
   "today": "اليوم",
   "date": "تاريخ",
   "total": "المجموع",
@@ -45,5 +49,9 @@
   "payment-method": "طريقة الدفع",
   "driver": "سائق",
   "registration-number": "رقم التسجيل",
-  "destination": "وجهة"
+  "destination": "وجهة",
+  "client-history": "تاريخ زبون",
+  "stock-sheet": "بطاقة المخزون",
+  "modify-stock": "تعديل المخزون",
+  "orders-history": "تاريخ الطلبات"
 }

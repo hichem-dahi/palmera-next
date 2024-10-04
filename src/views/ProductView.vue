@@ -7,7 +7,7 @@
     :prepend-icon="mdiChevronLeft" 
     @click="$router.go(-1)" 
     :text="$t('back')" />
-  <div class="text-h5 pa-4 my-4">Fiche de Stock: {{ product?.name }}</div>
+  <div class="text-h5 pa-4 my-4">{{ $t('stock-sheet') }}: {{ product?.name }}</div>
   <div class="product-wrapper">
     <div class="product-table border">
       <ProductTable />
@@ -27,7 +27,6 @@ import ProductTable from './ProductView/ProductTable.vue'
 const route = useRoute()
 
 const product = computed(() => products.value.find(p => p.id == route.params.product_id))
-
 </script>
 
 <style>

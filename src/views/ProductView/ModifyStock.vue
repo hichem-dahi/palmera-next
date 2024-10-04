@@ -1,8 +1,8 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
-    <v-card class="pa-4" title="Modify stock">
+    <v-card class="pa-4" :title="$t('modify-stock')">
       <v-number-input 
-        label="Quantity" 
+        :label="$t('quantity')" 
         variant="outlined"
         inset
         control-variant="stacked" 
@@ -13,8 +13,8 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn variant="text" @click="dialog = false">cancel</v-btn>
-        <v-btn variant="text" color="primary" @click="saveStock">save</v-btn>
+        <v-btn variant="text" @click="dialog = false">{{ $t('cancel') }}</v-btn>
+        <v-btn variant="text" color="primary" @click="saveStock">{{ $t('confirm') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

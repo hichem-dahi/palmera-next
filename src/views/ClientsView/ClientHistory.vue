@@ -7,7 +7,7 @@
     :prepend-icon="mdiChevronLeft" 
     @click="$router.go(-1)" 
     :text="$t('back')" />
-  <div class="text-h5 pa-4 my-4">Historique du client</div>
+  <div class="text-h5 pa-4 my-4">{{$t('client-history')}}</div>
   <div class="history-wrapper">
     <div class="history-table border">
       <HistoryTable />

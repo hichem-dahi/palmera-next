@@ -17,13 +17,11 @@
         variant="text" 
         :prepend-icon="mdiCashSync"  
         color="green" 
-        size="small"
         @click="paymentDialog = true">{{ $t('add-payment') }}</v-btn>
       <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
       <v-btn v-if="documentType == DocumentType.DeliveryNote"
         variant="text" 
         :prepend-icon="mdiTruckCheck" 
-        size="small"
         @click="goInvoicePage(DocumentType.DeliveryNote)"
         target="_blank"
         :text="$t('delivery-note')" />
@@ -37,7 +35,6 @@
       <v-btn v-if="documentType == DocumentType.Invoice"
         variant="text" 
         :prepend-icon="mdiReceiptText" 
-        size="small"
         @click="goInvoicePage(DocumentType.Invoice)"
         target="_blank"
         :text="$t('invoice')" />
@@ -51,7 +48,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
 import { mdiCashSync, mdiChevronLeft, mdiReceiptText, mdiTruckCheck } from '@mdi/js';
 
 import orders from '@/composables/localStore/useOrdersStore';

@@ -1,5 +1,6 @@
 {
   "clients": "Clients",
+  "client": "Client",
   "personnel": "Personnel",
   "warehouse": "Entrepôt",
   "orders": "Commandes",
@@ -26,6 +27,9 @@
   "activity": "Activité",
   "U.P": "P.U",
   "N°": "N°",
+  "R.C": "R.C",
+  "NIF": "NIF",
+  "N.ART": "N.ART",
   "today": "Aujourd'hui",
   "date": "Date",
   "total": "Total",
@@ -45,5 +49,9 @@
   "payment-method": "Mode de paiement",
   "driver": "Chauffeur",
   "registration-number": "Matricule",
-  "destination": "Destination"
+  "destination": "Destination",
+  "client-history": "Historique de client",
+  "stock-sheet": "Fiche de stock",
+  "modify-stock": "Modifier stock",
+  "orders-history": "Historique des commandes"
 }
