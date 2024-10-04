@@ -5,12 +5,13 @@ import WarehouseView from '@/views/WarehouseView.vue'
 import PersonnelView from '@/views/PersonnelView.vue'
 import ClientsView from '@/views/ClientsView.vue'
 import OrdersView from '@/views/OrdersView.vue'
-import OrderView from '@/views/OrderView.vue'
-import InvoiceView from '@/views/InvoiceView.vue'
+import OrderView from '@/views/OrdersView/OrderView.vue'
+import InvoiceView from '@/views/OrdersView/InvoiceView.vue'
 import ProductView from '@/views/ProductView.vue'
 import OrdersHistoryView from '@/views/OrdersHistoryView.vue'
-import CreateOrder from '@/views/CreateOrder.vue'
+import CreateOrder from '@/views/OrdersView/CreateOrder.vue'
 import ClientHistoryView from '@/views/ClientsView/ClientHistory.vue'
+import CreateClientView from '@/views/ClientsView/CreateClientView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +65,11 @@ const router = createRouter({
           path: '/orders-history',
           name: 'orders-history',
           component: OrdersHistoryView
+        },
+        {
+          path: '/create-client',
+          name: 'create-client',
+          component: CreateClientView
         }
       ]
     },
