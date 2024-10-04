@@ -5,15 +5,13 @@
     hover 
     :to="{ name: 'product', params: { product_id: product?.id }}"> 
     <v-card-title v-text="product?.name" />
-    <v-card-subtitle class="text-body-2">
-      <div class="d-flex">
-        <div class="font-weight-bold">{{ $t('quantity') }}</div> 
-        <div>&nbsp;{{ product?.qte }}</div>
-      </div>
-      <div class="d-flex">
-        <div class="font-weight-bold">{{ $t('U.P') }}</div> 
-        <div>&nbsp;{{ product?.price }} DA</div>
-      </div>
+    <v-card-subtitle class="text-caption">
+      <span class="font-weight-bold">{{ $t('code') }}:</span> 
+      <span>&nbsp;{{ product?.code }}</span><br>
+      <span class="font-weight-bold">{{ $t('quantity') }}:</span> 
+      <span>&nbsp;{{ product?.qte }}</span><br>
+      <span class="font-weight-bold">{{ $t('U.P') }}:</span> 
+      <span>&nbsp;{{ product?.price }} DA</span>
     </v-card-subtitle>
   </v-card>
 </template>

@@ -9,15 +9,21 @@
     <template v-slot:top>
       <v-card class="pb-2 d-flex align-end" color="#EFEFF1" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
-          <v-card-title> 
-            <div>{{ product?.name }}</div>
-            <div class="text-medium-emphasis text-subtitle-2">
-              {{ $t('quantity') }}: {{ product?.qte }}
-            </div>
-            <div class="text-medium-emphasis text-subtitle-2">
-              {{ $t('U.P') }}: {{ product?.price }} DA
-            </div>
-          </v-card-title>
+          <div>
+            <v-card-title> 
+              <div>{{ product?.name }}</div>
+            </v-card-title>
+            <v-card-subtitle class="text-body-2"> 
+              <span>{{ $t('quantity') }}:</span> 
+              <span>&nbsp;{{ product?.qte }}</span><br>
+
+              <span>{{ $t('code') }}:</span> 
+              <span>&nbsp;{{ product?.code }}</span><br>
+
+              <span>{{ $t('U.P') }}:</span> 
+              <span>&nbsp;{{ product?.price }} DA</span>
+            </v-card-subtitle>
+          </div>
         </div>
         <div class="col-2">
           <v-btn variant="text" color="primary" size="small" @click="modifyStockDialog = true">
