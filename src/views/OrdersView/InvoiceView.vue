@@ -176,9 +176,12 @@ function downloadInvoice() {
   overflow-y: auto; /* Add scroll to the wrapper if content exceeds the height */
   margin: auto;
   white-space: nowrap;
-  max-width: 50%;
-  transform: scale(0.7); /* Use transform for scaling */
-  transform-origin: top; /* Ensure scaling happens from the top */
+  transform: scale(0.7); /* Scale down the element */
+  transform-origin: top; /* Ensure scaling happens from the top */  
+
+  @media (min-width: 1024px) { /* Target screens larger than 1024px (typical desktop size) */
+    max-width: 50%;
+  }
 
   table {
     margin-top: 25px;

@@ -10,5 +10,5 @@
 </template>
 
 <script setup lang="ts">
-import CreateOrderStepper from './OrdersView/CreateOrderStepper.vue';
+import CreateOrderStepper from './CreateOrderStepper.vue';
 </script>

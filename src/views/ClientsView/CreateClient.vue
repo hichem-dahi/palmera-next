@@ -38,19 +38,21 @@
     />
     <v-text-field
       :label="$t('NIS')"
-      v-model.trim="form.art"
-      :error-messages="!$v.art.$pending && $v.art.$dirty ? [
-        $v.art.numeric.$invalid ? 'ART must be numeric' : ''
+      v-model.trim="form.nis"
+      :error-messages="!$v.nis.$pending && $v.nis.$dirty ? [
+        $v.nis.required.$invalid ? 'NIS is required' : '',
+        $v.nis.numeric.$invalid ? 'NIS must be numeric' : ''
       ].filter(Boolean) : []"
       @blur="$v.art.$touch()"
     />
     <v-text-field
       :label="$t('N.ART')"
-      v-model.trim="form.nis"
-      :error-messages="!$v.nis.$pending && $v.nis.$dirty ? [
-        $v.nis.numeric.$invalid ? 'ART must be numeric' : ''
+      v-model.trim="form.art"
+      :error-messages="!$v.art.$pending && $v.art.$dirty ? [
+        $v.art.required.$invalid ? 'ART is required' : '',
+        $v.art.numeric.$invalid ? 'ART must be numeric' : ''
       ].filter(Boolean) : []"
-      @blur="$v.nis.$touch()"
+      @blur="$v.art.$touch()"
     />
     <v-text-field
       :label="$t('address')"
@@ -85,15 +87,16 @@ import companies from '@/composables/localStore/useCompanyStore';
 import type { Company } from '@/models/models';
 
 const isOpen = defineModel()
+const emits = defineEmits(['success'])
 
-const form = reactive<Company>({
+const form = reactive({
   id: uuidv4(),
   name: '',
   phone: '',
   rc: '',
-  nif: 0,
-  nis: 0,
-  art: 0,
+  nif: null,
+  nis: null,
+  art: null,
   address: '',
   activity: ''
 })
@@ -115,7 +118,8 @@ const $v = useVuelidate(rules, form);
 function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
-    companies.value.push({...form})
+    companies.value.push({...form as any as Company})
+    emits('success')
     isOpen.value = false
   } else {
     console.log('Form is invalid');

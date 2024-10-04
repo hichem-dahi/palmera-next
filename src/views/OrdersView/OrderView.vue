@@ -52,10 +52,10 @@ import { mdiCashSync, mdiChevronLeft, mdiReceiptText, mdiTruckCheck } from '@mdi
 
 import orders from '@/composables/localStore/useOrdersStore';
 
-import OrderTable from './OrdersView/OrderTable.vue';
-import CreateDelivery from './OrdersView/CreateDelivery.vue';
-import PaymentMethodModal from './OrdersView/PaymentMethodModal.vue'
-import PaymentModal from './OrdersView/PaymentModal.vue';
+import OrderTable from './OrderTable.vue';
+import CreateDelivery from './CreateDelivery.vue';
+import PaymentMethodModal from './PaymentMethodModal.vue'
+import PaymentModal from './PaymentModal.vue';
 
 import { ConsumerType, DocumentType } from '@/models/models';
 
