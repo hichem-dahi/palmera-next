@@ -54,5 +54,6 @@
   "client-history": "تاريخ زبون",
   "stock-sheet": "بطاقة المخزون",
   "modify-stock": "تعديل المخزون",
-  "orders-history": "تاريخ الطلبات"
+  "orders-history": "تاريخ الطلبات",
+  "create-client": "إضافة زبون"
 }

@@ -54,5 +54,6 @@
   "client-history": "Historique de client",
   "stock-sheet": "Fiche de stock",
   "modify-stock": "Modifier stock",
-  "orders-history": "Historique des commandes"
+  "orders-history": "Historique des commandes",
+  "create-client": "Creér un client"
 }
