@@ -2,40 +2,16 @@
   <div class="menu mx-8">
     <v-row>
       <v-btn 
-        color="medium-emphasis"
+        v-for="(item, index) in menuItems"
+        :key="index"
+        :color="item.color"
         variant="text"
         rounded="xl"
-        stacked   
-        :prepend-icon="mdiAccountGroup"
-        :to="{ name: 'clients' }">
-        {{ $t('clients') }}
-      </v-btn>
-      <v-btn 
-        color="medium-emphasis"
-        variant="text"
-        rounded="xl"
-        stacked 
-        :prepend-icon="mdiWarehouse"
-        :to="{ name: 'warehouse' }">
-        {{ $t('warehouse') }}
-      </v-btn>
-      <v-btn 
-        color="medium-emphasis"
-        variant="text"
-        rounded="xl"
-        stacked 
-        :prepend-icon="mdiReceiptText"
-        :to="{ name: 'orders' }">
-        {{ $t('orders') }}
-      </v-btn>
-      <v-btn 
-        color="medium-emphasis"
-        variant="text"
-        rounded="xl"
-        stacked 
-        :prepend-icon="mdiHistory"
-        :to="{ name: 'transaction-history' }">
-        {{ $t('history') }}
+        stacked
+        :prepend-icon="item.icon"
+        :to="{ name: item.route }"
+      >
+        {{ $t(item.label) }}
       </v-btn>
     </v-row>
   </div>
@@ -43,4 +19,11 @@
 
 <script setup lang="ts">
 import { mdiAccountGroup, mdiHistory, mdiWarehouse, mdiReceiptText } from '@mdi/js'
+
+const menuItems = [
+  { label: 'clients', route: 'clients', icon: mdiAccountGroup, color: 'medium-emphasis' },
+  { label: 'warehouse', route: 'warehouse', icon: mdiWarehouse, color: 'medium-emphasis' },
+  { label: 'orders', route: 'orders', icon: mdiReceiptText, color: 'medium-emphasis' },
+  { label: 'history', route: 'orders-history', icon: mdiHistory, color: 'medium-emphasis' }
+]
 </script>
