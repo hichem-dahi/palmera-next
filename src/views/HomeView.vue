@@ -1,7 +1,7 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-      <v-app-bar v-if="true" color="blue-grey-lighten-2" class="text-white" title="LogiNext">
+      <v-app-bar v-if="true" color="blue-grey-lighten-3" class="text-white" title="LogiNext">
         <template v-slot:append>
           <v-select 
             density="compact" 

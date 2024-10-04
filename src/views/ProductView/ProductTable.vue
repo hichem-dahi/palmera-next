@@ -4,10 +4,10 @@
     v-if="product"
     :items="items"
     :headers="headers"
-    style="background-color: rgb(252, 252, 252)"
+    style="background-color: #FEFEFE"
   >
     <template v-slot:top>
-      <v-card class="pb-2 d-flex align-end" color="#EFEFF1" elevation="0">
+      <v-card class="pb-2 d-flex align-end" color="#F7F7F7" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <div>
             <v-card-title> 
