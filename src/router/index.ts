@@ -8,7 +8,7 @@ import OrdersView from '@/views/OrdersView.vue'
 import OrderView from '@/views/OrderView.vue'
 import InvoiceView from '@/views/InvoiceView.vue'
 import ProductView from '@/views/ProductView.vue'
-import TransactionHistoryView from '@/views/TransactionHistoryView.vue'
+import OrdersHistoryView from '@/views/OrdersHistoryView.vue'
 import CreateOrder from '@/views/CreateOrder.vue'
 import ClientHistoryView from '@/views/ClientsView/ClientHistory.vue'
 
@@ -61,9 +61,9 @@ const router = createRouter({
           component: ProductView
         },
         {
-          path: '/transaction-history',
-          name: 'transaction-history',
-          component: TransactionHistoryView
+          path: '/orders-history',
+          name: 'orders-history',
+          component: OrdersHistoryView
         }
       ]
     },
