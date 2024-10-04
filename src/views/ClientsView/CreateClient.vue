@@ -37,7 +37,7 @@
       @blur="$v.nif.$touch()"
     />
     <v-text-field
-      :label="$t('N.ART')"
+      :label="$t('NIS')"
       v-model.trim="form.art"
       :error-messages="!$v.art.$pending && $v.art.$dirty ? [
         $v.art.numeric.$invalid ? 'ART must be numeric' : ''

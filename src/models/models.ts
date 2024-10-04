@@ -39,8 +39,9 @@ export interface Company {
   name: string
   phone: string
   rc: string
-  nif: string
-  art: string
+  nif: number
+  nis: number
+  art: number
   address: string
   activity: string
 }
