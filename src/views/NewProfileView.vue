@@ -18,12 +18,11 @@ import self from '@/composables/localStore/useSelf'
 
 import CreateClient from './ClientsView/CreateClient.vue';
 
-import type { Company } from '@/models/models';
 import type { Validation } from '@vuelidate/core';
 
 const router = useRouter()
 
-function submitNewProfile(form: Company, v: Validation) {
+function submitNewProfile(form: any, v: Validation) {
   v.$touch()
   if (!v.$invalid) {
     self.value.company = form
