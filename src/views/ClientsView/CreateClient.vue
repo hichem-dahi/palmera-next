@@ -1,5 +1,5 @@
 <template>
-  <v-card :title="$t('create-client')" class="pa-4">
+  <v-card :title="title || $t('create-client')" class="pa-4">
     <v-text-field
       :label="$t('name')"
       v-model.trim="form.name"
@@ -43,7 +43,7 @@
         $v.nis.required.$invalid ? 'NIS is required' : '',
         $v.nis.numeric.$invalid ? 'NIS must be numeric' : ''
       ].filter(Boolean) : []"
-      @blur="$v.art.$touch()"
+      @blur="$v.nis.$touch()"
     />
     <v-text-field
       :label="$t('N.ART')"
@@ -72,7 +72,12 @@
       @blur="$v.activity.$touch()"
     />
 
-    <v-btn block @click="submitForm">{{ $t('add') }}</v-btn>
+    <!-- Only show the default button if no slot is provided -->
+    <template v-if="!$slots.actions">
+      <v-btn block @click="submitForm">{{ $t('add') }}</v-btn>
+    </template>
+    <!-- Pass the form and validation as slot props -->
+    <slot name="actions" :form="form" :validation="$v"></slot>
   </v-card>
 </template>
 
@@ -81,13 +86,18 @@ import { reactive } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, numeric } from '@vuelidate/validators';
+import { cloneDeep } from 'lodash';
 
 import companies from '@/composables/localStore/useCompanyStore';
 
 import type { Company } from '@/models/models';
+import { useI18n } from 'vue-i18n';
 
-const isOpen = defineModel()
-const emits = defineEmits(['success'])
+const { t } = useI18n()
+
+const isOpen = defineModel();
+const props = defineProps<{ title?: string }>()
+const emits = defineEmits(['success']);
 
 const form = reactive({
   id: uuidv4(),
@@ -99,7 +109,7 @@ const form = reactive({
   art: null,
   address: '',
   activity: ''
-})
+});
 
 const rules = {
   id: { required },
@@ -118,11 +128,9 @@ const $v = useVuelidate(rules, form);
 function submitForm() {
   $v.value.$touch();
   if (!$v.value.$invalid) {
-    companies.value.push({...form as any as Company})
-    emits('success')
-    isOpen.value = false
-  } else {
-    console.log('Form is invalid');
-  }
+    companies.value.push(cloneDeep(form as any) as Company);
+    emits('success', form);
+    isOpen.value = false;
+  } 
 }
 </script>

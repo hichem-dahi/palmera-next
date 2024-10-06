@@ -2,17 +2,23 @@
   <div class="invoice-wrapper">
     <div v-if="order" ref="invoice" class="invoice">
       <div class="row-1">
-        <h3>Sarl palmera star</h3>
-        <div>PRODUCTION MATERIAUX DE CONSTRUCTION</div>
-        <div>Adresse: ZONE industrielle SBA</div>
-        <div>R.C: 17b002428956</div>
-        <div>NIF: 001722002428956</div>
-        <div>NIS: 001722010000279</div>
-        <div>N.ART: 22870119091</div>
-        <div>N O TEL: 0560313249</div>
+        <div v-for="(value, key) in selfInfo" :key="key">
+          <div v-if="key == 'name'">
+            <h3>{{ value }}</h3>
+          </div>
+          <div v-else-if="key == 'activity'">
+            <div>{{ value }}</div>
+          </div>
+          <div v-else>{{ key }}: {{ value }}</div>
+        </div>
         <h3 class="type">{{ title }} N°: {{ padStart(order.index.toString(), 4, '0')  }}/2024</h3>
-        <div v-for="(value, key) in consumer" :key="key">
-          {{ key }}: {{ value }}
+        <div class="d-flex ga-4">
+          <div>
+            <div v-for="(value, key) in consumer" :key="key">
+              {{ key }}: {{ value }}
+            </div>
+          </div>
+          <div class="mt-6 text-decoration-underline">SPA LE: {{ format(order.date, 'dd-MM-yyyy') }}</div>
         </div>
         <table cellpadding="10" cellspacing="0" width="100%">
           <thead>
@@ -71,6 +77,8 @@ import products from '@/composables/localStore/useProductStore';
 import companies from '@/composables/localStore/useCompanyStore';
 
 import { ConsumerType, DocumentType } from '@/models/models';
+import self from '@/composables/localStore/useSelf';
+import { format } from 'date-fns';
 
 const route = useRoute()
 
@@ -96,10 +104,21 @@ const preforma = computed(() => {
 })
 
 const deliveryInfo = computed(() => {
-  const deliveryInfoKeys = ['driver_name', 'phone', 'matricule', 'destination']
-  let delivery = {...order.value?.delivery}
+  const deliveryInfoKeys = ['chauffeur', 'phone', 'matricule', 'destination']
+  let delivery = {...order.value?.delivery, chauffeur: order.value?.delivery?.driver_name}
   
   return pick(delivery, deliveryInfoKeys)
+})
+
+const selfInfo = computed(() => {
+  let selfInfo = self.value.company 
+  if(!selfInfo) return 
+  selfInfo = {...selfInfo, name: 
+    selfInfo.name, 
+    'R.C': selfInfo.rc, 
+    'N°tel': selfInfo.phone} as any
+  const desiredOrder = ['name', 'activity', 'address', 'R.C', 'nif', 'nis', 'art', 'N°tel'];
+  return pick(selfInfo, desiredOrder)
 })
 
 const consumer = computed(() => {
@@ -110,7 +129,6 @@ const consumer = computed(() => {
     company = {...company, client: company.name} as any
     const desiredOrder = ['client', 'rc', 'nif', 'art', 'address', 'activity'];
     return pick(company, desiredOrder)
-
   } else if (Object.keys(individual).length) {
     individual = { ...individual, client: individual.name} 
     const desiredOrder = ['client', 'phone'];
@@ -152,17 +170,35 @@ function print() {
 
 function downloadInvoice() {
   const invoiceElement = document.querySelector('.invoice'); // Select the invoice element
-  if(!invoiceElement) return 
+  if (!invoiceElement) return; // Ensure the element exists
 
+  // Backup original styles
+  const originalMaxWidth = (invoiceElement as any).maxWidth;
+  const originalTransform = (invoiceElement as any).transform;
+
+  // Remove max-width and scale
+ (invoiceElement as any).style.maxWidth = 'none';
+  (invoiceElement as any).transform = 'none';
+
+  // Configuration for html2pdf
   const opt = {
-    margin: 10, 
-    filename: 'invoice.pdf', 
-    image: { type: 'jpeg', quality: 0.98 }, 
-    html2canvas: { scale: 2 }, 
+    margin: [10, 10, 10, 10], // Margins in mm
+    filename: 'invoice.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 }, // Scale for better resolution
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  html2pdf().from(invoiceElement).set(opt).save()
+  // Generate and save the PDF
+  html2pdf()
+    .from(invoiceElement)
+    .set(opt)
+    .save()
+    .then(() => {
+      // Restore original styles after download
+      (invoiceElement as any).maxWidth = originalMaxWidth;
+      (invoiceElement as any).transform = originalTransform;
+    });
 }
 </script>
 

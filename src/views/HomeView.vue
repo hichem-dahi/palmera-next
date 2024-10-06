@@ -1,7 +1,7 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-      <v-app-bar v-if="true" color="blue-grey-lighten-3" class="text-white" title="LogiNext">
+      <v-app-bar color="blue-grey-lighten-3" class="text-white" title="LogiNext">
         <template v-slot:append>
           <v-select 
             density="compact" 
@@ -11,10 +11,6 @@
           />
         </template>
       </v-app-bar>
-      <v-toolbar v-else border>
-        <v-btn variant="text" :icon="mdiArrowLeft" @click="$router.go(-1)" />
-        <v-toolbar-title>{{ $t($route.name as string) }}</v-toolbar-title>
-      </v-toolbar>
       <v-banner 
         v-if="deferredPrompt"
         class="text-left"
@@ -43,11 +39,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import MenuBar from './HomeView/MenuBar.vue';
-import { mdiArrowLeft } from '@mdi/js';
+
+import self from '@/composables/localStore/useSelf';
+import { useRouter } from 'vue-router';
 
 const deferredPrompt = ref()
+const router = useRouter()
 
-onMounted(()=>{
+onMounted(() => {
+  if (!self.value.company) {
+    router.push({ name: 'self' })   
+  }
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     deferredPrompt.value = e;
