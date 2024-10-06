@@ -12,7 +12,7 @@
           <div v-else>{{ key }}: {{ value }}</div>
         </div>
         <h3 class="type">{{ title }} N°: {{ padStart(order.index.toString(), 4, '0')  }}/2024</h3>
-        <div class="d-flex ga-4">
+        <div class="d-flex justify-space-between align-center ga-4">
           <div>
             <div v-for="(value, key) in consumer" :key="key">
               {{ key }}: {{ value }}
