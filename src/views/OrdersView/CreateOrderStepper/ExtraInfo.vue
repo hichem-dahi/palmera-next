@@ -1,63 +1,54 @@
 <template>
-  <v-radio-group v-model="documentType">
+  <v-radio-group v-model="form.document_type">
+    <div v-if="form.company">
+      <v-radio :label="$t('invoice')" :value="DocumentType.Invoice" />
+      <v-radio :label="$t('proforma')" :value="DocumentType.Proforma" />
+    </div>
+    <div v-else-if="form.individual">
+      <v-radio :label="$t('voucher')" :value="DocumentType.Voucher" />
+    </div>
     <v-radio :label="$t('delivery-note')" :value="DocumentType.DeliveryNote" />
-    <v-radio :label="$t('invoice')" :value="DocumentType.Invoice" />
   </v-radio-group>
-  <v-number-input 
-    :label="$t('payment')" 
-    inset
-    controlVariant="stacked"
-    :error="!$v.paid_price.$pending && $v.paid_price.$error"
-    :suffix="`/${form.total_price} DA`"
-    :max="form.total_price"
-    :min="0"
-    v-model="form.paid_price"
-  />
-  <v-text-field v-if="form?.company"
-    :label="$t('payment-method')" 
-    :error="!$v.payment_method.$pending && $v.payment_method.$error"
-    v-model="form.payment_method" 
-  />
-  <CreateDelivery 
-    v-if="documentType == DocumentType.DeliveryNote" 
-    v-model="form.delivery" 
-  />
+  <div v-if="form.document_type && form.document_type != DocumentType.Proforma">
+    <v-number-input
+      :label="$t('payment')"
+      inset
+      controlVariant="stacked"
+      :error="!$v.paid_price.$pending && $v.paid_price.$error"
+      :suffix="`/${form.total_price} DA`"
+      :max="form.total_price"
+      :min="0"
+      v-model="form.paid_price"
+    />
+    <v-text-field
+      v-if="form?.company"
+      :label="$t('payment-method')"
+      :error="!$v.payment_method.$pending && $v.payment_method.$error"
+      v-model="form.payment_method"
+    />
+    <CreateDelivery
+      v-if="form.delivery && form.document_type == DocumentType.DeliveryNote"
+      v-model:delivery="form.delivery"
+    />
+  </div>
   <slot name="actions" :v="$v"></slot>
 </template>
 
 <script setup lang="ts">
-import { numeric, requiredIf } from '@vuelidate/validators';
-import useVuelidate from '@vuelidate/core';
+import useVuelidate from '@vuelidate/core'
+import { numeric, requiredIf } from '@vuelidate/validators'
 
-import CreateDelivery from '../CreateDelivery.vue';
+import CreateDelivery from '../CreateDelivery.vue'
 
-import { DocumentType } from '@/models/models';
+import { DocumentType } from '@/models/models'
 
-import { form, documentType } from './state';
-
-const requiredDelivery = requiredIf(() => documentType.value == DocumentType.DeliveryNote)
+import { form } from './state'
 
 const rules = {
-  payment_method: { 
-    required: requiredIf(() => !!form.company),  // required only if company exists
-  },  
-  paid_price: { numeric },
-  delivery: {
-    driver_name: { 
-      required: requiredDelivery, 
-    },
-    phone: {  
-      required: requiredDelivery, 
-      numeric
-    },
-    matricule: {  
-      required: requiredDelivery, 
-    },
-    destination: {  
-      required: requiredDelivery
-    }
+  payment_method: {
+    required: requiredIf(() => !!form.company && form.document_type != DocumentType.Proforma) // required only if company exists
   },
+  paid_price: { numeric }
 }
-
 const $v = useVuelidate(rules, form)
 </script>
