@@ -1,16 +1,35 @@
 export interface Order {
   id: string
   index: number
+  docIndex: number
   company?: Company | string
   individual?: Individual
   date: Date
   order_lines: OrderLine[]
   delivery?: Delivery
+  document_type: DocumentType
   payment_method?: string
   paid_price: number
   total_price: number
   tva?: number
   ttc?: number
+}
+
+export interface OrderLine {
+  id: string
+  product_id: string
+  qte: number | null
+  total_price: number
+}
+
+export interface Proforma {
+  id: string
+  company?: Company | string
+  date: Date
+  order_lines: OrderLine[]
+  total_price: number
+  tva: number
+  ttc: number
 }
 
 export interface Individual {
@@ -25,13 +44,6 @@ export interface Delivery {
   phone: string
   matricule: string //xxxxx xxx xx
   destination: string
-}
-
-export interface OrderLine {
-  id: string
-  product_id: string
-  qte: number | null
-  total_price: number
 }
 
 export interface Company {
@@ -64,7 +76,9 @@ export interface StockMovement {
 
 export enum DocumentType {
   Invoice = 1,
-  DeliveryNote
+  DeliveryNote,
+  Voucher,
+  Proforma
 }
 
 export enum HistoryType {
