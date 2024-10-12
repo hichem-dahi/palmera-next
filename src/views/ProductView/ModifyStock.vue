@@ -1,16 +1,15 @@
 <template>
   <v-dialog v-model="dialog" max-width="400">
     <v-card class="pa-4" :title="$t('modify-stock')">
-      <v-number-input 
-        :label="$t('quantity')" 
+      <v-number-input
+        :label="$t('quantity')"
         variant="outlined"
         inset
-        control-variant="stacked" 
+        control-variant="stacked"
         :error="!$v.qte.$pending && $v.qte.$error"
         v-model.number="form.qte"
-        type="number" 
+        type="number"
       />
-
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="dialog = false">{{ $t('cancel') }}</v-btn>
@@ -21,34 +20,34 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { required } from '@vuelidate/validators';
-import useVuelidate from '@vuelidate/core';
+import { reactive } from 'vue'
+import { required } from '@vuelidate/validators'
+import useVuelidate from '@vuelidate/core'
 
-import { adjustStock } from '@/composables/useStockManage';
+import { adjustStock } from '@/composables/useStockManage'
 
-import type { Product } from '@/models/models';
+import type { Product } from '@/models/models'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<{ product: Product }>()
 
-const notZero = (value: any) => value !== null && value !== undefined && value !== 0;
+const notZero = (value: any) => value !== null && value !== undefined && value !== 0
 
 const form = reactive({
   qte: null
 })
 
 const rules = {
-  qte: { required, notZero },
+  qte: { required, notZero }
 }
 
-const $v = useVuelidate(rules, form);
+const $v = useVuelidate(rules, form)
 
 function saveStock() {
- $v.value.$touch()
- if (!$v.value.$invalid && form.qte) {
-  adjustStock(props.product.id, form.qte)
-  dialog.value = false
- }
+  $v.value.$touch()
+  if (!$v.value.$invalid && form.qte) {
+    adjustStock(props.product.id, form.qte)
+    dialog.value = false
+  }
 }
 </script>

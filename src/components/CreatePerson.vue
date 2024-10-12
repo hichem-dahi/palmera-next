@@ -3,7 +3,9 @@
     <v-text-field
       label="First Name"
       v-model.trim="form.first_name"
-      :error-messages="!$v.first_name.$pending && $v.first_name.$error ? 'First Name is required' : ''"
+      :error-messages="
+        !$v.first_name.$pending && $v.first_name.$error ? 'First Name is required' : ''
+      "
       @blur="$v.first_name.$touch()"
     />
     <v-text-field
@@ -18,33 +20,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import useVuelidate from '@vuelidate/core';
-import { required, alpha } from '@vuelidate/validators';
+import { reactive } from 'vue'
+import useVuelidate from '@vuelidate/core'
+import { required, alpha } from '@vuelidate/validators'
 
-import personnel from '@/composables/localStore/usePersonnelStore';
+import personnel from '@/composables/localStore/usePersonnelStore'
 
 const isOpen = defineModel()
 
 const form = reactive({
   first_name: '',
-  last_name: '',
-});
+  last_name: ''
+})
 
 const rules = {
   first_name: { alpha, required },
-  last_name: { alpha, required },
-};
+  last_name: { alpha, required }
+}
 
-const $v = useVuelidate(rules, form);
+const $v = useVuelidate(rules, form)
 
 async function submitForm() {
-  $v.value.$touch();
+  $v.value.$touch()
   if (!$v.value.$invalid) {
-    personnel.value.push({...form, history: [] as any[]})
+    personnel.value.push({ ...form, history: [] as any[] })
     isOpen.value = false
   } else {
-    console.log('Form is invalid');
+    console.log('Form is invalid')
   }
 }
 </script>

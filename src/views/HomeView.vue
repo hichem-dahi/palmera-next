@@ -3,25 +3,25 @@
     <v-app>
       <v-app-bar color="blue-grey-lighten-3" class="text-white" title="LogiNext">
         <template v-slot:append>
-          <v-select 
-            density="compact" 
-            v-model="$i18n.locale" 
+          <v-select
+            density="compact"
+            v-model="$i18n.locale"
             :items="$i18n.availableLocales"
             hide-details
           />
         </template>
       </v-app-bar>
-      <v-banner 
+      <v-banner
         v-if="deferredPrompt"
         class="text-left"
         position="fixed"
         bg-color="blue"
-        style="bottom: 0;"
+        style="bottom: 0"
       >
         Get our free app. It won't take up space on your phone and also works offline!
         <template v-slot:actions>
           <v-btn variant="text" @click="dismiss">Dismiss</v-btn>
-          <v-btn variant="text"  @click="install">Install</v-btn>
+          <v-btn variant="text" @click="install">Install</v-btn>
         </template>
       </v-banner>
       <v-main>
@@ -37,34 +37,33 @@
   </v-responsive>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import MenuBar from './HomeView/MenuBar.vue';
+import { onMounted, ref } from 'vue'
+import MenuBar from './HomeView/MenuBar.vue'
 
-import self from '@/composables/localStore/useSelf';
-import { useRouter } from 'vue-router';
+import self from '@/composables/localStore/useSelf'
+import { useRouter } from 'vue-router'
 
 const deferredPrompt = ref()
 const router = useRouter()
 
 onMounted(() => {
   if (!self.value.company) {
-    router.push({ name: 'self' })   
+    router.push({ name: 'self' })
   }
-  window.addEventListener("beforeinstallprompt", e => {
-    e.preventDefault();
-    deferredPrompt.value = e;
-  });
-  window.addEventListener("appinstalled", () => {
-    deferredPrompt.value = null;
-  });
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault()
+    deferredPrompt.value = e
+  })
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt.value = null
+  })
 })
 
 async function install() {
-  deferredPrompt.value.prompt();
+  deferredPrompt.value.prompt()
 }
 
 async function dismiss() {
-  deferredPrompt.value = null;
+  deferredPrompt.value = null
 }
 </script>
-
