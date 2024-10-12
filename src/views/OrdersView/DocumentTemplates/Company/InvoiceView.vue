@@ -212,7 +212,6 @@ function downloadInvoice() {
     .set(opt)
     .save()
     .then(() => {
-      // Restore original styles after download
       ;(invoiceElement as any).maxWidth = originalMaxWidth
       ;(invoiceElement as any).transform = originalTransform
     })
@@ -225,26 +224,26 @@ function downloadInvoice() {
   flex-direction: column;
   justify-content: space-between;
   text-transform: capitalize;
-  aspect-ratio: 1 / 1.414; /* Aspect ratio for A4 size */
-  overflow-y: auto; /* Add scroll to the wrapper if content exceeds the height */
+  width: 210mm; /* A4 paper width */
+  height: 297mm; /* A4 paper height */
   margin: auto;
   white-space: nowrap;
-  transform: scale(0.7); /* Scale down the element */
+  transform: scale(0.7); /* Scale down for screen display */
   transform-origin: top; /* Ensure scaling happens from the top */
 
   @media (min-width: 1024px) {
-    /* Target screens larger than 1024px (typical desktop size) */
     max-width: 50%;
   }
 
   table {
     margin-top: 25px;
+    width: 100%; /* Ensure table takes full width */
   }
 
   th,
   td {
     border: 1px solid black;
-    border-collapse: collapse; /* Ensures borders don't double up */
+    border-collapse: collapse;
     padding: 4px 8px;
   }
 
@@ -277,8 +276,11 @@ function downloadInvoice() {
 
 @media print {
   .invoice {
+    width: 210mm; /* A4 width */
+    height: 280mm; /* A4 height */
+    transform: none; /* Remove scaling for print */
     max-width: none;
-    transform: none;
+    page-break-inside: avoid; /* Prevent breaking inside the invoice */
   }
 
   .no-print {
