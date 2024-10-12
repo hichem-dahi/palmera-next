@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { Order, StockMovement } from '@/models/models'
 
 import stock from './localStore/useStockStore'
 import products from './localStore/useProductStore'
+
+import type { Order, StockMovement } from '@/models/models'
 
 export function processOrder(order: Order): void {
   order.order_lines.forEach((orderLine) => {
@@ -11,16 +12,12 @@ export function processOrder(order: Order): void {
       if (product.qte >= orderLine.qte) {
         product.qte -= orderLine.qte // Deduct stock
         logStockMovement(product.id, -orderLine.qte, order.id)
-      } else {
-        throw new Error(`Insufficient stock for product ${product.name}`)
       }
     }
   })
 }
 
 export function logStockMovement(product_id: string, qte_change: number, order_id?: string): void {
-  if (order_id && stock.value.find((s) => s.order_id == order_id)) return
-
   const movement: StockMovement = {
     id: uuidv4(),
     product_id,
