@@ -45,16 +45,20 @@
   "company": "Entreprise",
   "individual": "Individuel",
   "delivery-note": "Bon de livraison",
+  "voucher": "Bon",
   "invoice": "Facture",
   "payment": "Versement",
   "payment-method": "Mode de paiement",
   "driver": "Chauffeur",
   "registration-number": "Matricule",
   "destination": "Destination",
-  "client-history": "Historique de client",
+  "client-history": "Historique du client",
   "stock-sheet": "Fiche de stock",
   "modify-stock": "Modifier stock",
   "orders-history": "Historique des commandes",
   "create-client": "Creér un client",
-  "your-informations": "Vos informations"
+  "your-informations": "Vos informations",
+  "proforma": "Préforma",
+  "proformas": "Préformas",
+  "DA": "DA"
 }

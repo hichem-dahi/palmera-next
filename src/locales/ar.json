@@ -45,6 +45,7 @@
   "company": "شركة",
   "individual": "فردي",
   "delivery-note": "إيصال التسليم",
+  "voucher": "إيصال",
   "invoice": "فاتورة",
   "payment": "الدفع",
   "payment-method": "طريقة الدفع",
@@ -56,5 +57,8 @@
   "modify-stock": "تعديل المخزون",
   "orders-history": "تاريخ الطلبات",
   "create-client": "إضافة زبون",
-  "your-informations": "معلوماتك"
+  "your-informations": "معلوماتك",
+  "proforma": "فاتورة شكلية",
+  "proformas": "فواتير شكلية",
+  "DA": "دج"
 }
