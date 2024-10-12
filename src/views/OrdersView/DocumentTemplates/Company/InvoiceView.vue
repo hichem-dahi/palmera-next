@@ -225,8 +225,8 @@ function downloadInvoice() {
   justify-content: space-between;
   text-transform: capitalize;
   width: 210mm; /* A4 paper width */
-  height: 297mm; /* A4 paper height */
-  margin: auto;
+  height: calc(297mm - 20mm); /* A4 height minus top and bottom margins (10mm each) */
+  margin: 10mm auto; /* Add 10mm margin on top and bottom, auto for centering */
   white-space: nowrap;
   transform: scale(0.7); /* Scale down for screen display */
   transform-origin: top; /* Ensure scaling happens from the top */
@@ -277,7 +277,8 @@ function downloadInvoice() {
 @media print {
   .invoice {
     width: 210mm; /* A4 width */
-    height: 280mm; /* A4 height */
+    height: calc(297mm - 20mm); /* A4 height minus margins for print */
+    margin: 10mm auto; /* Keep margins on print */
     transform: none; /* Remove scaling for print */
     max-width: none;
     page-break-inside: avoid; /* Prevent breaking inside the invoice */
