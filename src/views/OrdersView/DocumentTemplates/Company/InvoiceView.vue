@@ -277,8 +277,8 @@ function downloadInvoice() {
 @media print {
   .invoice {
     width: 210mm; /* A4 width */
-    height: calc(297mm - 20mm); /* A4 height minus margins for print */
-    margin: 10mm auto; /* Keep margins on print */
+    height: calc(297mm - 10mm); /* A4 height minus margins for print */
+    margin: auto; /* Keep margins on print */
     transform: none; /* Remove scaling for print */
     max-width: none;
     page-break-inside: avoid; /* Prevent breaking inside the invoice */
