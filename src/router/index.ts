@@ -6,13 +6,15 @@ import PersonnelView from '@/views/PersonnelView.vue'
 import ClientsView from '@/views/ClientsView.vue'
 import OrdersView from '@/views/OrdersView.vue'
 import OrderView from '@/views/OrdersView/OrderView.vue'
-import InvoiceView from '@/views/OrdersView/InvoiceView.vue'
 import ProductView from '@/views/ProductView.vue'
 import OrdersHistoryView from '@/views/OrdersHistoryView.vue'
 import CreateOrder from '@/views/OrdersView/CreateOrder.vue'
 import ClientHistoryView from '@/views/ClientsView/ClientHistory.vue'
 import CreateClientView from '@/views/ClientsView/CreateClientView.vue'
 import NewProfileView from '@/views/NewProfileView.vue'
+import ProformaView from '@/views/OrdersView/DocumentTemplates/Company/ProformaView.vue'
+import InvoiceView from '@/views/OrdersView/DocumentTemplates/Company/InvoiceView.vue'
+import VoucherView from '@/views/OrdersView/DocumentTemplates/Individual/VoucherView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,6 +80,16 @@ const router = createRouter({
       path: '/invoice/:order_id',
       name: 'invoice',
       component: InvoiceView
+    },
+    {
+      path: '/voucher/:order_id',
+      name: 'voucher',
+      component: VoucherView
+    },
+    {
+      path: '/proforma/:proforma_id',
+      name: 'proforma',
+      component: ProformaView
     },
     {
       path: '/self',
