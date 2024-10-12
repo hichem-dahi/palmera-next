@@ -1,19 +1,18 @@
 <template>
   <div class="menu mx-8">
-    <v-row>
-      <v-btn 
-        v-for="(item, index) in menuItems"
-        :key="index"
-        :color="item.color"
-        variant="text"
-        rounded="xl"
-        stacked
-        :prepend-icon="item.icon"
-        :to="{ name: item.route }"
-      >
-        {{ $t(item.label) }}
-      </v-btn>
-    </v-row>
+    <v-btn
+      v-for="(item, index) in menuItems"
+      :key="index"
+      :color="item.color"
+      variant="text"
+      rounded="xl"
+      size="small"
+      stacked
+      :prepend-icon="item.icon"
+      :to="{ name: item.route }"
+    >
+      {{ $t(item.label) }}
+    </v-btn>
   </div>
 </template>
 

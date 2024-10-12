@@ -9,5 +9,5 @@
 </template>
 
 <script setup lang="ts">
-import CreateClient from './CreateClient.vue';
+import CreateClient from './CreateClient.vue'
 </script>
