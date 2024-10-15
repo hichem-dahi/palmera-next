@@ -13,7 +13,9 @@
         </div>
         <h3 class="type pa-4">
           {{ title }}
-          <span v-if="order.index">N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024</span>
+          <span v-if="order.docIndex"
+            >N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024</span
+          >
         </h3>
         <div class="d-flex justify-space-between align-center ga-4">
           <div>
