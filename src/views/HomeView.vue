@@ -3,12 +3,20 @@
     <v-app>
       <v-app-bar color="blue-grey-lighten-3" class="text-white" title="LogiNext">
         <template v-slot:append>
-          <v-select
-            density="compact"
-            v-model="$i18n.locale"
-            :items="$i18n.availableLocales"
-            hide-details
-          />
+          <v-menu :close-on-content-click="false">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" variant="text" :icon="mdiDotsVertical" />
+            </template>
+            <v-card class="px-4 py-2">
+              <v-btn variant="text" :icon="mdiAccount" :to="{ name: 'self' }" />
+              <v-select
+                density="compact"
+                v-model="$i18n.locale"
+                :items="$i18n.availableLocales"
+                hide-details
+              />
+            </v-card>
+          </v-menu>
         </template>
       </v-app-bar>
       <v-banner
@@ -38,10 +46,12 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import MenuBar from './HomeView/MenuBar.vue'
+import { useRouter } from 'vue-router'
+import { mdiAccount, mdiDotsVertical } from '@mdi/js'
 
 import self from '@/composables/localStore/useSelf'
-import { useRouter } from 'vue-router'
+
+import MenuBar from './HomeView/MenuBar.vue'
 
 const deferredPrompt = ref()
 const router = useRouter()
