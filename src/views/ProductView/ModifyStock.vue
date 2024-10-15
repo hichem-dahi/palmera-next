@@ -8,7 +8,6 @@
         control-variant="stacked"
         :error="!$v.qte.$pending && $v.qte.$error"
         v-model.number="form.qte"
-        type="number"
       />
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -34,7 +33,7 @@ const props = defineProps<{ product: Product }>()
 const notZero = (value: any) => value !== null && value !== undefined && value !== 0
 
 const form = reactive({
-  qte: null
+  qte: 0
 })
 
 const rules = {
