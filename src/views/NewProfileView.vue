@@ -20,6 +20,18 @@ import CreateClient from './ClientsView/CreateClient.vue'
 
 import type { Validation } from '@vuelidate/core'
 
+interface form {
+  id: string
+  name: string
+  phone: string
+  rc: string
+  nif: string | null
+  nis: string | null
+  art: string | null
+  address: string
+  activity: string
+}
+
 const router = useRouter()
 
 function submitNewProfile(form: any, v: Validation) {
