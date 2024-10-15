@@ -83,6 +83,7 @@ import { useRoute } from 'vue-router'
 import { pick, round, padStart } from 'lodash'
 import html2pdf from 'html2pdf.js'
 import n2words from 'n2words'
+import { format } from 'date-fns'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
@@ -90,7 +91,6 @@ import companies from '@/composables/localStore/useCompanyStore'
 
 import { ConsumerType, DocumentType } from '@/models/models'
 import self from '@/composables/localStore/useSelf'
-import { format } from 'date-fns'
 
 const route = useRoute()
 
@@ -143,7 +143,7 @@ const consumer = computed(() => {
 
   if (Object.keys(company).length) {
     company = { ...company, client: company.name } as any
-    const desiredOrder = ['client', 'rc', 'nif', 'art', 'address', 'activity']
+    const desiredOrder = ['client', 'rc', 'nif', 'nis', 'art', 'address', 'activity']
     return pick(company, desiredOrder)
   } else if (Object.keys(individual).length) {
     individual = { ...individual, client: individual.name }
