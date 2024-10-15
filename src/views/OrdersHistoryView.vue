@@ -33,7 +33,7 @@ import { useI18n } from 'vue-i18n'
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 
-import type { OrderLine } from '@/models/models'
+import { OrderState, type OrderLine } from '@/models/models'
 
 const { t } = useI18n()
 
@@ -44,12 +44,12 @@ const filteredOrders = computed(() => {
     const dateFilter = dateRange.value.length
       ? dateRange.value.some((selectedDate) => isSameDay(o.date, selectedDate))
       : true
-    return dateFilter
+    return dateFilter && o.state === OrderState.Confirmed
   })
 })
 
 const historyItems = computed(() => {
-  let groupedSummary: any[] = []
+  let groupedSummary = []
   for (const date in groupedOrders.value) {
     const intro = `<span class="text-primary">${format(date, 'dd-MM-yyyy')}</span>&nbsp;&nbsp;`
     const dateSummary = {
