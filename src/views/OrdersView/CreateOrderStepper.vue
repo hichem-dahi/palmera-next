@@ -58,25 +58,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { cloneDeep, isString } from 'lodash'
 
 import orders from '@/composables/localStore/useOrdersStore'
+import proformas from '@/composables/localStore/useProformaStore'
+import companies from '@/composables/localStore/useCompanyStore'
 import { individuals, upsertIndividuals } from '@/composables/localStore/useIndividualsStore'
-import { processOrder } from '@/composables/useStockManage'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
 import ExtraInfo from './CreateOrderStepper/ExtraInfo.vue'
-import proformas from '@/composables/localStore/useProformaStore'
-import companies from '@/composables/localStore/useCompanyStore'
 
-import { form } from './CreateOrderStepper/state'
+import { form, cleanForm, resetForm } from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
 import { DocumentType } from '@/models/models'
-import { computed } from 'vue'
 
 enum Steps {
   SelectConsumer = 1,
@@ -120,7 +118,9 @@ function nextStep(v: Validation) {
   v.$touch()
   if (!v.$invalid) {
     if (step.value === 3) {
+      cleanForm()
       const order = cloneDeep(form)
+      resetForm()
       if (order.document_type === DocumentType.Proforma) {
         proformas.value.unshift(order)
         emits('success')
@@ -128,7 +128,6 @@ function nextStep(v: Validation) {
       }
       orders.value.unshift(order)
       if (order.individual) upsertIndividuals(order.individual)
-      processOrder(order)
       emits('success')
     }
     step.value++
