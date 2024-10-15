@@ -32,7 +32,7 @@ export function logStockMovement(product_id: string, qte_change: number, order_i
 export function adjustStock(product_id: string, adjustment: number): void {
   const product = products.value.find((p) => p.id === product_id)
   if (product) {
-    product.qte = Number(product.qte || 0) + Number(adjustment) // Adjust stock
+    product.qte = Math.max(0, Number(product.qte || 0) + Number(adjustment)) // Ensure qte is at least 0
     logStockMovement(product_id, adjustment)
   }
 }
