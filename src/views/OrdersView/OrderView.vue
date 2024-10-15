@@ -11,19 +11,7 @@
   <div class="text-h5 pa-4 my-4">{{ title }}</div>
   <div class="wrapper">
     <div class="table border">
-      <OrderTable :order="order" />
-      <v-card class="pa-4 pb-2" border="0" elevation="0">
-        <div class="total-info d-flex justify-end">
-          <div class="info">
-            <div v-for="(value, key) in totalItems" :key="key">
-              <div>
-                <span class="font-weight-medium"> {{ $t(key) }}:&nbsp; </span>
-                <span :class="{ 'text-red': key === 'remaining' }">{{ value }} DA</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </v-card>
+      <OrderTable ref="orderTableRef" v-model:order="order" />
     </div>
     <div class="invoice-actions d-flex flex-column align-start ga-1">
       <v-btn
@@ -38,7 +26,8 @@
         v-if="order?.document_type == DocumentType.DeliveryNote"
         variant="text"
         :prepend-icon="mdiTruckCheck"
-        @click="goDocPage"
+        :disabled="!isConfirmable"
+        @click="confirmDialog = true"
         target="_blank"
         :text="$t('delivery-note')"
       />
@@ -54,7 +43,8 @@
         v-if="order?.document_type == DocumentType.Invoice"
         variant="text"
         :prepend-icon="mdiReceiptText"
-        @click="goDocPage"
+        :disabled="!isConfirmable"
+        @click="confirmDialog = true"
         target="_blank"
         :text="$t('invoice')"
       />
@@ -67,7 +57,8 @@
         v-if="order?.document_type == DocumentType.Voucher"
         variant="text"
         :prepend-icon="mdiInvoice"
-        @click="goDocPage"
+        :disabled="!isConfirmable"
+        @click="confirmDialog = true"
         target="_blank"
         :text="$t('voucher')"
       />
@@ -75,12 +66,14 @@
         v-if="order?.document_type == DocumentType.Proforma"
         variant="text"
         :prepend-icon="mdiNote"
-        @click="goDocPage"
+        :disabled="!isConfirmable"
+        @click="confirmDialog = true"
         target="_blank"
         :text="$t('proforma')"
       />
     </div>
   </div>
+  <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="goDocPage" />
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -96,13 +89,16 @@ import {
 } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
+import { processOrder } from '@/composables/useStockManage'
+import { setDocumentIndex } from '@/composables/Orders/setDocumentIndex'
 
 import OrderTable from './OrderTable.vue'
 import CreateDelivery from './CreateDelivery.vue'
 import PaymentMethodModal from './PaymentMethodModal.vue'
 import PaymentModal from './PaymentModal.vue'
+import ConfirmModal from './ConfirmModal.vue'
 
-import { DocumentType } from '@/models/models'
+import { DocumentType, OrderState } from '@/models/models'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -111,6 +107,7 @@ const router = useRouter()
 const paymentDialog = ref(false)
 const deliveryDialog = ref(false)
 const paymentMethodDialog = ref(false)
+const confirmDialog = ref(false)
 
 const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
 
@@ -122,12 +119,8 @@ const title = computed(() => {
   }
 })
 
-const totalItems = computed(() => {
-  return {
-    remaining: (order.value?.total_price || 0) - (order.value?.paid_price || 0),
-    total: order.value?.total_price
-  }
-})
+const orderTableRef = ref<InstanceType<typeof OrderTable>>()
+const isConfirmable = computed(() => orderTableRef.value?.isConfirmable)
 
 function goDocPage() {
   if (order.value?.document_type === DocumentType.Proforma)
@@ -135,18 +128,25 @@ function goDocPage() {
       name: 'preforma',
       params: { order_id: order.value?.id }
     })
-  else if (order.value?.company)
+  else if (order.value?.company) {
     router.push({
       name: 'invoice',
       params: { order_id: order.value?.id },
       query: { type: order.value.document_type }
     })
-  else if (order.value?.individual)
+    order.value.state = OrderState.Confirmed
+    setDocumentIndex(order.value)
+    processOrder(order.value)
+  } else if (order.value?.individual) {
     router.push({
       name: 'voucher',
       params: { order_id: order.value?.id },
       query: { type: order.value.document_type }
     })
+    order.value.state = OrderState.Confirmed
+    setDocumentIndex(order.value)
+    processOrder(order.value)
+  }
 }
 </script>
 <style>

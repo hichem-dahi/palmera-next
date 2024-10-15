@@ -19,34 +19,91 @@
             </div>
           </v-card-title>
         </div>
+        <v-divider class="mx-4" inset vertical />
+        <div class="col-2">
+          <v-dialog v-if="!isOrderConfirmed" v-model="newlineDialog" max-width="400">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                variant="text"
+                size="small"
+                :append-icon="mdiPlus"
+                color="primary"
+                :disabled="!productsItems.length"
+                v-bind="props"
+              >
+                New product
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>{{ $t('add-product') }}</v-card-title>
+              <v-card-text>
+                <OrderLineForm :is-new="true" :products-items="productsItems">
+                  <template v-slot:actions="{ form, validation }">
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn variant="text" color="blue" @click="addOrderline(form, validation)">
+                        {{ $t('add') }}
+                      </v-btn>
+                    </v-card-actions>
+                  </template>
+                </OrderLineForm>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </div>
       </v-card>
     </template>
-    <!-- 
-    <template v-slot:item.qte="{ item }">
-      <v-number-input v-if="proxyOrderlines?.[item.index]?.qte"
+    <template v-if="!isOrderConfirmed" v-slot:item.qte="{ item }">
+      <v-number-input
+        v-if="isNumber(proxyOrderlines?.[item.index]?.qte)"
         class="number-input"
-        type="number" 
+        type="number"
         width="150"
         hide-details
         inset
-        variant="plain"
-        density="compact" 
+        variant="outlined"
+        density="compact"
+        :min="0"
         :suffix="`/${item.product?.qte}`"
+        :error="proxyOrderlines[item.index].qte! > item.product?.qte!"
         counter="50"
-        :max="item.product?.qte || 0"
-        :min="1"
-        v-model="proxyOrderlines[item.index].qte" />
+        v-model="proxyOrderlines[item.index].qte"
+      />
     </template>
-    <template v-slot:item.actions="{ item }">
-      <v-btn color="medium-emphasis" 
-        variant="text" 
-        size="small" 
-        icon="mdi-delete" 
-        @click="deleteItem(item)" />
+    <template v-if="!isOrderConfirmed" v-slot:item.actions="{ item }">
+      <v-btn
+        color="medium-emphasis"
+        variant="text"
+        size="small"
+        :icon="mdiDelete"
+        @click="deleteItem(item)"
+      />
       <DeleteItemModal v-model="deleteDialog" @close="closeDelete" @confirm="deleteItemConfirm" />
     </template>
-     -->
   </v-data-table>
+  <v-card class="pa-4 pb-2" border="0" elevation="0">
+    <div class="total-info d-flex justify-end">
+      <div class="info">
+        <div v-for="(value, key) in totalItems" :key="key">
+          <div>
+            <span class="font-weight-medium"> {{ $t(key) }}:&nbsp; </span>
+            <span :class="{ 'text-red': key === 'remaining' }">{{ value }} DA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <v-card-actions v-if="!isOrderConfirmed" class="align-start justify-end">
+      <v-btn :disabled="!isModified" variant="text" @click="cancelEdit"> Cancel </v-btn>
+      <v-btn
+        :disabled="!isModified || !isValidOrderlines"
+        variant="text"
+        color="blue"
+        @click="confirmEdit"
+      >
+        Save
+      </v-btn>
+    </v-card-actions>
+  </v-card>
   <v-snackbar
     v-model="isSuccess"
     :timeout="2000"
@@ -57,16 +114,18 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { cloneDeep, isEqual, sum } from 'lodash'
 import { format } from 'date-fns'
+import { cloneDeep, isEqual, isNumber, sum } from 'lodash'
+import { mdiDelete, mdiPlus } from '@mdi/js'
 
 import products from '@/composables/localStore/useProductStore'
 import companies from '@/composables/localStore/useCompanyStore'
+import orders from '@/composables/localStore/useOrdersStore'
 
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { ConsumerType, DocumentType, type Order, type OrderLine } from '@/models/models'
+import { ConsumerType, OrderState, type Order, type OrderLine } from '@/models/models'
 
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
@@ -90,11 +149,16 @@ const headers = computed(
       },
       { title: t('quantity'), key: 'qte', align: 'start' },
       { title: t('U.P'), key: 'unity_price' },
-      { title: t('total'), key: 'total_price' }
+      { title: t('total'), key: 'total_price' },
+      { title: '', key: 'actions' }
     ] as any
 )
 
 const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
+
+const isValidOrderlines = computed(() =>
+  proxyOrderlines.value?.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
+)
 
 const consumerName = computed(
   () =>
@@ -106,10 +170,21 @@ const consumerType = computed(() =>
   order.value?.company ? ConsumerType.Company : ConsumerType.Individual
 )
 
+const isOrderConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
+const isConfirmable = computed(
+  () => (!isModified.value && isValidOrderlines.value) || isOrderConfirmed.value
+)
 const proxyOrderlines = computed(() => proxyOrder.value?.order_lines)
 
+const totalItems = computed(() => {
+  return {
+    remaining: (order.value?.total_price || 0) - (order.value?.paid_price || 0),
+    total: order.value?.total_price
+  }
+})
+
 const items = computed(() =>
-  proxyOrderlines.value?.map((o, i) => {
+  proxyOrder.value?.order_lines.map((o, i) => {
     const product = getProduct(o.product_id)
     return {
       id: o.id,
@@ -129,7 +204,7 @@ const productsItems = computed(() =>
       return { title: c.name, value: c.id }
     })
     .filter((e) => {
-      const alreadySelected = proxyOrderlines.value?.map((ol) => ol.product_id)
+      const alreadySelected = proxyOrder.value?.order_lines.map((ol) => ol.product_id)
       return !alreadySelected?.includes(e.value)
     })
 )
@@ -142,9 +217,11 @@ const deleteItem = (item: any) => {
 }
 
 const deleteItemConfirm = () => {
-  const index = proxyOrderlines.value?.findIndex((e) => e.id == selectedOrderline.value?.id) || -1
-  proxyOrderlines.value?.splice(index, 1)
-  closeDelete()
+  const index = proxyOrderlines.value?.findIndex((e) => e.id === selectedOrderline.value?.id)
+  if (isNumber(index)) {
+    proxyOrderlines.value?.splice(index, 1)
+    closeDelete()
+  }
 }
 
 const closeDelete = () => {
@@ -155,7 +232,7 @@ const closeDelete = () => {
 function addOrderline(form: OrderLine, validation: { touch: () => void; invalid: boolean }) {
   validation.touch()
   if (!validation.invalid) {
-    proxyOrderlines.value?.push(form)
+    proxyOrder.value?.order_lines.push(form)
     newlineDialog.value = false
   }
 }
@@ -165,8 +242,13 @@ function cancelEdit() {
 }
 
 function confirmEdit() {
-  if (order.value) {
-    order.value = cloneDeep(proxyOrder.value)
+  if (order.value && proxyOrder.value) {
+    const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex] = cloneDeep(proxyOrder.value)
+    } else {
+      orders.value.push(cloneDeep(order.value))
+    }
     isSuccess.value = true
   }
 }
@@ -187,6 +269,10 @@ watch(
     deep: true
   }
 )
+
+defineExpose({
+  isConfirmable
+})
 </script>
 
 <style>

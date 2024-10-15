@@ -7,6 +7,7 @@ import orders from '@/composables/localStore/useOrdersStore'
 import {
   ConsumerType,
   DocumentType,
+  OrderState,
   type Delivery,
   type Individual,
   type OrderLine
@@ -14,7 +15,7 @@ import {
 
 const consumerType = ref<ConsumerType>()
 
-const form = reactive({
+const defaultForm = () => ({
   id: uuidv4(),
   index: undefined as any,
   company: undefined as any,
@@ -40,7 +41,8 @@ const form = reactive({
     destination: ''
   } as Delivery,
   document_type: 0,
-  docIndex: 0,
+  docIndex: null,
+  state: OrderState.Pending,
   payment_method: '',
   paid_price: 0 as any,
   total_price: 0,
@@ -48,18 +50,10 @@ const form = reactive({
   ttc: 0
 })
 
+const form = reactive(defaultForm())
+
 function cleanForm() {
   switch (form.document_type) {
-    case DocumentType.DeliveryNote:
-      form.delivery = {
-        id: uuidv4(),
-        driver_name: '',
-        phone: '',
-        matricule: '',
-        destination: ''
-      }
-      break
-
     case DocumentType.Invoice:
     case DocumentType.Voucher:
       form.delivery = undefined as any
@@ -72,7 +66,6 @@ function cleanForm() {
       break
 
     default:
-      // Handle any other document types if necessary
       break
   }
 
@@ -85,13 +78,13 @@ function cleanForm() {
   }
 }
 
+function resetForm() {
+  Object.assign(form, defaultForm())
+}
+
 watchEffect(() => {
   form.total_price = sum(form.order_lines.map((e) => e.total_price))
   form.index = (max(orders.value.map((o) => o.index)) || 0) + 1
-  form.docIndex =
-    (max(
-      orders.value.filter((o) => o.document_type == form.document_type).map((o) => o.docIndex)
-    ) || 0) + 1
 })
 
-export { form, consumerType, cleanForm }
+export { form, consumerType, cleanForm, resetForm }

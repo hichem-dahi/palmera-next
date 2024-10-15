@@ -1,13 +1,14 @@
 export interface Order {
   id: string
   index: number
-  docIndex: number
+  docIndex: number | null
   company?: Company | string
   individual?: Individual
   date: Date
   order_lines: OrderLine[]
   delivery?: Delivery
   document_type: DocumentType
+  state: OrderState
   payment_method?: string
   paid_price: number
   total_price: number
@@ -79,6 +80,11 @@ export enum DocumentType {
   DeliveryNote,
   Voucher,
   Proforma
+}
+
+export enum OrderState {
+  Pending = 0,
+  Confirmed
 }
 
 export enum HistoryType {
