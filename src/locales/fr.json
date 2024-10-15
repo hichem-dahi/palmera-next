@@ -42,6 +42,7 @@
   "cancel": "Annuler",
   "next": "Suivant",
   "confirm": "Confirmer",
+  "confirmed": "Confirmé",
   "company": "Entreprise",
   "individual": "Individuel",
   "delivery-note": "Bon de livraison",
@@ -60,5 +61,6 @@
   "your-informations": "Vos informations",
   "proforma": "Préforma",
   "proformas": "Préformas",
-  "DA": "DA"
+  "DA": "DA",
+  "document-type": "Type de document"
 }

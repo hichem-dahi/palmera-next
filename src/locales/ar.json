@@ -42,6 +42,7 @@
   "cancel": "إلغاء",
   "next": "التالي",
   "confirm": "تأكيد",
+  "confirmed": "مؤكد",
   "company": "شركة",
   "individual": "فردي",
   "delivery-note": "إيصال التسليم",
@@ -60,5 +61,6 @@
   "your-informations": "معلوماتك",
   "proforma": "فاتورة شكلية",
   "proformas": "فواتير شكلية",
-  "DA": "دج"
+  "DA": "دج",
+  "document-type": "نوع المستند"
 }
