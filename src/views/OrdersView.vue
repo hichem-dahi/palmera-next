@@ -18,7 +18,7 @@
         v-model="docType"
         max-width="368"
         min-width="100"
-        :label="$t('type')"
+        :label="$t('document-type')"
         clearable
       />
       <v-date-input
