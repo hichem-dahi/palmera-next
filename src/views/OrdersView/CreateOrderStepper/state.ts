@@ -22,7 +22,7 @@ const defaultForm = () => ({
   individual: {
     id: uuidv4(),
     name: '',
-    phone: ''
+    phone: undefined
   } as Individual,
   date: new Date(),
   order_lines: [
@@ -36,7 +36,7 @@ const defaultForm = () => ({
   delivery: {
     id: uuidv4(),
     driver_name: '',
-    phone: '',
+    phone: undefined,
     matricule: '',
     destination: ''
   } as Delivery,

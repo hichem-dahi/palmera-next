@@ -36,13 +36,13 @@ export interface Proforma {
 export interface Individual {
   id: string
   name: string
-  phone: string
+  phone: string | undefined
 }
 
 export interface Delivery {
   id: string
   driver_name: string
-  phone: string
+  phone: string | undefined
   matricule: string //xxxxx xxx xx
   destination: string
 }

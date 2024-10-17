@@ -50,7 +50,6 @@ const form = defineModel<Delivery>('delivery', { required: true })
 const rules = {
   driver_name: { required, minLength: minLength(3) },
   phone: {
-    required,
     numeric,
     minLength: minLength(10)
   },

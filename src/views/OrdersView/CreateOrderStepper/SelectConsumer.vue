@@ -38,7 +38,7 @@ import { computed, toRef } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { isString } from 'lodash'
 import useVuelidate from '@vuelidate/core'
-import { numeric, required } from '@vuelidate/validators'
+import { minLength, numeric, required } from '@vuelidate/validators'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 import companies from '@/composables/localStore/useCompanyStore'
@@ -53,12 +53,15 @@ import { form, consumerType } from './state'
 const rules1 = { required }
 
 const rules2 = {
+  id: {
+    required
+  },
   name: {
     required
   },
   phone: {
-    required,
-    numeric
+    numeric,
+    minLength: minLength(10)
   }
 }
 
@@ -67,6 +70,7 @@ const v1$ = useVuelidate(
   rules1,
   toRef(() => form.company)
 )
+
 const v2$ = useVuelidate(
   rules2,
   toRef(() => form.individual)
