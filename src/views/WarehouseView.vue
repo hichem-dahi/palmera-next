@@ -1,7 +1,7 @@
 <template>
-  <v-btn class="my-5" variant="tonal" size="small" :append-icon="mdiPlus" @click="dialog = true">{{
-    $t('add-product')
-  }}</v-btn>
+  <v-btn class="my-5" variant="tonal" size="small" :append-icon="mdiPlus" @click="dialog = true">
+    {{ $t('add-product') }}
+  </v-btn>
   <v-dialog v-model="dialog" max-width="400px">
     <CreateProduct v-model="dialog" />
   </v-dialog>
@@ -16,10 +16,10 @@
 import { ref } from 'vue'
 import { mdiPlus } from '@mdi/js'
 
+import products from '@/composables/localStore/useProductStore'
+
 import CreateProduct from '@/views/WarehouseView/CreateProduct.vue'
 import ProductCard from '@/views/WarehouseView/ProductCard.vue'
-
-import products from '@/composables/localStore/useProductStore'
 
 const dialog = ref(false)
 </script>
