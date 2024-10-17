@@ -129,23 +129,23 @@ function goDocPage() {
       params: { order_id: order.value?.id }
     })
   else if (order.value?.company) {
+    setDocumentIndex(order.value)
+    processOrder(order.value)
     router.push({
       name: 'invoice',
       params: { order_id: order.value?.id },
       query: { type: order.value.document_type }
     })
     order.value.state = OrderState.Confirmed
+  } else if (order.value?.individual) {
     setDocumentIndex(order.value)
     processOrder(order.value)
-  } else if (order.value?.individual) {
     router.push({
       name: 'voucher',
       params: { order_id: order.value?.id },
       query: { type: order.value.document_type }
     })
     order.value.state = OrderState.Confirmed
-    setDocumentIndex(order.value)
-    processOrder(order.value)
   }
 }
 </script>
