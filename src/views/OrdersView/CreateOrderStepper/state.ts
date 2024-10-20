@@ -30,6 +30,7 @@ const defaultForm = () => ({
       id: uuidv4(),
       product_id: '',
       qte: null,
+      unit_price: 0,
       total_price: 0
     }
   ] as OrderLine[],
