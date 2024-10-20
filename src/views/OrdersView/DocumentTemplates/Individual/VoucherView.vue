@@ -120,7 +120,7 @@ const items = computed(() =>
       index: i,
       product_name: product?.name,
       qte: o.qte,
-      unity_price: product?.price,
+      unit_price: o.unit_price,
       total_price: o.total_price
     }
   })

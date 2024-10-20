@@ -148,7 +148,7 @@ const headers = computed(
         key: 'product_name'
       },
       { title: t('quantity'), key: 'qte', align: 'start' },
-      { title: t('U.P'), key: 'unity_price' },
+      { title: t('U.P'), key: 'unit_price' },
       { title: t('total'), key: 'total_price' },
       { title: '', key: 'actions' }
     ] as any
@@ -192,7 +192,7 @@ const items = computed(() =>
       product: product,
       product_name: product?.name,
       qte: o.qte,
-      unity_price: product?.price,
+      unit_price: o.unit_price,
       total_price: o.total_price
     }
   })
@@ -259,8 +259,7 @@ watch(
     if (!proxyOrder.value || !orderLines) return
     proxyOrder.value.total_price = sum(
       orderLines.map((e) => {
-        const product = getProduct(e.product_id)
-        e.total_price = Number(e.qte) * Number(product?.price)
+        e.total_price = Number(e.qte) * Number(e.unit_price)
         return e.total_price
       })
     )
