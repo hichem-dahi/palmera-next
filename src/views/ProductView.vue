@@ -38,6 +38,6 @@ const product = computed(() => products.value.find((p) => p.id == route.params.p
 }
 
 .product-table {
-  min-width: 70%;
+  min-width: 50%;
 }
 </style>
