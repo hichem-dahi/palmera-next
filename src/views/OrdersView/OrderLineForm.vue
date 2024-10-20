@@ -33,6 +33,19 @@
         v-model="form.qte"
       />
     </v-col>
+    <v-col>
+      <v-number-input
+        :label="$t('U.P')"
+        variant="underlined"
+        inset
+        :disabled="!form.qte"
+        hide-details
+        control-variant="stacked"
+        :error="!$v.unit_price.$pending && $v.unit_price.$error"
+        :min="0"
+        v-model="form.unit_price"
+      />
+    </v-col>
     <v-col cols="2">
       <div class="pa-2 text-medium-emphasis text-caption">
         {{ $t('total') }}: {{ form.total_price }}DA
@@ -57,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, computed } from 'vue'
+import { reactive, watchEffect, computed, watch } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import useVuelidate from '@vuelidate/core'
 import { minValue, numeric, required } from '@vuelidate/validators'
@@ -77,6 +90,7 @@ const model = defineModel<OrderLine>({
     id: uuidv4(),
     product_id: '',
     qte: null,
+    unit_price: 0,
     total_price: 0
   },
   required: false
@@ -93,15 +107,18 @@ const orderLineRules = {
   id: { required },
   product_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
+  unit_price: { required, numeric, minValue: minValue(1) },
   total_price: { required, numeric, minValue: minValue(1) }
 }
 const $v = useVuelidate(orderLineRules, form)
 
 watchEffect(() => {
-  const product = products.value.find((p) => p.id === form!.product_id)
-  if (product?.price && form?.qte) {
-    const total_price = product.price * form?.qte
-    form.total_price = total_price
+  if (form?.qte && form.unit_price) {
+    form.total_price = form.unit_price * form?.qte
   }
+})
+
+watch(product, (newProduct) => {
+  if (newProduct) form.unit_price = newProduct.price || 0
 })
 </script>
