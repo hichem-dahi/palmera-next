@@ -77,7 +77,6 @@ const items = computed(() =>
         index: i,
         date: s.date,
         qte: s.qte_change,
-        unity_price: product.value?.price,
         order: s.order_id
       }
     })
@@ -92,7 +91,6 @@ const headers = computed(() => [
     key: 'date'
   },
   { title: t('quantity'), key: 'qte', align: 'start' },
-  { title: `${t('U.P')} (DA)`, key: 'unity_price' },
   { title: ``, key: 'order' }
 ]) as any
 </script>
