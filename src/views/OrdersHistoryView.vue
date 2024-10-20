@@ -9,7 +9,7 @@
     multiple="range"
   />
   <v-row class="mt-10">
-    <v-col sm="12" md="4">
+    <v-col sm="12" md="6">
       <v-list density="compact" class="overflow-y" style="max-height: 200px">
         <template v-for="item in historyItems" :key="item.orderId || item.title">
           <v-list-item>
@@ -19,7 +19,9 @@
           </v-list-item>
         </template>
       </v-list>
-      <div class="total text-end pa-4 font-italic" v-html="productSummary(allOrderlines)"></div>
+      <div class="total text-end pa-4">
+        {{ $t('total') }}: <span v-html="productSummary(allOrderlines)"></span>
+      </div>
     </v-col>
   </v-row>
 </template>
