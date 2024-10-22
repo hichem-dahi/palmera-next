@@ -111,7 +111,6 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, numeric } from '@vuelidate/validators'
 import { cloneDeep } from 'lodash'
@@ -129,7 +128,6 @@ const emits = defineEmits(['success'])
 const route = useRoute()
 
 const form = ref({
-  id: uuidv4(),
   name: '',
   phone: '',
   rc: '',
@@ -141,7 +139,6 @@ const form = ref({
 })
 
 const rules = {
-  id: { required },
   name: { required, minLength: minLength(3) },
   phone: { required, minLength: minLength(10), numeric },
   rc: { required },
@@ -155,8 +152,8 @@ const rules = {
 const $v = useVuelidate(rules, form)
 
 onMounted(() => {
-  if (route.name == 'self' && self.value.company) {
-    form.value = self.value.company
+  if (route.name == 'self' && self.value.user.companies) {
+    form.value = self.value.user.companies
   }
 })
 

@@ -57,13 +57,15 @@ const deferredPrompt = ref()
 const router = useRouter()
 
 onMounted(() => {
-  if (!self.value.company) {
+  if (!self.value.session) {
     router.push({ name: 'self' })
   }
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferredPrompt.value = e
   })
+
   window.addEventListener('appinstalled', () => {
     deferredPrompt.value = null
   })

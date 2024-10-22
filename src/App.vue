@@ -10,6 +10,7 @@ import { supabase } from './supabase/supabase'
 import { useGetProfileApi } from './composables/api/auth/useGetProfileApi'
 
 import self from './composables/localStore/useSelf'
+import { watchOnce } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,31 +18,30 @@ const router = useRouter()
 const getProfileApi = useGetProfileApi()
 
 onMounted(() => {
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) self.value.session = data.session
-  })
-
   supabase.auth.onAuthStateChange(async (_, _session) => {
     if (_session) {
       self.value.session = _session
-      if (route.path === '/') router.push('/')
     } else {
       router.push('/auth')
     }
   })
 })
 
-watch(
+watchOnce(
   () => self.value.session,
   (newSession) => {
-    if (newSession) getProfileApi.userId.value = newSession.user.id
+    if (newSession) {
+      getProfileApi.userId.value = newSession.user.id
+      getProfileApi.execute()
+    }
   }
 )
-
 watch(
-  () => getProfileApi.data.value,
-  (profileData) => {
-    if (profileData) self.value.user = profileData
+  () => getProfileApi.isReady.value,
+  (isReady) => {
+    if (isReady) {
+      self.value.user = getProfileApi.data.value
+    }
   }
 )
 </script>

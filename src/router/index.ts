@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '../views/HomeView.vue'
+import AuthView from '@/views/AuthView.vue'
+import HomeView from '@/views/HomeView.vue'
 import WarehouseView from '@/views/WarehouseView.vue'
 import PersonnelView from '@/views/PersonnelView.vue'
 import ClientsView from '@/views/ClientsView.vue'
@@ -95,6 +96,11 @@ const router = createRouter({
       path: '/self',
       name: 'self',
       component: NewProfileView
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: AuthView
     }
   ]
 })

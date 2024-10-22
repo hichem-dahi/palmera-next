@@ -1,3 +1,11 @@
+export interface Profile {
+  id: string
+  full_name: string | null
+  email: string | null
+  phone: string | null
+  company_id: string | null
+}
+
 export interface Order {
   id: string
   index: number

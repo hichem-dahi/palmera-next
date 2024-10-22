@@ -1,10 +1,29 @@
 <template>
   <div class="w-100 mx-auto">
     <v-row justify="center">
-      <v-col sm="12" md="6">
+      <v-col sm="12" md="5">
+        <v-card class="pa-4" elevation="1">
+          <template v-slot:title>
+            {{ $t('profile') }}
+          </template>
+          <v-text-field :label="$t('name')" v-model="userForm.full_name" />
+          <v-text-field :label="$t('phone')" v-model="userForm.phone" />
+
+          <v-btn block :loading="updateProfileApi.isLoading.value" @click="submitProfile">
+            {{ $t('confirm') }}
+          </v-btn>
+        </v-card>
+      </v-col>
+      <v-col sm="12" md="5">
         <CreateClient :title="$t('your-informations')">
           <template v-slot:actions="{ form, validation }">
-            <v-btn block @click="submitNewProfile(form, validation)">{{ $t('confirm') }}</v-btn>
+            <v-btn
+              block
+              :loading="updateProfileApi.isLoading.value"
+              @click="submitNewProfile(form, validation)"
+            >
+              {{ $t('confirm') }}</v-btn
+            >
           </template>
         </CreateClient>
       </v-col>
@@ -12,15 +31,21 @@
   </div>
 </template>
 <script setup lang="ts">
+import { reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import self from '@/composables/localStore/useSelf'
 
+import { useGetProfileApi } from '@/composables/api/auth/useGetProfileApi'
+import { useUpdateProfileApi } from '@/composables/api/auth/useUpdateProfileApi'
+import { useUpsertCompanyApi } from '@/composables/api/companies/useUpsertCompanyApi'
+
 import CreateClient from './ClientsView/CreateClient.vue'
 
 import type { Validation } from '@vuelidate/core'
+import { watchEffect } from 'vue'
 
-interface form {
+interface Form {
   id: string
   name: string
   phone: string
@@ -32,13 +57,64 @@ interface form {
   activity: string
 }
 
+const userForm = reactive({
+  full_name: '',
+  phone: ''
+})
+
 const router = useRouter()
+
+const updateProfileApi = useUpdateProfileApi()
+const upsertCompanyApi = useUpsertCompanyApi()
+
+const getProfileApi = useGetProfileApi()
+
+watchEffect(() => {
+  if (self.value.user.id) {
+    getProfileApi.userId.value = self.value.user.id
+    getProfileApi.execute()
+  }
+})
+
+function submitProfile() {
+  updateProfileApi.params.profileForm = {
+    id: self.value.user.id,
+    full_name: userForm.full_name,
+    phone: userForm.phone
+  }
+  updateProfileApi.execute()
+}
 
 function submitNewProfile(form: any, v: Validation) {
   v.$touch()
   if (!v.$invalid) {
-    self.value.company = form
-    router.push({ name: 'home' })
+    upsertCompanyApi.form.value = form
+    upsertCompanyApi.execute()
   }
 }
+
+watch(
+  () => getProfileApi.isReady.value,
+  (isReady) => {
+    if (isReady) {
+      Object.assign(userForm, {
+        full_name: getProfileApi.data?.value?.full_name ?? '',
+        phone: getProfileApi.data?.value?.phone ?? ''
+      })
+    }
+  }
+)
+
+watch(
+  () => upsertCompanyApi.isReady.value,
+  (isReady) => {
+    if (isReady && upsertCompanyApi.data.value?.id) {
+      Object.assign(updateProfileApi.params.form, {
+        id: self.value.user.id,
+        company_id: upsertCompanyApi.data.value.id
+      })
+      updateProfileApi.execute()
+    }
+  }
+)
 </script>

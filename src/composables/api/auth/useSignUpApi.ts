@@ -4,17 +4,14 @@ import { useAsyncState } from '@vueuse/core'
 import { supabase } from '@/supabase/supabase'
 
 export function useSignUpApi() {
-  const form = reactive({ email: '' })
+  const params = reactive({ email: '' })
 
   const query = () =>
     supabase.auth.signInWithOtp({
-      email: form.email
+      email: params.email
     })
 
-  const q = useAsyncState(query, undefined) // Invoke query properly
+  const q = useAsyncState(query, null, { immediate: false })
 
-  const data = computed(() => q.state.value?.data)
-  const error = computed(() => q.state.value?.error)
-
-  return { ...q, data, error, form }
+  return { ...q, params }
 }

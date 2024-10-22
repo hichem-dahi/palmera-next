@@ -45,17 +45,19 @@ export type Database = {
           nis: number
           phone: string
           rc: string
+          updated_at: string
         }
         Insert: {
           activity: string
           address: string
           art: number
-          id: string
+          id?: string
           name: string
           nif: number
           nis: number
           phone: string
           rc: string
+          updated_at?: string
         }
         Update: {
           activity?: string
@@ -67,6 +69,7 @@ export type Database = {
           nis?: number
           phone?: string
           rc?: string
+          updated_at?: string
         }
         Relationships: []
       }
