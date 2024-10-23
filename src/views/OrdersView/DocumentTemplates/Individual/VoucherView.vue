@@ -1,27 +1,33 @@
 <template>
   <div class="voucher-wrapper" v-if="order">
     <div class="voucher" v-for="i in 3" :key="i">
-      <div class="d-flex align-center">
-        <div style="width: 33%">
-          <h3>{{ self.company?.name }}</h3>
-          <div>{{ self.company?.activity }}</div>
-          <div>{{ self.company?.phone }}</div>
-        </div>
-        <h3 class="type">
-          {{ title }} N°: {{ padStart(order.docIndex?.toString(), 4, '0') }}/2024
-        </h3>
-      </div>
-      <div class="d-flex align-start justify-space-between mt-5">
-        <div>
-          <div v-for="(value, key) in individualInfo" :key="key">
-            <span v-if="value">{{ key }}: {{ value }}</span>
+      <div class="d-flex justify-space-between align-center">
+        <div class="col-1">
+          <div v-for="(value, key) in selfInfo" :key="key">
+            <div v-if="key == 'name'">
+              <h3>{{ value }}</h3>
+            </div>
+            <div v-else-if="key == 'activity'">
+              <div>{{ value }}</div>
+            </div>
+            <div v-else>{{ key }}: {{ value }}</div>
           </div>
         </div>
-        <div class="delivery-info" v-if="($route.query.type as any) == DocumentType.DeliveryNote">
-          <div v-for="(value, key) in deliveryInfo" :key="key">
-            <span>
-              <b>{{ key }}:</b> {{ value }}
-            </span>
+        <h3 class="col-2 type">
+          {{ title }} N°: {{ padStart(order.docIndex?.toString(), 4, '0') }}/2024
+        </h3>
+        <div class="col-3 d-flex flex-column justify-space-between align-self-stretch">
+          <div class="delivery-info" v-if="($route.query.type as any) == DocumentType.DeliveryNote">
+            <div v-for="(value, key) in deliveryInfo" :key="key">
+              <span>
+                <b>{{ key }}:</b> {{ value }}
+              </span>
+            </div>
+          </div>
+          <div class="individual-info">
+            <div v-for="(value, key) in individualInfo" :key="key">
+              <span v-if="value">{{ key }}: {{ value }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +103,19 @@ const totalWords = computed(() => {
   return `${words} dinars alg`
 })
 
+const selfInfo = computed(() => {
+  let selfInfo = self.value.company
+  if (!selfInfo) return
+  selfInfo = {
+    ...selfInfo,
+    name: selfInfo.name,
+    'R.C': selfInfo.rc,
+    'N°tel': selfInfo.phone
+  } as any
+  const desiredOrder = ['name', 'activity', 'address', 'R.C', 'nif', 'nis', 'art', 'N°tel']
+  return pick(selfInfo, desiredOrder)
+})
+
 const individualInfo = computed(() => {
   const individualInfoKeys = ['date', 'name', 'N°tel']
   let individual = {
@@ -108,8 +127,12 @@ const individualInfo = computed(() => {
 })
 
 const deliveryInfo = computed(() => {
-  const deliveryInfoKeys = ['chauffeur', 'phone', 'matricule', 'destination']
-  let delivery = { ...order.value?.delivery, chauffeur: order.value?.delivery?.driver_name }
+  const deliveryInfoKeys = ['chauffeur', 'N°tel', 'matricule', 'destination']
+  let delivery = {
+    ...order.value?.delivery,
+    chauffeur: order.value?.delivery?.driver_name,
+    'N°tel': order.value?.delivery?.phone
+  }
   return pick(delivery, deliveryInfoKeys)
 })
 
@@ -215,7 +238,6 @@ function downloadInvoice() {
     max-width: min-content;
     font-size: 0.6rem;
     white-space: nowrap;
-    padding: 0.5rem 1rem;
   }
 }
 
@@ -225,7 +247,7 @@ function downloadInvoice() {
   }
 
   .voucher {
-    font-size: small;
+    font-size: x-small;
     max-width: none;
     margin: 0;
     page-break-inside: avoid; /* Prevent breaking inside voucher */
