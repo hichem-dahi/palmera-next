@@ -51,6 +51,7 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { format } from 'date-fns'
+import { sortBy } from 'lodash'
 
 import { mdiOpenInNew } from '@mdi/js'
 
@@ -70,27 +71,38 @@ const product = computed(() => products.value.find((p) => p.id == route.params.p
 const stockMovements = computed(() => stock.value.filter((s) => s.product_id == product.value?.id))
 
 const items = computed(() =>
-  stockMovements.value
-    ?.map((s, i) => {
+  sortBy(
+    stockMovements.value?.map((s, i) => {
       return {
         id: s.id,
-        index: i,
         date: s.date,
         qte: s.qte_change,
         order: s.order_id
       }
-    })
-    .reverse()
+    }),
+    (t) => new Date(t.date)
+  ).reverse()
 )
 
-const headers = computed(() => [
-  {
-    title: t('date'),
-    align: 'start',
-    sortable: false,
-    key: 'date'
-  },
-  { title: t('quantity'), key: 'qte', align: 'start' },
-  { title: ``, key: 'order' }
-]) as any
+const headers = computed(
+  () =>
+    [
+      {
+        title: t('date'),
+        align: 'start',
+        sortable: false,
+        key: 'date'
+      },
+      {
+        title: t('quantity'),
+        key: 'qte',
+        align: 'start',
+        value: (item: (typeof items.value)[0]) => {
+          const number = Number(item.qte)
+          return `${number >= 0 ? '+' : ''}${number}`
+        }
+      },
+      { title: t('order'), key: 'order' }
+    ] as any
+)
 </script>
