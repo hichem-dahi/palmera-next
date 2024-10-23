@@ -27,11 +27,11 @@
         {{ detail }}
       </div>
     </template>
-    <template v-slot:item.state="{ item }">
-      <v-chip v-if="item.state === OrderState.Confirmed" variant="text" color="green">
+    <template v-slot:item.status="{ item }">
+      <v-chip v-if="item.status === OrderStatus.Confirmed" variant="tonal" color="green">
         {{ $t('confirmed') }}
       </v-chip>
-      <v-chip v-else-if="item.state === OrderState.Cancelled" variant="text" color="red">
+      <v-chip v-else-if="item.status === OrderStatus.Cancelled" variant="tonal" color="red">
         {{ $t('cancelled') }}
       </v-chip>
     </template>
@@ -63,7 +63,7 @@ import companies from '@/composables/localStore/useCompanyStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 import orders from '@/composables/localStore/useOrdersStore'
 
-import { ConsumerType, OrderState } from '@/models/models'
+import { ConsumerType, OrderStatus } from '@/models/models'
 
 const emits = defineEmits(['close'])
 const route = useRoute()
@@ -101,7 +101,7 @@ const historyItems = computed(() => {
       details: orderLinesInfo,
       total,
       remaining,
-      state: o.state,
+      status: o.status,
       orderId: o.id
     }
   })
@@ -122,7 +122,7 @@ const headers = computed(
       { title: t('details'), key: 'details' },
       { title: `${t('total')} (DA)`, key: 'total' },
       { title: `${t('remaining')} (DA)`, key: 'remaining' },
-      { title: `${t('state')}`, key: 'state' },
+      { title: `${t('status')}`, key: 'status' },
 
       { title: ``, key: 'order' }
     ] as any

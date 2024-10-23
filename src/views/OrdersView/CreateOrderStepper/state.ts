@@ -7,7 +7,7 @@ import orders from '@/composables/localStore/useOrdersStore'
 import {
   ConsumerType,
   DocumentType,
-  OrderState,
+  OrderStatus,
   type Delivery,
   type Individual,
   type OrderLine
@@ -43,7 +43,7 @@ const defaultForm = () => ({
   } as Delivery,
   document_type: 0,
   docIndex: null,
-  state: OrderState.Pending,
+  status: OrderStatus.Pending,
   payment_method: '',
   paid_price: 0 as any,
   total_price: 0,

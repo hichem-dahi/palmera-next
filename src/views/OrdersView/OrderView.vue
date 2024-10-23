@@ -73,7 +73,7 @@
         :text="$t('proforma')"
       />
       <v-btn
-        v-if="order?.state === OrderState.Confirmed"
+        v-if="order?.status === OrderStatus.Confirmed"
         variant="text"
         :prepend-icon="mdiCancel"
         @click="cancelDialog = true"
@@ -110,7 +110,7 @@ import PaymentModal from './PaymentModal.vue'
 import ConfirmModal from './ConfirmModal.vue'
 import CancelModal from './CancelModal.vue'
 
-import { DocumentType, OrderState } from '@/models/models'
+import { DocumentType, OrderStatus } from '@/models/models'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -136,9 +136,9 @@ const title = computed(() => {
 
 const isConfirmable = computed(() => orderTableRef.value?.isConfirmable)
 
-const isConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
-const isCancelled = computed(() => order.value?.state === OrderState.Cancelled)
-const isPending = computed(() => order.value?.state === OrderState.Pending)
+const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
+const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
+const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
 function goDocPage() {
   if (isPending.value && !confirmDialog.value) {
@@ -154,7 +154,7 @@ function goDocPage() {
     if (isPending.value) {
       setDocumentIndex(order.value)
       processOrder(order.value)
-      order.value.state = OrderState.Confirmed
+      order.value.status = OrderStatus.Confirmed
     }
 
     if (order.value?.company) {
@@ -175,7 +175,7 @@ function goDocPage() {
 
 function cancelOrder() {
   if (order.value) {
-    order.value.state = OrderState.Cancelled
+    order.value.status = OrderStatus.Cancelled
     order.value.paid_price = 0
     reverseOrder(order.value)
     cancelDialog.value = false

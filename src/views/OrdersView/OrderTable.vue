@@ -131,7 +131,7 @@ import orders from '@/composables/localStore/useOrdersStore'
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { ConsumerType, OrderState, type Order, type OrderLine } from '@/models/models'
+import { ConsumerType, OrderStatus, type Order, type OrderLine } from '@/models/models'
 
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
@@ -176,9 +176,9 @@ const consumerType = computed(() =>
   order.value?.company ? ConsumerType.Company : ConsumerType.Individual
 )
 
-const isConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
-const isCancelled = computed(() => order.value?.state === OrderState.Cancelled)
-const isPending = computed(() => order.value?.state === OrderState.Pending)
+const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
+const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
+const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
 const isConfirmable = computed(() => !isModified.value && isValidOrderlines.value)
 

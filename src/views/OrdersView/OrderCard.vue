@@ -37,7 +37,7 @@
         {{ docTitle }}
       </v-btn>
     </v-card-actions>
-    <template v-if="order.state !== OrderState.Pending" v-slot:append>
+    <template v-if="order.status !== OrderStatus.Pending" v-slot:append>
       <v-chip v-if="isConfirmed" variant="tonal" color="green">{{ $t('confirmed') }}</v-chip>
       <v-chip v-else-if="isCancelled" variant="tonal" color="red">{{ $t('cancelled') }}</v-chip>
     </template>
@@ -75,7 +75,7 @@ import orders from '@/composables/localStore/useOrdersStore'
 
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { DocumentType, OrderState, type Order } from '@/models/models'
+import { DocumentType, OrderStatus, type Order } from '@/models/models'
 
 const { t } = useI18n()
 
@@ -95,8 +95,8 @@ const consumerName = computed(
     order.value?.individual?.name
 )
 
-const isConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
-const isCancelled = computed(() => order.value?.state === OrderState.Cancelled)
+const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
+const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
 
 function deleteOrder() {
   const index = orders.value.indexOf(order.value!)

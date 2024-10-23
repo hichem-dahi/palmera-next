@@ -8,7 +8,7 @@ export interface Order {
   order_lines: OrderLine[]
   delivery?: Delivery
   document_type: DocumentType
-  state: OrderState
+  status: OrderStatus
   payment_method?: string
   paid_price: number
   total_price: number
@@ -83,7 +83,7 @@ export enum DocumentType {
   Proforma
 }
 
-export enum OrderState {
+export enum OrderStatus {
   Pending = 0,
   Confirmed,
   Cancelled

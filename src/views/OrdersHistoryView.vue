@@ -37,7 +37,7 @@ import { useI18n } from 'vue-i18n'
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 
-import { OrderState, type OrderLine } from '@/models/models'
+import { OrderStatus, type OrderLine } from '@/models/models'
 
 const { t } = useI18n()
 
@@ -48,7 +48,7 @@ const filteredOrders = computed(() => {
     const dateFilter = dateRange.value.length
       ? dateRange.value.some((selectedDate) => isSameDay(o.date, selectedDate))
       : true
-    return dateFilter && o.state === OrderState.Confirmed
+    return dateFilter && o.status === OrderStatus.Confirmed
   })
 })
 
