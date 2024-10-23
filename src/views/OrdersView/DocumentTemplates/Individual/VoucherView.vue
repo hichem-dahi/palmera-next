@@ -63,11 +63,10 @@
         </tfoot>
       </table>
       <div class="total-words">{{ totalWords }}</div>
-      <v-divider :class="{ 'mb-5': i !== 3 }" />
+      <v-divider :class="{ 'mb-10': i !== 3 }" />
     </div>
     <div class="actions no-print">
-      <v-btn class="mr-5" @click="print()">print</v-btn>
-      <v-btn @click="downloadInvoice()">download</v-btn>
+      <v-btn class="mr-5" @click="print()">{{ $t('print') }}</v-btn>
     </div>
   </div>
 </template>
@@ -76,7 +75,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick, padStart } from 'lodash'
-import html2pdf from 'html2pdf.js'
 import n2words from 'n2words'
 import { format } from 'date-fns'
 
@@ -95,8 +93,8 @@ const totalWords = computed(() => {
   let number = totalItems.value.total || 0
   let integerPart = Math.floor(number)
   let decimalPart = number % 1
-
   let words = n2words(integerPart, { lang: 'fr' })
+
   if (decimalPart !== 0) {
     words += ' virgule ' + n2words(Math.floor(decimalPart * 10), { lang: 'fr' })
   }
@@ -160,39 +158,6 @@ const getProduct = (id: string) => products.value.find((e) => e.id == id)
 function print() {
   window.print()
 }
-
-function downloadInvoice() {
-  const invoiceElement = document.querySelector('.voucher') // Select the invoice element
-  if (!invoiceElement) return // Ensure the element exists
-
-  // Backup original styles
-  const originalMaxWidth = (invoiceElement as any).maxWidth
-  const originalTransform = (invoiceElement as any).transform
-
-  // Remove max-width and scale
-  ;(invoiceElement as any).style.maxWidth = 'none'
-  ;(invoiceElement as any).transform = 'none'
-
-  // Configuration for html2pdf
-  const opt = {
-    margin: [10, 10, 10, 10], // Margins in mm
-    filename: 'voucher.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 }, // Scale for better resolution
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }
-
-  // Generate and save the PDF
-  html2pdf()
-    .from(invoiceElement)
-    .set(opt)
-    .save()
-    .then(() => {
-      // Restore original styles after download
-      ;(invoiceElement as any).maxWidth = originalMaxWidth
-      ;(invoiceElement as any).transform = originalTransform
-    })
-}
 </script>
 
 <style>
@@ -209,7 +174,7 @@ function downloadInvoice() {
   }
 
   table {
-    margin-top: 8px;
+    margin-top: 1.5rem;
   }
 
   th,
