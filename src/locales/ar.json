@@ -43,6 +43,8 @@
   "next": "التالي",
   "confirm": "تأكيد",
   "confirmed": "مؤكد",
+  "cancelled": "ملغى",
+  "status": "حالة",
   "company": "شركة",
   "individual": "فردي",
   "delivery-note": "إيصال التسليم",
@@ -62,5 +64,6 @@
   "proforma": "فاتورة شكلية",
   "proformas": "فواتير شكلية",
   "DA": "دج",
-  "document-type": "نوع المستند"
+  "document-type": "نوع المستند",
+  "save": "حفظ"
 }
