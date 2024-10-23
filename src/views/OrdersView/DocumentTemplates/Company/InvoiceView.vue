@@ -13,9 +13,9 @@
         </div>
         <h3 class="type pa-4">
           {{ title }}
-          <span v-if="order.docIndex"
-            >N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024</span
-          >
+          <span v-if="order.docIndex">
+            N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024
+          </span>
         </h3>
         <div class="d-flex justify-space-between align-center ga-4">
           <div>
@@ -120,9 +120,12 @@ const totalWords = computed(() => {
 })
 
 const deliveryInfo = computed(() => {
-  const deliveryInfoKeys = ['chauffeur', 'phone', 'matricule', 'destination']
-  let delivery = { ...order.value?.delivery, chauffeur: order.value?.delivery?.driver_name }
-
+  const deliveryInfoKeys = ['chauffeur', 'N°tel', 'matricule', 'destination']
+  let delivery = {
+    ...order.value?.delivery,
+    chauffeur: order.value?.delivery?.driver_name,
+    'N°tel': order.value?.delivery?.phone
+  }
   return pick(delivery, deliveryInfoKeys)
 })
 
