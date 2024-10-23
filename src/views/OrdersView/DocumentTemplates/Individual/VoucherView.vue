@@ -2,7 +2,7 @@
   <div class="voucher-wrapper" v-if="order">
     <div class="voucher" v-for="i in 3" :key="i">
       <div class="d-flex justify-space-between align-center">
-        <div class="col-1">
+        <div class="col-1 w-25">
           <div v-for="(value, key) in selfInfo" :key="key">
             <div v-if="key == 'name'">
               <h3>{{ value }}</h3>
@@ -13,10 +13,12 @@
             <div v-else>{{ key }}: {{ value }}</div>
           </div>
         </div>
-        <h3 class="col-2 type">
+        <h3 class="col-2 flex-grow-1 type">
           {{ title }} N°: {{ padStart(order.docIndex?.toString(), 4, '0') }}/2024
         </h3>
-        <div class="col-3 d-flex flex-column justify-space-between align-self-stretch">
+        <div
+          class="col-3 w-25 d-flex flex-column justify-space-between align-end align-self-stretch"
+        >
           <div class="delivery-info" v-if="($route.query.type as any) == DocumentType.DeliveryNote">
             <div v-for="(value, key) in deliveryInfo" :key="key">
               <span>
@@ -24,6 +26,7 @@
               </span>
             </div>
           </div>
+          <div></div>
           <div class="individual-info">
             <div v-for="(value, key) in individualInfo" :key="key">
               <span v-if="value">{{ key }}: {{ value }}</span>
@@ -170,7 +173,7 @@ function print() {
 
   @media (min-width: 1024px) {
     /* Target screens larger than 1024px (typical desktop size) */
-    max-width: 50%;
+    max-width: 75%;
   }
 
   table {
