@@ -20,7 +20,9 @@
         </template>
       </v-list>
       <div class="total text-end pa-4">
-        {{ $t('total') }}: <span v-html="productSummary(allOrderlines)"></span>
+        {{ $t('total') }}:
+        <span v-html="productSummary(allOrderlines)"></span>
+        <span> {{ `&mdash; ${sum(filteredOrders.map((o) => o.paid_price))} ${t('DA')}` }}</span>
       </div>
     </v-col>
   </v-row>
@@ -54,10 +56,11 @@ const historyItems = computed(() => {
   let groupedSummary = []
   for (const date in groupedOrders.value) {
     const intro = `<span class="text-primary">${format(date, 'dd-MM-yyyy')}</span>&nbsp;&nbsp;`
-    const dateSummary = {
-      subtitle: `${intro} ${productSummary(allOrderlinesByDate.value[date])}`
+    const dateSummaryitem = {
+      subtitle: `${intro} ${productSummary(allOrderlinesByDate.value[date])} 
+      &mdash; ${sum(groupedOrders.value[date].map((o) => o.paid_price))} ${t('DA')}`
     }
-    groupedSummary.push(dateSummary)
+    groupedSummary.push(dateSummaryitem)
   }
 
   return groupedSummary
@@ -96,7 +99,6 @@ const allOrderlines = computed(() => {
 function productSummary(orderlines: OrderLine[]) {
   let productSummaries: string[] = []
   const orderlinesGrouped = groupBy(orderlines, (o) => o.product_id)
-  const totalPrice = sum(orderlines.map((o) => o.total_price))
 
   for (const productId in orderlinesGrouped) {
     const product = getProduct(productId)
@@ -104,7 +106,7 @@ function productSummary(orderlines: OrderLine[]) {
     productSummaries.push(`${totalQte}m ${product?.name}`)
   }
 
-  return `${productSummaries.join(', ')} &mdash; ${totalPrice} ${t('DA')}`
+  return `${productSummaries.join(', ')}`
 }
 
 const getProduct = (id: string) => products.value.find((e) => e.id == id)

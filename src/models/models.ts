@@ -85,7 +85,8 @@ export enum DocumentType {
 
 export enum OrderState {
   Pending = 0,
-  Confirmed
+  Confirmed,
+  Cancelled
 }
 
 export enum HistoryType {

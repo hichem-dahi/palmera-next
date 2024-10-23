@@ -8,7 +8,7 @@
     hide-default-footer
   >
     <template v-slot:top>
-      <v-card class="pb-2 d-flex align-end" color="#F7F7F7" elevation="0">
+      <v-card class="pb-2 d-flex align-center" color="#F7F7F7" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <v-card-title>
             <div class="text-medium-emphasis text-subtitle-2">
@@ -21,7 +21,7 @@
         </div>
         <v-divider class="mx-4" inset vertical />
         <div class="col-2">
-          <v-dialog v-if="!isOrderConfirmed" v-model="newlineDialog" max-width="400">
+          <v-dialog v-if="isPending" v-model="newlineDialog" max-width="400">
             <template v-slot:activator="{ props }">
               <v-btn
                 variant="text"
@@ -50,10 +50,16 @@
               </v-card-text>
             </v-card>
           </v-dialog>
+          <div>
+            <v-chip v-if="isConfirmed" variant="tonal" color="green">{{ $t('confirmed') }}</v-chip>
+            <v-chip v-else-if="isCancelled" variant="tonal" color="red">
+              {{ $t('cancelled') }}
+            </v-chip>
+          </div>
         </div>
       </v-card>
     </template>
-    <template v-if="!isOrderConfirmed" v-slot:item.qte="{ item }">
+    <template v-if="isPending" v-slot:item.qte="{ item }">
       <v-number-input
         v-if="isNumber(proxyOrderlines?.[item.index]?.qte)"
         class="number-input"
@@ -70,7 +76,7 @@
         v-model="proxyOrderlines[item.index].qte"
       />
     </template>
-    <template v-if="!isOrderConfirmed" v-slot:item.actions="{ item }">
+    <template v-if="isPending" v-slot:item.actions="{ item }">
       <v-btn
         color="medium-emphasis"
         variant="text"
@@ -92,15 +98,15 @@
         </div>
       </div>
     </div>
-    <v-card-actions v-if="!isOrderConfirmed" class="align-start justify-end">
-      <v-btn :disabled="!isModified" variant="text" @click="cancelEdit"> Cancel </v-btn>
+    <v-card-actions v-if="isPending" class="align-start justify-end">
+      <v-btn :disabled="!isModified" variant="text" @click="cancelEdit"> {{ $t('cancel') }} </v-btn>
       <v-btn
         :disabled="!isModified || !isValidOrderlines"
         variant="text"
         color="blue"
         @click="confirmEdit"
       >
-        Save
+        {{ $t('save') }}
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -170,10 +176,12 @@ const consumerType = computed(() =>
   order.value?.company ? ConsumerType.Company : ConsumerType.Individual
 )
 
-const isOrderConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
-const isConfirmable = computed(
-  () => (!isModified.value && isValidOrderlines.value) || isOrderConfirmed.value
-)
+const isConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
+const isCancelled = computed(() => order.value?.state === OrderState.Cancelled)
+const isPending = computed(() => order.value?.state === OrderState.Pending)
+
+const isConfirmable = computed(() => !isModified.value && isValidOrderlines.value)
+
 const proxyOrderlines = computed(() => proxyOrder.value?.order_lines)
 
 const totalItems = computed(() => {

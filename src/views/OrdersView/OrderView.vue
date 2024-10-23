@@ -17,17 +17,18 @@
       <v-btn
         variant="text"
         :prepend-icon="mdiCashSync"
-        color="green"
+        :disabled="isCancelled"
         @click="paymentDialog = true"
-        >{{ $t('add-payment') }}</v-btn
       >
+        {{ $t('add-payment') }}
+      </v-btn>
       <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
       <v-btn
         v-if="order?.document_type == DocumentType.DeliveryNote"
         variant="text"
         :prepend-icon="mdiTruckCheck"
         :disabled="!isConfirmable"
-        @click="confirmDialog = true"
+        @click="goDocPage"
         target="_blank"
         :text="$t('delivery-note')"
       />
@@ -44,7 +45,7 @@
         variant="text"
         :prepend-icon="mdiReceiptText"
         :disabled="!isConfirmable"
-        @click="confirmDialog = true"
+        @click="goDocPage"
         target="_blank"
         :text="$t('invoice')"
       />
@@ -58,7 +59,7 @@
         variant="text"
         :prepend-icon="mdiInvoice"
         :disabled="!isConfirmable"
-        @click="confirmDialog = true"
+        @click="goDocPage"
         target="_blank"
         :text="$t('voucher')"
       />
@@ -67,13 +68,22 @@
         variant="text"
         :prepend-icon="mdiNote"
         :disabled="!isConfirmable"
-        @click="confirmDialog = true"
+        @click="goDocPage"
         target="_blank"
         :text="$t('proforma')"
+      />
+      <v-btn
+        v-if="order?.state === OrderState.Confirmed"
+        variant="text"
+        :prepend-icon="mdiCancel"
+        @click="cancelDialog = true"
+        target="_blank"
+        :text="$t('cancel')"
       />
     </div>
   </div>
   <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="goDocPage" />
+  <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -85,11 +95,12 @@ import {
   mdiInvoice,
   mdiReceiptText,
   mdiTruckCheck,
-  mdiNote
+  mdiNote,
+  mdiCancel
 } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
-import { processOrder } from '@/composables/useStockManage'
+import { processOrder, reverseOrder } from '@/composables/useStockManage'
 import { setDocumentIndex } from '@/composables/Orders/setDocumentIndex'
 
 import OrderTable from './OrderTable.vue'
@@ -97,6 +108,7 @@ import CreateDelivery from './CreateDelivery.vue'
 import PaymentMethodModal from './PaymentMethodModal.vue'
 import PaymentModal from './PaymentModal.vue'
 import ConfirmModal from './ConfirmModal.vue'
+import CancelModal from './CancelModal.vue'
 
 import { DocumentType, OrderState } from '@/models/models'
 
@@ -104,10 +116,13 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
+const orderTableRef = ref<InstanceType<typeof OrderTable>>()
+
 const paymentDialog = ref(false)
 const deliveryDialog = ref(false)
 const paymentMethodDialog = ref(false)
 const confirmDialog = ref(false)
+const cancelDialog = ref(false)
 
 const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
 
@@ -119,33 +134,51 @@ const title = computed(() => {
   }
 })
 
-const orderTableRef = ref<InstanceType<typeof OrderTable>>()
 const isConfirmable = computed(() => orderTableRef.value?.isConfirmable)
 
+const isConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
+const isCancelled = computed(() => order.value?.state === OrderState.Cancelled)
+const isPending = computed(() => order.value?.state === OrderState.Pending)
+
 function goDocPage() {
-  if (order.value?.document_type === DocumentType.Proforma)
+  if (isPending.value && !confirmDialog.value) {
+    confirmDialog.value = true
+    return
+  }
+  if (order.value?.document_type === DocumentType.Proforma) {
     router.push({
       name: 'preforma',
       params: { order_id: order.value?.id }
     })
-  else if (order.value?.company) {
-    setDocumentIndex(order.value)
-    processOrder(order.value)
-    router.push({
-      name: 'invoice',
-      params: { order_id: order.value?.id },
-      query: { type: order.value.document_type }
-    })
-    order.value.state = OrderState.Confirmed
-  } else if (order.value?.individual) {
-    setDocumentIndex(order.value)
-    processOrder(order.value)
-    router.push({
-      name: 'voucher',
-      params: { order_id: order.value?.id },
-      query: { type: order.value.document_type }
-    })
-    order.value.state = OrderState.Confirmed
+  } else if (order.value) {
+    if (isPending.value) {
+      setDocumentIndex(order.value)
+      processOrder(order.value)
+      order.value.state = OrderState.Confirmed
+    }
+
+    if (order.value?.company) {
+      router.push({
+        name: 'invoice',
+        params: { order_id: order.value?.id },
+        query: { type: order.value.document_type }
+      })
+    } else if (order.value?.individual) {
+      router.push({
+        name: 'voucher',
+        params: { order_id: order.value?.id },
+        query: { type: order.value.document_type }
+      })
+    }
+  }
+}
+
+function cancelOrder() {
+  if (order.value) {
+    order.value.state = OrderState.Cancelled
+    order.value.paid_price = 0
+    reverseOrder(order.value)
+    cancelDialog.value = false
   }
 }
 </script>
