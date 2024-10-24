@@ -2,9 +2,9 @@
   <div class="w-100 mx-auto">
     <v-row justify="center">
       <v-col sm="12" md="6">
-        <CreateClient :title="$t('your-informations')">
-          <template v-slot:actions="{ form, validation }">
-            <v-btn block @click="submitNewProfile(form, validation)">{{ $t('confirm') }}</v-btn>
+        <CreateClient v-model="form" :title="$t('your-informations')">
+          <template v-slot:actions="{ validation }">
+            <v-btn block @click="submitNewProfile(validation)">{{ $t('confirm') }}</v-btn>
           </template>
         </CreateClient>
       </v-col>
@@ -12,6 +12,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { cloneDeep } from 'lodash'
 import { useRouter } from 'vue-router'
 
 import self from '@/composables/localStore/useSelf'
@@ -19,25 +21,20 @@ import self from '@/composables/localStore/useSelf'
 import CreateClient from './ClientsView/CreateClient.vue'
 
 import type { Validation } from '@vuelidate/core'
+import type { Company } from '@/models/models'
 
-interface form {
-  id: string
-  name: string
-  phone: string
-  rc: string
-  nif: string | null
-  nis: string | null
-  art: string | null
-  address: string
-  activity: string
-}
+const form = ref<Company>()
 
 const router = useRouter()
 
-function submitNewProfile(form: any, v: Validation) {
-  v.$touch()
-  if (!v.$invalid) {
-    self.value.company = form
+onMounted(() => {
+  form.value = cloneDeep(self.value.company)
+})
+
+function submitNewProfile($v: Validation) {
+  $v.$touch()
+  if (!$v.$invalid) {
+    self.value.company = form.value
     router.push({ name: 'home' })
   }
 }
