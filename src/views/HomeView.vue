@@ -1,7 +1,7 @@
 <template>
   <v-responsive class="border rounded">
     <v-app>
-      <v-app-bar color="blue-grey-lighten-3" class="text-white" title="LogiNext">
+      <v-app-bar color="blue-grey-lighten-3" class="text-white" title="CommandOS">
         <template v-slot:append>
           <v-menu :close-on-content-click="false">
             <template v-slot:activator="{ props }">
