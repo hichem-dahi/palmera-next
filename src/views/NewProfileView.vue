@@ -18,7 +18,7 @@ import { useRouter } from 'vue-router'
 
 import self from '@/composables/localStore/useSelf'
 
-import CreateClient from './ClientsView/CreateClient.vue'
+import CreateClient from './ClientsView/ClientForm.vue'
 
 import type { Validation } from '@vuelidate/core'
 import type { Company } from '@/models/models'

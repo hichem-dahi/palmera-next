@@ -14,13 +14,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { cloneDeep } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import companies from '@/composables/localStore/useCompanyStore'
 
-import CreateClient from './CreateClient.vue'
+import CreateClient from './ClientForm.vue'
 
 import type { Company } from '@/models/models'
 import type { Validation } from '@vuelidate/core'
