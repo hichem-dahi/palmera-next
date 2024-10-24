@@ -48,7 +48,7 @@ import { mdiDotsVertical } from '@mdi/js'
 
 import products from '@/composables/localStore/useProductStore'
 
-import DeleteItemModal from '../OrdersView/DeleteItemModal.vue'
+import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
 import type { Product } from '@/models/models'
 

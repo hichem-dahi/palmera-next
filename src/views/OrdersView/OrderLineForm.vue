@@ -18,7 +18,7 @@
         </template>
       </v-select>
     </v-col>
-    <v-col>
+    <v-col class="mr-3">
       <v-number-input
         :label="$t('quantity')"
         variant="underlined"
@@ -33,7 +33,7 @@
         v-model="form.qte"
       />
     </v-col>
-    <v-col>
+    <v-col class="mr-3">
       <v-number-input
         :label="$t('U.P')"
         variant="underlined"

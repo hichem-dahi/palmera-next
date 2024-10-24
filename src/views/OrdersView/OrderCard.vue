@@ -73,7 +73,7 @@ import { mdiDotsVertical } from '@mdi/js'
 import companies from '@/composables/localStore/useCompanyStore'
 import orders from '@/composables/localStore/useOrdersStore'
 
-import DeleteItemModal from './DeleteItemModal.vue'
+import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
 import { DocumentType, OrderStatus, type Order } from '@/models/models'
 

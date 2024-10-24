@@ -99,11 +99,14 @@
       </div>
     </div>
     <v-card-actions v-if="isPending" class="align-start justify-end">
-      <v-btn :disabled="!isModified" variant="text" @click="cancelEdit"> {{ $t('cancel') }} </v-btn>
+      <v-btn :disabled="!isModified" variant="text" size="small" @click="cancelEdit">
+        {{ $t('cancel') }}
+      </v-btn>
       <v-btn
         :disabled="!isModified || !isValidOrderlines"
         variant="text"
         color="blue"
+        size="small"
         @click="confirmEdit"
       >
         {{ $t('save') }}

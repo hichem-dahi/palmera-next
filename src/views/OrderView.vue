@@ -9,7 +9,7 @@
     :text="$t('back')"
   />
   <div class="text-h5 pa-4 my-4">{{ title }}</div>
-  <div class="wrapper">
+  <div class="wrapper" v-if="order">
     <div class="table border">
       <OrderTable ref="orderTableRef" v-model:order="order" />
     </div>
@@ -20,95 +20,55 @@
         :disabled="isCancelled"
         @click="paymentDialog = true"
       >
-        {{ $t('add-payment') }}
+        {{ $t('payments') }}
       </v-btn>
-      <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
-      <v-btn
-        v-if="order?.document_type == DocumentType.DeliveryNote"
-        variant="text"
-        :prepend-icon="mdiTruckCheck"
-        :disabled="!isConfirmable"
-        @click="goDocPage"
-        target="_blank"
-        :text="$t('delivery-note')"
+
+      <DocumentButtons
+        v-if="order"
+        :order="order"
+        :isConfirmable="isConfirmable"
+        @go-doc-page="goDocPage"
       />
-      <v-dialog v-model="deliveryDialog" max-width="400">
-        <CreateDelivery
-          v-if="order?.delivery"
-          v-model:dialog="deliveryDialog"
-          v-model:delivery="order.delivery"
-          @go-invoice="goDocPage()"
-        />
-      </v-dialog>
-      <v-btn
-        v-if="order?.document_type == DocumentType.Invoice"
-        variant="text"
-        :prepend-icon="mdiReceiptText"
-        :disabled="!isConfirmable"
-        @click="goDocPage"
-        target="_blank"
-        :text="$t('invoice')"
-      />
-      <PaymentMethodModal
-        v-model:dialog="paymentMethodDialog"
-        v-model:order="order"
-        @go-invoice="goDocPage()"
-      />
-      <v-btn
-        v-if="order?.document_type == DocumentType.Voucher"
-        variant="text"
-        :prepend-icon="mdiInvoice"
-        :disabled="!isConfirmable"
-        @click="goDocPage"
-        target="_blank"
-        :text="$t('voucher')"
-      />
-      <v-btn
-        v-if="order?.document_type == DocumentType.Proforma"
-        variant="text"
-        :prepend-icon="mdiNote"
-        :disabled="!isConfirmable"
-        @click="goDocPage"
-        target="_blank"
-        :text="$t('proforma')"
-      />
+
       <v-btn
         v-if="order?.status === OrderStatus.Confirmed"
         variant="text"
         :prepend-icon="mdiCancel"
         @click="cancelDialog = true"
-        target="_blank"
         :text="$t('cancel')"
       />
+      <PaymentsCard v-if="orderPayments.length" :order="order" :payments="orderPayments" />
     </div>
   </div>
+  <PaymentMethodModal
+    v-model:dialog="paymentMethodDialog"
+    v-model:order="order"
+    @go-invoice="goDocPage()"
+  />
+  <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
   <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="goDocPage" />
   <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
 </template>
+
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import {
-  mdiCashSync,
-  mdiChevronLeft,
-  mdiInvoice,
-  mdiReceiptText,
-  mdiTruckCheck,
-  mdiNote,
-  mdiCancel
-} from '@mdi/js'
+import { mdiCashSync, mdiChevronLeft, mdiCancel } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import { processOrder, reverseOrder } from '@/composables/useStockManage'
 import { setDocumentIndex } from '@/composables/Orders/setDocumentIndex'
+import payments from '@/composables/localStore/usePaymentsStore'
 
-import OrderTable from './OrderTable.vue'
-import CreateDelivery from './CreateDelivery.vue'
-import PaymentMethodModal from './PaymentMethodModal.vue'
-import PaymentModal from './PaymentModal.vue'
-import ConfirmModal from './ConfirmModal.vue'
-import CancelModal from './CancelModal.vue'
+import OrderTable from './OrderView/OrderTable.vue'
+import CreateDelivery from './OrdersView/CreateDelivery.vue'
+import PaymentMethodModal from './OrdersView/PaymentMethodModal.vue'
+import PaymentModal from './OrderView/PaymentModal.vue'
+import ConfirmModal from './OrderView/ConfirmModal.vue'
+import CancelModal from './OrdersView/CancelModal.vue'
+import PaymentsCard from './OrderView/PaymentsCard.vue'
+import DocumentButtons from './OrderView/DocumentButtons.vue'
 
 import { DocumentType, OrderStatus } from '@/models/models'
 
@@ -126,6 +86,10 @@ const cancelDialog = ref(false)
 
 const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
 
+const orderPayments = computed(() =>
+  payments.value.filter((p) => order.value?.payments_ids.includes(p.id))
+)
+
 const title = computed(() => {
   if (order.value?.document_type == DocumentType.Proforma) {
     return t('preforma')
@@ -136,7 +100,6 @@ const title = computed(() => {
 
 const isConfirmable = computed(() => orderTableRef.value?.isConfirmable)
 
-const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
 const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
 const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
@@ -145,31 +108,35 @@ function goDocPage() {
     confirmDialog.value = true
     return
   }
-  if (order.value?.document_type === DocumentType.Proforma) {
-    router.push({
-      name: 'preforma',
-      params: { order_id: order.value?.id }
-    })
-  } else if (order.value) {
+
+  if (order.value) {
     if (isPending.value) {
       setDocumentIndex(order.value)
       processOrder(order.value)
       order.value.status = OrderStatus.Confirmed
     }
 
-    if (order.value?.company) {
+    const routeName = getRouteNameByDocumentType(order.value.document_type)
+    if (routeName) {
       router.push({
-        name: 'invoice',
-        params: { order_id: order.value?.id },
-        query: { type: order.value.document_type }
-      })
-    } else if (order.value?.individual) {
-      router.push({
-        name: 'voucher',
+        name: routeName,
         params: { order_id: order.value?.id },
         query: { type: order.value.document_type }
       })
     }
+  }
+}
+
+function getRouteNameByDocumentType(documentType: DocumentType) {
+  switch (documentType) {
+    case DocumentType.Proforma:
+      return 'preforma'
+    case DocumentType.Invoice:
+      return 'invoice'
+    case DocumentType.Voucher:
+      return 'voucher'
+    default:
+      return null
   }
 }
 
