@@ -9,11 +9,18 @@ export interface Order {
   delivery?: Delivery
   document_type: DocumentType
   status: OrderStatus
+  payments_ids: string[]
   payment_method?: string
   paid_price: number
   total_price: number
   tva?: number
   ttc?: number
+}
+
+export interface Payment {
+  id: string
+  date: Date | string
+  amount: number
 }
 
 export interface OrderLine {

@@ -44,6 +44,7 @@ const defaultForm = () => ({
   document_type: 0,
   docIndex: null,
   status: OrderStatus.Pending,
+  payments_ids: [],
   payment_method: '',
   paid_price: 0 as any,
   total_price: 0,
