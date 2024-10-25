@@ -10,16 +10,6 @@
     <v-radio :label="$t('delivery-note')" :value="DocumentType.DeliveryNote" />
   </v-radio-group>
   <div v-if="form.document_type && form.document_type != DocumentType.Proforma">
-    <v-number-input
-      :label="$t('payment')"
-      inset
-      controlVariant="stacked"
-      :error="!$v.paid_price.$pending && $v.paid_price.$error"
-      :suffix="`/${form.total_price} DA`"
-      :max="form.total_price"
-      :min="0"
-      v-model="form.paid_price"
-    />
     <v-text-field
       v-if="form?.company"
       :label="$t('payment-method')"
