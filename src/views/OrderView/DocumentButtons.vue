@@ -14,18 +14,15 @@
 
 <script setup lang="ts">
 import { mdiInvoice, mdiReceiptText, mdiTruckCheck, mdiNote } from '@mdi/js'
-import { DocumentType } from '@/models/models'
+import { DocumentType, type Order } from '@/models/models'
 
-const props = defineProps({
-  order: Object,
-  isConfirmable: Boolean
-})
+const props = defineProps<{ order: Order; isConfirmable: boolean }>()
 
 const emit = defineEmits(['go-doc-page'])
 
 const documentTypes = [
-  { type: DocumentType.DeliveryNote, icon: mdiTruckCheck, label: 'delivery-note' },
   { type: DocumentType.Invoice, icon: mdiReceiptText, label: 'invoice' },
+  { type: DocumentType.DeliveryNote, icon: mdiTruckCheck, label: 'delivery-note' },
   { type: DocumentType.Voucher, icon: mdiInvoice, label: 'voucher' },
   { type: DocumentType.Proforma, icon: mdiNote, label: 'proforma' }
 ]
