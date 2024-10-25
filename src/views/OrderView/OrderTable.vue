@@ -87,7 +87,7 @@
       <DeleteItemModal v-model="deleteDialog" @close="closeDelete" @confirm="deleteItemConfirm" />
     </template>
   </v-data-table>
-  <v-card class="pa-4 pb-2" border="0" elevation="0">
+  <v-card class="pa-4 pb-2" elevation="0">
     <div class="total-info d-flex justify-end">
       <div class="info">
         <div v-for="(value, key) in totalItems" :key="key">
@@ -98,17 +98,11 @@
         </div>
       </div>
     </div>
-    <v-card-actions v-if="isPending" class="align-start justify-end">
+    <v-card-actions v-if="isPending" class="justify-end mt-6">
       <v-btn :disabled="!isModified" variant="text" size="small" @click="cancelEdit">
         {{ $t('cancel') }}
       </v-btn>
-      <v-btn
-        :disabled="!isModified || !isValidOrderlines"
-        variant="text"
-        color="blue"
-        size="small"
-        @click="confirmEdit"
-      >
+      <v-btn :disabled="!isModfiable" variant="text" color="blue" size="small" @click="confirmEdit">
         {{ $t('save') }}
       </v-btn>
     </v-card-actions>
@@ -164,6 +158,7 @@ const headers = computed(
 )
 
 const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
+const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
   proxyOrderlines.value?.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
@@ -257,8 +252,6 @@ function confirmEdit() {
     const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
     if (orderIndex !== -1) {
       orders.value[orderIndex] = cloneDeep(proxyOrder.value)
-    } else {
-      orders.value.push(cloneDeep(order.value))
     }
     isSuccess.value = true
   }
