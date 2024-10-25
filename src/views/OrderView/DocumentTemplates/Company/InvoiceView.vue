@@ -90,9 +90,9 @@ import { format } from 'date-fns'
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 import companies from '@/composables/localStore/useCompanyStore'
+import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType, DocumentType } from '@/models/models'
-import self from '@/composables/localStore/useSelf'
 
 const route = useRoute()
 
