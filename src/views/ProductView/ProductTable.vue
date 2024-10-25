@@ -9,16 +9,13 @@
               <div>{{ product?.name }}</div>
             </v-card-title>
             <v-card-subtitle class="text-body-2">
-              <span>{{ $t('quantity') }}:</span>
-              <span>&nbsp;{{ product?.qte }}</span
-              ><br />
-
               <span>{{ $t('code') }}:</span>
-              <span>&nbsp;{{ product?.code }}</span
-              ><br />
+              <span>&nbsp;{{ product?.code }}</span> <br />
 
               <span>{{ $t('U.P') }}:</span>
-              <span>&nbsp;{{ product?.price }} DA</span>
+              <span>&nbsp;{{ product?.price }} DA</span> <br />
+              <span>{{ $t('quantity') }}:</span>
+              <span>&nbsp;{{ product?.qte }}</span> <br />
             </v-card-subtitle>
           </div>
         </div>
@@ -42,7 +39,8 @@
       </v-btn>
     </template>
     <template v-slot:item.date="{ item }">
-      <span>{{ format(item.date, 'yyyy-MM-dd p') }}</span>
+      <div class="text-no-wrap">{{ format(item.date, 'yyyy-MM-dd') }}</div>
+      <div class="text-no-wrap">{{ format(item.date, 'p') }}</div>
     </template>
   </v-data-table>
 </template>
@@ -61,8 +59,8 @@ import stock from '@/composables/localStore/useStockStore'
 import ModifyStock from './ModifyStock.vue'
 
 const emits = defineEmits(['close'])
-const route = useRoute()
 
+const route = useRoute()
 const { t } = useI18n()
 
 const modifyStockDialog = ref(false)
