@@ -43,6 +43,7 @@ const rules = {
     $each: {
       product_id: { required },
       qte: { required, numeric, minValue: minValue(1) },
+      unit_price: { required, numeric, minValue: minValue(1) },
       total_price: { required, numeric, minValue: minValue(0) }
     }
   }
@@ -67,6 +68,7 @@ function addEmptyOrderline() {
     id: uuidv4(),
     product_id: '',
     qte: null,
+    unit_price: 0,
     total_price: 0
   })
 }

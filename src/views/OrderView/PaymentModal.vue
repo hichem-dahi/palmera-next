@@ -5,7 +5,7 @@
         <v-number-input
           inset
           control-variant="stacked"
-          v-model="payment"
+          v-model="amount"
           :max="remaining"
           :min="0"
           :suffix="`/${remaining}DA`"
@@ -14,7 +14,7 @@
       <template v-slot:actions>
         <v-spacer></v-spacer>
         <v-btn @click="dialog = false">Cancel</v-btn>
-        <v-btn :disabled="payment <= 0 || payment > remaining" @click="addPayment">Confirm</v-btn>
+        <v-btn :disabled="amount <= 0 || amount > remaining" @click="addPayment">Confirm</v-btn>
       </template>
     </v-card>
   </v-dialog>
@@ -22,22 +22,30 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
+
+import payments from '@/composables/localStore/usePaymentsStore'
+
 import type { Order } from '@/models/models'
 
-// Define reactive models
 const order = defineModel<Order>('order')
 const dialog = defineModel<boolean>('dialog')
 
-// Payment field and computed remaining amount
-const payment = ref<number>(0)
+const amount = ref<number>(0)
 const remaining = computed(() => (order.value?.total_price || 0) - (order.value?.paid_price || 0))
 
-// Function to handle payment addition
 function addPayment() {
-  if (order.value && payment.value > 0 && payment.value <= remaining.value) {
-    order.value.paid_price = (order.value.paid_price || 0) + payment.value
+  if (order.value && amount.value > 0 && amount.value <= remaining.value) {
+    const payment = {
+      id: uuidv4(),
+      date: new Date(),
+      amount: amount.value
+    }
+    payments.value.unshift(payment)
+    order.value.payments_ids.push(payment.id)
+    order.value.paid_price = (order.value.paid_price || 0) + amount.value
+    amount.value = 0
     dialog.value = false
-    payment.value = 0 // Reset payment after adding
   }
 }
 </script>

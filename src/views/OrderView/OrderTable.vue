@@ -8,7 +8,7 @@
     hide-default-footer
   >
     <template v-slot:top>
-      <v-card class="pb-2 d-flex align-end" color="#F7F7F7" elevation="0">
+      <v-card class="pb-2 d-flex align-center" color="#F7F7F7" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <v-card-title>
             <div class="text-medium-emphasis text-subtitle-2">
@@ -21,7 +21,7 @@
         </div>
         <v-divider class="mx-4" inset vertical />
         <div class="col-2">
-          <v-dialog v-if="!isOrderConfirmed" v-model="newlineDialog" max-width="400">
+          <v-dialog v-if="isPending" v-model="newlineDialog" max-width="400">
             <template v-slot:activator="{ props }">
               <v-btn
                 variant="text"
@@ -50,10 +50,16 @@
               </v-card-text>
             </v-card>
           </v-dialog>
+          <div>
+            <v-chip v-if="isConfirmed" variant="tonal" color="green">{{ $t('confirmed') }}</v-chip>
+            <v-chip v-else-if="isCancelled" variant="tonal" color="red">
+              {{ $t('cancelled') }}
+            </v-chip>
+          </div>
         </div>
       </v-card>
     </template>
-    <template v-if="!isOrderConfirmed" v-slot:item.qte="{ item }">
+    <template v-if="isPending" v-slot:item.qte="{ item }">
       <v-number-input
         v-if="isNumber(proxyOrderlines?.[item.index]?.qte)"
         class="number-input"
@@ -70,7 +76,7 @@
         v-model="proxyOrderlines[item.index].qte"
       />
     </template>
-    <template v-if="!isOrderConfirmed" v-slot:item.actions="{ item }">
+    <template v-if="isPending" v-slot:item.actions="{ item }">
       <v-btn
         color="medium-emphasis"
         variant="text"
@@ -81,7 +87,7 @@
       <DeleteItemModal v-model="deleteDialog" @close="closeDelete" @confirm="deleteItemConfirm" />
     </template>
   </v-data-table>
-  <v-card class="pa-4 pb-2" border="0" elevation="0">
+  <v-card class="pa-4 pb-2" elevation="0">
     <div class="total-info d-flex justify-end">
       <div class="info">
         <div v-for="(value, key) in totalItems" :key="key">
@@ -92,15 +98,12 @@
         </div>
       </div>
     </div>
-    <v-card-actions v-if="!isOrderConfirmed" class="align-start justify-end">
-      <v-btn :disabled="!isModified" variant="text" @click="cancelEdit"> Cancel </v-btn>
-      <v-btn
-        :disabled="!isModified || !isValidOrderlines"
-        variant="text"
-        color="blue"
-        @click="confirmEdit"
-      >
-        Save
+    <v-card-actions v-if="isPending" class="justify-end mt-6">
+      <v-btn :disabled="!isModified" variant="text" size="small" @click="cancelEdit">
+        {{ $t('cancel') }}
+      </v-btn>
+      <v-btn :disabled="!isModfiable" variant="text" color="blue" size="small" @click="confirmEdit">
+        {{ $t('save') }}
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -125,7 +128,7 @@ import orders from '@/composables/localStore/useOrdersStore'
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { ConsumerType, OrderState, type Order, type OrderLine } from '@/models/models'
+import { ConsumerType, OrderStatus, type Order, type OrderLine } from '@/models/models'
 
 const order = defineModel<Order>('order')
 const emits = defineEmits(['close'])
@@ -148,13 +151,14 @@ const headers = computed(
         key: 'product_name'
       },
       { title: t('quantity'), key: 'qte', align: 'start' },
-      { title: t('U.P'), key: 'unity_price' },
+      { title: t('U.P'), key: 'unit_price' },
       { title: t('total'), key: 'total_price' },
       { title: '', key: 'actions' }
     ] as any
 )
 
 const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
+const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
   proxyOrderlines.value?.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
@@ -170,10 +174,12 @@ const consumerType = computed(() =>
   order.value?.company ? ConsumerType.Company : ConsumerType.Individual
 )
 
-const isOrderConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
-const isConfirmable = computed(
-  () => (!isModified.value && isValidOrderlines.value) || isOrderConfirmed.value
-)
+const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
+const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
+const isPending = computed(() => order.value?.status === OrderStatus.Pending)
+
+const isConfirmable = computed(() => !isModified.value && isValidOrderlines.value)
+
 const proxyOrderlines = computed(() => proxyOrder.value?.order_lines)
 
 const totalItems = computed(() => {
@@ -192,7 +198,7 @@ const items = computed(() =>
       product: product,
       product_name: product?.name,
       qte: o.qte,
-      unity_price: product?.price,
+      unit_price: o.unit_price,
       total_price: o.total_price
     }
   })
@@ -246,8 +252,6 @@ function confirmEdit() {
     const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
     if (orderIndex !== -1) {
       orders.value[orderIndex] = cloneDeep(proxyOrder.value)
-    } else {
-      orders.value.push(cloneDeep(order.value))
     }
     isSuccess.value = true
   }
@@ -259,8 +263,7 @@ watch(
     if (!proxyOrder.value || !orderLines) return
     proxyOrder.value.total_price = sum(
       orderLines.map((e) => {
-        const product = getProduct(e.product_id)
-        e.total_price = Number(e.qte) * Number(product?.price)
+        e.total_price = Number(e.qte) * Number(e.unit_price)
         return e.total_price
       })
     )

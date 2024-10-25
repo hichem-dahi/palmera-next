@@ -9,16 +9,13 @@
               <div>{{ product?.name }}</div>
             </v-card-title>
             <v-card-subtitle class="text-body-2">
-              <span>{{ $t('quantity') }}:</span>
-              <span>&nbsp;{{ product?.qte }}</span
-              ><br />
-
               <span>{{ $t('code') }}:</span>
-              <span>&nbsp;{{ product?.code }}</span
-              ><br />
+              <span>&nbsp;{{ product?.code }}</span> <br />
 
               <span>{{ $t('U.P') }}:</span>
-              <span>&nbsp;{{ product?.price }} DA</span>
+              <span>&nbsp;{{ product?.price }} DA</span> <br />
+              <span>{{ $t('quantity') }}:</span>
+              <span>&nbsp;{{ product?.qte }}</span> <br />
             </v-card-subtitle>
           </div>
         </div>
@@ -42,7 +39,8 @@
       </v-btn>
     </template>
     <template v-slot:item.date="{ item }">
-      <span>{{ format(item.date, 'yyyy-MM-dd p') }}</span>
+      <div class="text-no-wrap">{{ format(item.date, 'yyyy-MM-dd') }}</div>
+      <div class="text-no-wrap">{{ format(item.date, 'p') }}</div>
     </template>
   </v-data-table>
 </template>
@@ -51,6 +49,7 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { format } from 'date-fns'
+import { sortBy } from 'lodash'
 
 import { mdiOpenInNew } from '@mdi/js'
 
@@ -60,8 +59,8 @@ import stock from '@/composables/localStore/useStockStore'
 import ModifyStock from './ModifyStock.vue'
 
 const emits = defineEmits(['close'])
-const route = useRoute()
 
+const route = useRoute()
 const { t } = useI18n()
 
 const modifyStockDialog = ref(false)
@@ -70,29 +69,38 @@ const product = computed(() => products.value.find((p) => p.id == route.params.p
 const stockMovements = computed(() => stock.value.filter((s) => s.product_id == product.value?.id))
 
 const items = computed(() =>
-  stockMovements.value
-    ?.map((s, i) => {
+  sortBy(
+    stockMovements.value?.map((s, i) => {
       return {
         id: s.id,
-        index: i,
         date: s.date,
         qte: s.qte_change,
-        unity_price: product.value?.price,
         order: s.order_id
       }
-    })
-    .reverse()
+    }),
+    (t) => new Date(t.date)
+  ).reverse()
 )
 
-const headers = computed(() => [
-  {
-    title: t('date'),
-    align: 'start',
-    sortable: false,
-    key: 'date'
-  },
-  { title: t('quantity'), key: 'qte', align: 'start' },
-  { title: `${t('U.P')} (DA)`, key: 'unity_price' },
-  { title: ``, key: 'order' }
-]) as any
+const headers = computed(
+  () =>
+    [
+      {
+        title: t('date'),
+        align: 'start',
+        sortable: false,
+        key: 'date'
+      },
+      {
+        title: t('quantity'),
+        key: 'qte',
+        align: 'start',
+        value: (item: (typeof items.value)[0]) => {
+          const number = Number(item.qte)
+          return `${number >= 0 ? '+' : ''}${number}`
+        }
+      },
+      { title: t('order'), key: 'order' }
+    ] as any
+)
 </script>

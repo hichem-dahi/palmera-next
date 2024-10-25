@@ -5,8 +5,8 @@
     size="small"
     :append-icon="mdiPlus"
     :to="{ name: 'create-client' }"
-    >{{ $t('add-client') }}</v-btn
-  >
+    >{{ $t('add-client') }}
+  </v-btn>
   <v-row v-for="(_, i) in companies" :key="i">
     <v-col sm="12" md="6">
       <ClientCard v-model="companies[i]" />

@@ -62,7 +62,7 @@ import { mdiAccount, mdiDomain, mdiDotsVertical, mdiHistory, mdiPlus } from '@md
 import companies from '@/composables/localStore/useCompanyStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 
-import DeleteItemModal from '../OrdersView/DeleteItemModal.vue'
+import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
 import { ConsumerType, type Company, type Individual } from '@/models/models'
 

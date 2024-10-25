@@ -1,27 +1,29 @@
 <template>
   <div class="voucher-wrapper" v-if="order">
-    <div class="voucher" v-for="i in 3" :key="i">
-      <div class="d-flex align-center">
-        <div style="width: 33%">
-          <h3>{{ self.company?.name }}</h3>
-          <div>{{ self.company?.activity }}</div>
-          <div>{{ self.company?.phone }}</div>
-        </div>
-        <h3 class="type">
-          {{ title }} N°: {{ padStart(order.docIndex?.toString(), 4, '0') }}/2024
-        </h3>
-      </div>
-      <div class="d-flex align-start justify-space-between mt-5">
-        <div>
-          <div v-for="(value, key) in individualInfo" :key="key">
-            <span v-if="value">{{ key }}: {{ value }}</span>
+    <div class="voucher">
+      <div class="d-flex justify-space-between align-center">
+        <div class="col-1 w-25">
+          <div v-for="(value, key) in selfInfo" :key="key">
+            <div v-if="key == 'name'">
+              <h3>{{ value }}</h3>
+            </div>
+            <div v-else-if="key == 'activity'">
+              <div>{{ value }}</div>
+            </div>
+            <div v-else>{{ key }}: {{ value }}</div>
           </div>
         </div>
-        <div class="delivery-info" v-if="($route.query.type as any) == DocumentType.DeliveryNote">
-          <div v-for="(value, key) in deliveryInfo" :key="key">
-            <span>
-              <b>{{ key }}:</b> {{ value }}
-            </span>
+        <h3 class="col-2 flex-grow-1 type">
+          {{ title }}
+        </h3>
+        <div
+          class="col-3 w-25 d-flex flex-column justify-space-between align-end align-self-stretch"
+        >
+          <div></div>
+          <div class="individual-info">
+            <div v-for="(value, key) in individualInfo" :key="key">
+              <span v-if="value">{{ key }}: {{ value }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -43,25 +45,27 @@
             </td>
           </tr>
         </tbody>
-        <tfoot>
-          <tr v-for="(value, key) in totalItems" :key="key">
+        <tfoot class="mt-5">
+          <tr
+            v-for="(item, key) in totalItems"
+            :key="key"
+            :class="{ 'font-weight-bold': item.bold }"
+          >
             <td colspan="3" class="no-border"></td>
             <td>
-              <strong>{{ key }}</strong>
+              <div>{{ key }}</div>
             </td>
             <td>
-              <strong>{{ value }}</strong>
+              <div>{{ item.value }}</div>
             </td>
             <!-- Replace with actual total -->
           </tr>
         </tfoot>
       </table>
       <div class="total-words">{{ totalWords }}</div>
-      <v-divider :class="{ 'mb-5': i !== 3 }" />
     </div>
     <div class="actions no-print">
-      <v-btn class="mr-5" @click="print()">print</v-btn>
-      <v-btn @click="downloadInvoice()">download</v-btn>
+      <v-btn class="mr-5" @click="print()">{{ $t('print') }}</v-btn>
     </div>
   </div>
 </template>
@@ -69,48 +73,55 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { pick, padStart } from 'lodash'
-import html2pdf from 'html2pdf.js'
+import { pick } from 'lodash'
 import n2words from 'n2words'
 import { format } from 'date-fns'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 import self from '@/composables/localStore/useSelf'
-
-import { DocumentType } from '@/models/models'
+import payments from '@/composables/localStore/usePaymentsStore'
 
 const route = useRoute()
 
-const title = computed(() => (order.value?.delivery ? 'Bon de livraison' : 'Bon'))
+const title = computed(() => 'Bon de paiement')
 const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
+const payment = computed(() => payments.value.find((p) => p.id == route.query.payment_id))
 
 const totalWords = computed(() => {
-  let number = totalItems.value.total || 0
+  let number = payment.value?.amount || 0
   let integerPart = Math.floor(number)
   let decimalPart = number % 1
-
   let words = n2words(integerPart, { lang: 'fr' })
+
   if (decimalPart !== 0) {
     words += ' virgule ' + n2words(Math.floor(decimalPart * 10), { lang: 'fr' })
   }
   return `${words} dinars alg`
 })
 
+const selfInfo = computed(() => {
+  let selfInfo = self.value.company
+  if (!selfInfo) return
+  selfInfo = {
+    ...selfInfo,
+    name: selfInfo.name,
+    'R.C': selfInfo.rc,
+    'N°tel': selfInfo.phone
+  } as any
+  const desiredOrder = ['name', 'activity', 'address', 'R.C', 'nif', 'nis', 'art', 'N°tel']
+  return pick(selfInfo, desiredOrder)
+})
+
 const individualInfo = computed(() => {
-  const individualInfoKeys = ['date', 'name', 'N°tel']
+  const individualInfoKeys = ['command', 'date', 'nom', 'N°tel']
   let individual = {
-    date: format(order.value?.date || '', 'dd-MM-yyyy'),
-    name: order.value?.individual?.name,
+    date: format(payment.value?.date || '', 'dd-MM-yyyy p'),
+    nom: order.value?.individual?.name,
+    command: `N°${order.value?.index}`,
     'N°tel': order.value?.individual?.phone
   }
   return pick(individual, individualInfoKeys)
-})
-
-const deliveryInfo = computed(() => {
-  const deliveryInfoKeys = ['chauffeur', 'phone', 'matricule', 'destination']
-  let delivery = { ...order.value?.delivery, chauffeur: order.value?.delivery?.driver_name }
-  return pick(delivery, deliveryInfoKeys)
 })
 
 const items = computed(() =>
@@ -120,7 +131,7 @@ const items = computed(() =>
       index: i,
       product_name: product?.name,
       qte: o.qte,
-      unity_price: product?.price,
+      unit_price: o.unit_price,
       total_price: o.total_price
     }
   })
@@ -128,7 +139,14 @@ const items = computed(() =>
 
 const totalItems = computed(() => {
   return {
-    total: order.value?.total_price
+    total: {
+      value: order.value?.total_price,
+      bold: false
+    },
+    'Montant payé': {
+      value: payment.value?.amount,
+      bold: true
+    }
   }
 })
 
@@ -136,39 +154,6 @@ const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 function print() {
   window.print()
-}
-
-function downloadInvoice() {
-  const invoiceElement = document.querySelector('.voucher') // Select the invoice element
-  if (!invoiceElement) return // Ensure the element exists
-
-  // Backup original styles
-  const originalMaxWidth = (invoiceElement as any).maxWidth
-  const originalTransform = (invoiceElement as any).transform
-
-  // Remove max-width and scale
-  ;(invoiceElement as any).style.maxWidth = 'none'
-  ;(invoiceElement as any).transform = 'none'
-
-  // Configuration for html2pdf
-  const opt = {
-    margin: [10, 10, 10, 10], // Margins in mm
-    filename: 'voucher.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 }, // Scale for better resolution
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }
-
-  // Generate and save the PDF
-  html2pdf()
-    .from(invoiceElement)
-    .set(opt)
-    .save()
-    .then(() => {
-      // Restore original styles after download
-      ;(invoiceElement as any).maxWidth = originalMaxWidth
-      ;(invoiceElement as any).transform = originalTransform
-    })
 }
 </script>
 
@@ -182,11 +167,11 @@ function downloadInvoice() {
 
   @media (min-width: 1024px) {
     /* Target screens larger than 1024px (typical desktop size) */
-    max-width: 50%;
+    max-width: 75%;
   }
 
   table {
-    margin-top: 8px;
+    margin-top: 1.5rem;
   }
 
   th,
@@ -215,7 +200,6 @@ function downloadInvoice() {
     max-width: min-content;
     font-size: 0.6rem;
     white-space: nowrap;
-    padding: 0.5rem 1rem;
   }
 }
 
@@ -225,7 +209,7 @@ function downloadInvoice() {
   }
 
   .voucher {
-    font-size: small;
+    font-size: x-small;
     max-width: none;
     margin: 0;
     page-break-inside: avoid; /* Prevent breaking inside voucher */

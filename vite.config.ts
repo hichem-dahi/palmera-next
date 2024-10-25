@@ -32,9 +32,9 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'My Awesome App',
+        name: 'CommandOS',
         short_name: 'MyApp',
-        description: 'My Awesome App description',
+        description: 'CommandOS description',
         theme_color: '#ffffff',
         icons: [
           {

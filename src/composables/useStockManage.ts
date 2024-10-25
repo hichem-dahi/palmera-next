@@ -16,6 +16,17 @@ export function processOrder(order: Order): void {
     }
   })
 }
+export function reverseOrder(order: Order): void {
+  order.order_lines.forEach((orderLine) => {
+    const product = products.value.find((p) => p.id === orderLine.product_id)
+    if (product && product.qte !== null && orderLine.qte !== null) {
+      if (product.qte >= orderLine.qte) {
+        product.qte += orderLine.qte // Deduct stock
+        logStockMovement(product.id, +orderLine.qte, order.id)
+      }
+    }
+  })
+}
 
 export function logStockMovement(product_id: string, qte_change: number, order_id?: string): void {
   const movement: StockMovement = {

@@ -37,8 +37,9 @@
         {{ docTitle }}
       </v-btn>
     </v-card-actions>
-    <template v-if="isOrderConfirmed" v-slot:append>
-      <v-chip variant="tonal" color="green">{{ $t('confirmed') }}</v-chip>
+    <template v-if="order.status !== OrderStatus.Pending" v-slot:append>
+      <v-chip v-if="isConfirmed" variant="tonal" color="green">{{ $t('confirmed') }}</v-chip>
+      <v-chip v-else-if="isCancelled" variant="tonal" color="red">{{ $t('cancelled') }}</v-chip>
     </template>
     <template v-else v-slot:append>
       <v-menu>
@@ -72,9 +73,9 @@ import { mdiDotsVertical } from '@mdi/js'
 import companies from '@/composables/localStore/useCompanyStore'
 import orders from '@/composables/localStore/useOrdersStore'
 
-import DeleteItemModal from './DeleteItemModal.vue'
+import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
-import { DocumentType, OrderState, type Order } from '@/models/models'
+import { DocumentType, OrderStatus, type Order } from '@/models/models'
 
 const { t } = useI18n()
 
@@ -94,7 +95,8 @@ const consumerName = computed(
     order.value?.individual?.name
 )
 
-const isOrderConfirmed = computed(() => order.value?.state === OrderState.Confirmed)
+const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
+const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
 
 function deleteOrder() {
   const index = orders.value.indexOf(order.value!)

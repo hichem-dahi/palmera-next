@@ -9,7 +9,7 @@
     multiple="range"
   />
   <v-row class="mt-10">
-    <v-col sm="12" md="4">
+    <v-col sm="12" md="6">
       <v-list density="compact" class="overflow-y" style="max-height: 200px">
         <template v-for="item in historyItems" :key="item.orderId || item.title">
           <v-list-item>
@@ -19,7 +19,11 @@
           </v-list-item>
         </template>
       </v-list>
-      <div class="total text-end pa-4 font-italic" v-html="productSummary(allOrderlines)"></div>
+      <div class="total text-end pa-4">
+        {{ $t('total') }}:
+        <span v-html="productSummary(allOrderlines)"></span>
+        <span> {{ `&mdash; ${sum(filteredOrders.map((o) => o.paid_price))} ${t('DA')}` }}</span>
+      </div>
     </v-col>
   </v-row>
 </template>
@@ -33,7 +37,7 @@ import { useI18n } from 'vue-i18n'
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 
-import { OrderState, type OrderLine } from '@/models/models'
+import { OrderStatus, type OrderLine } from '@/models/models'
 
 const { t } = useI18n()
 
@@ -44,7 +48,7 @@ const filteredOrders = computed(() => {
     const dateFilter = dateRange.value.length
       ? dateRange.value.some((selectedDate) => isSameDay(o.date, selectedDate))
       : true
-    return dateFilter && o.state === OrderState.Confirmed
+    return dateFilter && o.status === OrderStatus.Confirmed
   })
 })
 
@@ -52,10 +56,11 @@ const historyItems = computed(() => {
   let groupedSummary = []
   for (const date in groupedOrders.value) {
     const intro = `<span class="text-primary">${format(date, 'dd-MM-yyyy')}</span>&nbsp;&nbsp;`
-    const dateSummary = {
-      subtitle: `${intro} ${productSummary(allOrderlinesByDate.value[date])}`
+    const dateSummaryitem = {
+      subtitle: `${intro} ${productSummary(allOrderlinesByDate.value[date])} 
+      &mdash; ${sum(groupedOrders.value[date].map((o) => o.paid_price))} ${t('DA')}`
     }
-    groupedSummary.push(dateSummary)
+    groupedSummary.push(dateSummaryitem)
   }
 
   return groupedSummary
@@ -94,7 +99,6 @@ const allOrderlines = computed(() => {
 function productSummary(orderlines: OrderLine[]) {
   let productSummaries: string[] = []
   const orderlinesGrouped = groupBy(orderlines, (o) => o.product_id)
-  const totalPrice = sum(orderlines.map((o) => o.total_price))
 
   for (const productId in orderlinesGrouped) {
     const product = getProduct(productId)
@@ -102,7 +106,7 @@ function productSummary(orderlines: OrderLine[]) {
     productSummaries.push(`${totalQte}m ${product?.name}`)
   }
 
-  return `${productSummaries.join(', ')} &mdash; ${totalPrice} ${t('DA')}`
+  return `${productSummaries.join(', ')}`
 }
 
 const getProduct = (id: string) => products.value.find((e) => e.id == id)

@@ -1,8 +1,8 @@
 <template>
-  <v-card :title="title || $t('create-client')" class="pa-4">
+  <v-card :title="title" class="pa-4">
     <v-text-field
       :label="$t('name')"
-      v-model="form.name"
+      v-model="model.name"
       :error-messages="
         !$v.name.$pending && $v.name.$error
           ? [
@@ -15,7 +15,7 @@
     />
     <v-text-field
       :label="$t('phone')"
-      v-model.trim="form.phone"
+      v-model.trim="model.phone"
       :error-messages="
         !$v.phone.$pending && $v.phone.$error
           ? [
@@ -29,7 +29,7 @@
     />
     <v-text-field
       :label="$t('R.C')"
-      v-model.trim="form.rc"
+      v-model.trim="model.rc"
       :error-messages="
         !$v.rc.$pending && $v.rc.$error
           ? [$v.rc.required.$invalid ? 'RC is required' : ''].filter(Boolean)
@@ -39,7 +39,7 @@
     />
     <v-text-field
       :label="$t('NIF')"
-      v-model.trim="form.nif"
+      v-model.trim="model.nif"
       :error-messages="
         !$v.nif.$pending && $v.nif.$error
           ? [
@@ -52,7 +52,7 @@
     />
     <v-text-field
       :label="$t('NIS')"
-      v-model.trim="form.nis"
+      v-model.trim="model.nis"
       :error-messages="
         !$v.nis.$pending && $v.nis.$error
           ? [
@@ -65,7 +65,7 @@
     />
     <v-text-field
       :label="$t('N.ART')"
-      v-model.trim="form.art"
+      v-model.trim="model.art"
       :error-messages="
         !$v.art.$pending && $v.art.$error
           ? [
@@ -78,7 +78,7 @@
     />
     <v-text-field
       :label="$t('address')"
-      v-model.trim="form.address"
+      v-model.trim="model.address"
       :error-messages="
         !$v.address.$pending && $v.address.$error
           ? [
@@ -91,7 +91,7 @@
     />
     <v-text-field
       :label="$t('activity')"
-      v-model.trim="form.activity"
+      v-model.trim="model.activity"
       :error-messages="
         !$v.activity.$pending && $v.activity.$error
           ? [$v.activity.required.$invalid ? 'Activity is required' : ''].filter(Boolean)
@@ -100,42 +100,31 @@
       @blur="$v.activity.$touch()"
     />
 
-    <!-- Only show the default button if no slot is provided -->
-    <template v-if="!$slots.actions">
-      <v-btn block @click="submitForm">{{ $t('add') }}</v-btn>
-    </template>
     <!-- Pass the form and validation as slot props -->
-    <slot name="actions" :form="form" :validation="$v"></slot>
+    <slot name="actions" :validation="$v"></slot>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { toRef } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
+
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, numeric } from '@vuelidate/validators'
-import { cloneDeep } from 'lodash'
-import { useRoute } from 'vue-router'
 
-import companies from '@/composables/localStore/useCompanyStore'
-import self from '@/composables/localStore/useSelf'
-
-import type { Company } from '@/models/models'
-
-const isOpen = defineModel()
-
-const props = defineProps<{ title?: string }>()
-const emits = defineEmits(['success'])
-const route = useRoute()
-
-const form = ref({
-  name: '',
-  phone: '',
-  rc: '',
-  nif: null as number | null,
-  nis: null as number | null,
-  art: null as number | null,
-  address: '',
-  activity: ''
+const props = defineProps<{ title: string }>()
+const model = defineModel({
+  default: {
+    id: uuidv4(),
+    name: '',
+    phone: '',
+    rc: '',
+    nif: null as number | null,
+    nis: null as number | null,
+    art: null as number | null,
+    address: '',
+    activity: ''
+  }
 })
 
 const rules = {
@@ -149,20 +138,8 @@ const rules = {
   activity: { required }
 }
 
-const $v = useVuelidate(rules, form)
-
-onMounted(() => {
-  if (route.name == 'self' && self.value.user.companies) {
-    form.value = self.value.user.companies
-  }
-})
-
-function submitForm() {
-  $v.value.$touch()
-  if (!$v.value.$invalid) {
-    companies.value.push(cloneDeep(form.value as any) as Company)
-    emits('success', form.value)
-    isOpen.value = false
-  }
-}
+const $v = useVuelidate(
+  rules,
+  toRef(() => model.value)
+)
 </script>

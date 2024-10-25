@@ -16,7 +16,8 @@ export interface Order {
   order_lines: OrderLine[]
   delivery?: Delivery
   document_type: DocumentType
-  state: OrderState
+  status: OrderStatus
+  payments_ids: string[]
   payment_method?: string
   paid_price: number
   total_price: number
@@ -24,10 +25,17 @@ export interface Order {
   ttc?: number
 }
 
+export interface Payment {
+  id: string
+  date: Date | string
+  amount: number
+}
+
 export interface OrderLine {
   id: string
   product_id: string
   qte: number | null
+  unit_price: number | null
   total_price: number
 }
 
@@ -90,9 +98,10 @@ export enum DocumentType {
   Proforma
 }
 
-export enum OrderState {
+export enum OrderStatus {
   Pending = 0,
-  Confirmed
+  Confirmed,
+  Cancelled
 }
 
 export enum HistoryType {

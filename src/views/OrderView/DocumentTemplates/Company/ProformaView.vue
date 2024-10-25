@@ -1,6 +1,6 @@
 <template>
-  <div class="invoice-wrapper">
-    <div v-if="order" ref="invoice" class="invoice">
+  <div class="proforma-wrapper">
+    <div v-if="proforma" ref="proforma" class="proforma">
       <div class="row-1">
         <div v-for="(value, key) in selfInfo" :key="key">
           <div v-if="key == 'name'">
@@ -11,19 +11,12 @@
           </div>
           <div v-else>{{ key }}: {{ value }}</div>
         </div>
-        <h3 class="type pa-4">
-          {{ title }}
-          <span v-if="order.docIndex"
-            >N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024</span
-          >
-        </h3>
-        <div class="d-flex justify-space-between align-center ga-4">
+        <h3 class="type">{{ title }}</h3>
+        <div class="d-flex justify-space-between ga-4">
           <div>
-            <div v-for="(value, key) in consumer" :key="key">{{ key }}: {{ value }}</div>
+            <div v-for="(value, key) in companyInfo" :key="key">{{ key }}: {{ value }}</div>
           </div>
-          <div class="mt-6 text-decoration-underline">
-            SPA LE: {{ format(order.date, 'dd-MM-yyyy') }}
-          </div>
+          <div class="date">SPA LE: {{ format(proforma.date, 'dd-MM-yyyy') }}</div>
         </div>
         <table cellpadding="10" cellspacing="0" width="100%">
           <thead>
@@ -55,26 +48,12 @@
             </tr>
           </tfoot>
         </table>
-        <div v-if="order?.payment_method" class="payment-method mt-5">
-          Mode de payment: {{ order?.payment_method }}
-        </div>
-        <div v-if="totalWords" class="total-words">
-          Arréter la préforma a la somme de: <b>{{ totalWords }}</b>
-        </div>
-      </div>
-      <div
-        class="delivery-info row-2"
-        v-if="($route.query.type as any) == DocumentType.DeliveryNote"
-      >
-        <div class="d-flex align-center" v-for="(value, key) in deliveryInfo" :key="key">
-          <span class="font-weight-bold">{{ key }}:</span>
-          <span>&nbsp;{{ value }}</span>
-        </div>
+        <div class="total-words">{{ totalWords }}</div>
       </div>
     </div>
     <div class="actions no-print">
       <v-btn class="mr-5" @click="print()">print</v-btn>
-      <v-btn @click="downloadInvoice()">download</v-btn>
+      <v-btn @click="downloadProforma()">download</v-btn>
     </div>
   </div>
 </template>
@@ -82,28 +61,27 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { pick, round, padStart } from 'lodash'
+import { pick, round } from 'lodash'
 import html2pdf from 'html2pdf.js'
 import n2words from 'n2words'
-import { format } from 'date-fns'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
 import companies from '@/composables/localStore/useCompanyStore'
 
-import { ConsumerType, DocumentType } from '@/models/models'
+import { ConsumerType } from '@/models/models'
 import self from '@/composables/localStore/useSelf'
+import { format } from 'date-fns'
+import proformas from '@/composables/localStore/useProformaStore'
 
 const route = useRoute()
 
-const invoice = ref()
+const title = computed(() => 'Facture préforma')
 
-const title = computed(() => (order.value?.delivery ? 'bon de livraison' : 'facture'))
-
-const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
+const proforma = computed(() => proformas.value.find((o) => o.id == route.params.proforma_id))
 
 const consumerType = computed(() =>
-  order.value?.company ? ConsumerType.Company : ConsumerType.Individual
+  proforma.value?.company ? ConsumerType.Company : ConsumerType.Individual
 )
 
 const totalWords = computed(() => {
@@ -119,13 +97,6 @@ const totalWords = computed(() => {
   return `${words} dinars alg`
 })
 
-const deliveryInfo = computed(() => {
-  const deliveryInfoKeys = ['chauffeur', 'phone', 'matricule', 'destination']
-  let delivery = { ...order.value?.delivery, chauffeur: order.value?.delivery?.driver_name }
-
-  return pick(delivery, deliveryInfoKeys)
-})
-
 const selfInfo = computed(() => {
   let selfInfo = self.value.company
   if (!selfInfo) return
@@ -139,46 +110,35 @@ const selfInfo = computed(() => {
   return pick(selfInfo, desiredOrder)
 })
 
-const consumer = computed(() => {
-  let company = { ...companies.value.find((c) => c.id === order.value?.company) }
-  let individual = order.value?.individual as any
+const companyInfo = computed(() => {
+  let company = { ...companies.value.find((c) => c.id === proforma.value?.company) }
 
   if (Object.keys(company).length) {
     company = { ...company, client: company.name } as any
     const desiredOrder = ['client', 'rc', 'nif', 'nis', 'art', 'address', 'activity']
     return pick(company, desiredOrder)
-  } else if (Object.keys(individual).length) {
-    individual = { ...individual, client: individual.name }
-    const desiredOrder = ['client', 'phone']
-    return pick(individual, desiredOrder)
-  } else return ''
+  } else return undefined
 })
 
 const items = computed(() =>
-  order.value?.order_lines.map((o, i) => {
+  proforma.value?.order_lines.map((o, i) => {
     const product = getProduct(o.product_id)
     return {
       index: i,
       product_name: product?.name,
       qte: o.qte,
-      unity_price: product?.price,
+      unit_price: o.unit_price,
       total_price: o.total_price
     }
   })
 )
 
 const totalItems = computed(() => {
-  const isCompany = consumerType.value == ConsumerType.Company
-  if (isCompany) {
-    return {
-      total: order.value?.total_price,
-      'T.V.A 19%': round((order.value?.total_price! * 19) / 100, 0),
-      'T.T.C': round((order.value?.total_price! * 119) / 100, 0)
-    }
-  } else
-    return {
-      total: order.value?.total_price
-    }
+  return {
+    total: proforma.value?.total_price,
+    'T.V.A 19%': round((proforma.value?.total_price! * 19) / 100, 0),
+    'T.T.C': round((proforma.value?.total_price! * 119) / 100, 0)
+  }
 })
 
 const getProduct = (id: string) => products.value.find((e) => e.id == id)
@@ -187,22 +147,22 @@ function print() {
   window.print()
 }
 
-function downloadInvoice() {
-  const invoiceElement = document.querySelector('.invoice') // Select the invoice element
-  if (!invoiceElement) return // Ensure the element exists
+function downloadProforma() {
+  const proformaElement = document.querySelector('.proforma') // Select the proforma element
+  if (!proformaElement) return // Ensure the element exists
 
   // Backup original styles
-  const originalMaxWidth = (invoiceElement as any).maxWidth
-  const originalTransform = (invoiceElement as any).transform
+  const originalMaxWidth = (proformaElement as any).maxWidth
+  const originalTransform = (proformaElement as any).transform
 
   // Remove max-width and scale
-  ;(invoiceElement as any).style.maxWidth = 'none'
-  ;(invoiceElement as any).transform = 'none'
+  ;(proformaElement as any).style.maxWidth = 'none'
+  ;(proformaElement as any).transform = 'none'
 
   // Configuration for html2pdf
   const opt = {
     margin: [10, 10, 10, 10], // Margins in mm
-    filename: 'invoice.pdf',
+    filename: 'proforma.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2 }, // Scale for better resolution
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -210,47 +170,53 @@ function downloadInvoice() {
 
   // Generate and save the PDF
   html2pdf()
-    .from(invoiceElement)
+    .from(proformaElement)
     .set(opt)
     .save()
     .then(() => {
-      ;(invoiceElement as any).maxWidth = originalMaxWidth
-      ;(invoiceElement as any).transform = originalTransform
+      // Restore original styles after download
+      ;(proformaElement as any).maxWidth = originalMaxWidth
+      ;(proformaElement as any).transform = originalTransform
     })
 }
 </script>
 
 <style>
-.invoice {
+.proforma {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-transform: capitalize;
-  width: 210mm; /* A4 paper width */
-  height: calc(297mm - 20mm); /* A4 height minus top and bottom margins (10mm each) */
-  margin: 10mm auto; /* Add 10mm margin on top and bottom, auto for centering */
+  aspect-ratio: 1 / 1.414; /* Aspect ratio for A4 size */
+  overflow-y: auto; /* Add scroll to the wrapper if content exceeds the height */
+  margin: auto;
   white-space: nowrap;
-  transform: scale(0.7); /* Scale down for screen display */
+  transform: scale(0.7); /* Scale down the element */
   transform-origin: top; /* Ensure scaling happens from the top */
 
   @media (min-width: 1024px) {
+    /* Target screens larger than 1024px (typical desktop size) */
     max-width: 50%;
   }
 
   table {
     margin-top: 25px;
-    width: 100%; /* Ensure table takes full width */
   }
 
   th,
   td {
     border: 1px solid black;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Ensures borders don't double up */
     padding: 4px 8px;
   }
 
   .no-border {
     border: none;
+  }
+
+  .date {
+    text-decoration: underline;
+    margin: 1rem 1rem 0 0;
   }
 
   .type {
@@ -265,25 +231,15 @@ function downloadInvoice() {
 
   .total-words {
     text-transform: none;
-  }
-
-  .delivery-info {
-    max-width: min-content;
-    font-size: 12px;
-    white-space: nowrap;
     padding: 1rem;
-    border: 1px solid slategrey;
+    text-align: end;
   }
 }
 
 @media print {
-  .invoice {
-    width: 210mm; /* A4 width */
-    height: calc(297mm - 10mm); /* A4 height minus margins for print */
-    margin: auto; /* Keep margins on print */
-    transform: none; /* Remove scaling for print */
+  .proforma {
     max-width: none;
-    page-break-inside: avoid; /* Prevent breaking inside the invoice */
+    transform: none;
   }
 
   .no-print {

@@ -27,6 +27,15 @@
         {{ detail }}
       </div>
     </template>
+    <template v-slot:item.status="{ item }">
+      <v-chip v-if="item.status === OrderStatus.Confirmed" variant="tonal" color="green">
+        {{ $t('confirmed') }}
+      </v-chip>
+      <v-chip v-else-if="item.status === OrderStatus.Cancelled" variant="tonal" color="red">
+        {{ $t('cancelled') }}
+      </v-chip>
+    </template>
+
     <template v-slot:item.order="{ item }">
       <v-btn
         v-if="item.orderId"
@@ -54,7 +63,7 @@ import companies from '@/composables/localStore/useCompanyStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 import orders from '@/composables/localStore/useOrdersStore'
 
-import { ConsumerType } from '@/models/models'
+import { ConsumerType, OrderStatus } from '@/models/models'
 
 const emits = defineEmits(['close'])
 const route = useRoute()
@@ -92,6 +101,7 @@ const historyItems = computed(() => {
       details: orderLinesInfo,
       total,
       remaining,
+      status: o.status,
       orderId: o.id
     }
   })
@@ -112,6 +122,8 @@ const headers = computed(
       { title: t('details'), key: 'details' },
       { title: `${t('total')} (DA)`, key: 'total' },
       { title: `${t('remaining')} (DA)`, key: 'remaining' },
+      { title: `${t('status')}`, key: 'status' },
+
       { title: ``, key: 'order' }
     ] as any
 )

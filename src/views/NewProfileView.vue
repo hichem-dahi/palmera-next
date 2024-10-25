@@ -15,24 +15,25 @@
         </v-card>
       </v-col>
       <v-col sm="12" md="5">
-        <CreateClient :title="$t('your-informations')">
-          <template v-slot:actions="{ form, validation }">
+        <ClientForm v-model="companyForm" :title="$t('your-informations')">
+          <template v-slot:actions="{ validation }">
             <v-btn
               block
               :loading="updateProfileApi.isLoading.value"
-              @click="submitNewProfile(form, validation)"
+              @click="submitNewProfile(validation)"
             >
               {{ $t('confirm') }}</v-btn
             >
           </template>
-        </CreateClient>
+        </ClientForm>
       </v-col>
     </v-row>
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { v4 as uuidv4 } from 'uuid'
 
 import self from '@/composables/localStore/useSelf'
 
@@ -40,10 +41,10 @@ import { useGetProfileApi } from '@/composables/api/auth/useGetProfileApi'
 import { useUpdateProfileApi } from '@/composables/api/auth/useUpdateProfileApi'
 import { useUpsertCompanyApi } from '@/composables/api/companies/useUpsertCompanyApi'
 
-import CreateClient from './ClientsView/CreateClient.vue'
+import ClientForm from './ClientsView/ClientForm.vue'
 
 import type { Validation } from '@vuelidate/core'
-import { watchEffect } from 'vue'
+import type { Company } from '@/models/models'
 
 interface Form {
   id: string
@@ -60,6 +61,18 @@ interface Form {
 const userForm = reactive({
   full_name: '',
   phone: ''
+})
+
+const companyForm = reactive({
+  id: uuidv4(),
+  name: '',
+  phone: '',
+  rc: '',
+  nif: null as number | null,
+  nis: null as number | null,
+  art: null as number | null,
+  address: '',
+  activity: ''
 })
 
 const router = useRouter()
@@ -85,10 +98,10 @@ function submitProfile() {
   updateProfileApi.execute()
 }
 
-function submitNewProfile(form: any, v: Validation) {
+function submitNewProfile(v: Validation) {
   v.$touch()
   if (!v.$invalid) {
-    upsertCompanyApi.form.value = form
+    upsertCompanyApi.form.value = companyForm as Company
     upsertCompanyApi.execute()
   }
 }
