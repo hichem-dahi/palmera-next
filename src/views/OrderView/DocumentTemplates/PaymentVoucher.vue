@@ -89,7 +89,7 @@ const order = computed(() => orders.value.find((o) => o.id == route.params.order
 const payment = computed(() => payments.value.find((p) => p.id == route.query.payment_id))
 
 const totalWords = computed(() => {
-  let number = totalItems.value.total.value || 0
+  let number = payment.value?.amount || 0
   let integerPart = Math.floor(number)
   let decimalPart = number % 1
   let words = n2words(integerPart, { lang: 'fr' })
