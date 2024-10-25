@@ -98,7 +98,7 @@ const title = computed(() => {
   }
 })
 
-const isConfirmable = computed(() => orderTableRef.value?.isConfirmable)
+const isConfirmable = computed(() => orderTableRef.value?.isConfirmable || false)
 
 const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
 const isPending = computed(() => order.value?.status === OrderStatus.Pending)
@@ -135,6 +135,8 @@ function getRouteNameByDocumentType(documentType: DocumentType) {
       return 'invoice'
     case DocumentType.Voucher:
       return 'voucher'
+    case DocumentType.DeliveryNote:
+      return order.value?.company ? 'invoice' : 'voucher'
     default:
       return null
   }
