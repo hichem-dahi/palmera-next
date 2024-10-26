@@ -47,18 +47,22 @@
     <v-dialog max-width="400px" v-model="editDialog">
       <ProductForm :form="product">
         <template v-slot:actions="{ form, v }">
-          <v-btn block @click="editProduct(form, v)">{{ $t('confirm') }}</v-btn>
+          <v-btn block :loading="updateProductApi.isLoading.value" @click="editProduct(form, v)">
+            {{ $t('confirm') }}
+          </v-btn>
         </template>
       </ProductForm>
     </v-dialog>
   </v-card>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { mdiDotsVertical } from '@mdi/js'
 import { isEqual, omitBy } from 'lodash'
 
 import products from '@/composables/localStore/useProductStore'
+
+import { useUpdateProductApi } from '@/composables/api/products/useUpdateProductApi'
 
 import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 import ProductForm from './ProductForm.vue'
@@ -67,6 +71,8 @@ import type { Product } from '@/models/models'
 import type { Validation } from '@vuelidate/core'
 
 const product = defineModel<Product>()
+
+const updateProductApi = useUpdateProductApi()
 
 const deleteDialog = ref(false)
 const editDialog = ref(false)
@@ -79,17 +85,23 @@ function deleteProduct() {
 function editProduct(form: Product, v: Validation<Product>) {
   v.$touch()
   if (!v.$invalid && product.value) {
-    const index = products.value.findIndex((p) => p.id === product.value!.id)
-
-    if (index !== -1) {
-      const originalProduct = products.value[index]
-      const modifiedFields = omitBy(form, (value, key) => {
-        return isEqual(value, originalProduct[key as keyof Product])
-      })
-      Object.assign(originalProduct, modifiedFields)
-    }
-
-    editDialog.value = false
+    const modifiedFields = omitBy(form, (value, key) => {
+      if (key == 'id') return false
+      return isEqual(value, product.value?.[key as keyof Product])
+    })
+    updateProductApi.form.value = modifiedFields
+    updateProductApi.execute()
   }
 }
+
+watch(
+  () => updateProductApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && updateProductApi.data.value) {
+      const originalProduct = product.value
+      if (originalProduct) Object.assign(originalProduct, updateProductApi.data.value)
+      editDialog.value = false
+    }
+  }
+)
 </script>

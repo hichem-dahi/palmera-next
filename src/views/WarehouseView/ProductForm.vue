@@ -47,7 +47,6 @@ import type { Product } from '@/models/models'
 const props = defineProps<{ form?: Product }>()
 
 const proxyForm = ref<Product>({
-  id: uuidv4(),
   code: '',
   name: '',
   qte: null,
@@ -57,7 +56,6 @@ const proxyForm = ref<Product>({
 if (props.form) proxyForm.value = cloneDeep(props.form)
 
 const rules = {
-  id: { required },
   code: { required },
   name: { required },
   qte: { required, numeric, minValue: minValue(1) },

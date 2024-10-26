@@ -5,7 +5,9 @@
   <v-dialog max-width="400px" v-model="dialog">
     <ProductForm>
       <template v-slot:actions="{ form, v }">
-        <v-btn block @click="submitForm(form, v)">{{ $t('add') }}</v-btn>
+        <v-btn block :loading="insertProductApi.isLoading.value" @click="submitForm(form, v)">{{
+          $t('add')
+        }}</v-btn>
       </template>
     </ProductForm>
   </v-dialog>
@@ -17,10 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { mdiPlus } from '@mdi/js'
 
-import products from '@/composables/localStore/useProductStore'
+import { useInsertProductApi } from '@/composables/api/products/useInsertProductApi'
+import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
 
 import ProductForm from '@/views/WarehouseView/ProductForm.vue'
 import ProductCard from '@/views/WarehouseView/ProductCard.vue'
@@ -30,11 +33,26 @@ import type { Validation } from '@vuelidate/core'
 
 const dialog = ref(false)
 
+const insertProductApi = useInsertProductApi()
+const getProductsApi = useGetProductsApi()
+
+const products = computed(() => getProductsApi.data.value || [])
+
 function submitForm(form: Product, v: Validation<Product>) {
   v.$touch()
   if (!v.$invalid) {
-    products.value.push(form)
+    insertProductApi.form.value = form
+    insertProductApi.execute()
     dialog.value = false
   }
 }
+
+watch(
+  () => insertProductApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertProductApi.data.value) {
+      products.value?.push(insertProductApi.data.value)
+    }
+  }
+)
 </script>
