@@ -15,6 +15,7 @@
 import { onMounted, ref } from 'vue'
 import { cloneDeep } from 'lodash'
 import { useRouter } from 'vue-router'
+import { v4 as uuidv4 } from 'uuid'
 
 import self from '@/composables/localStore/useSelf'
 
@@ -23,18 +24,30 @@ import CreateClient from './ClientsView/ClientForm.vue'
 import type { Validation } from '@vuelidate/core'
 import type { Company } from '@/models/models'
 
-const form = ref<Company>()
+const form = ref({
+  id: uuidv4(),
+  name: '',
+  phone: '',
+  rc: '',
+  nif: null as number | null,
+  nis: null as number | null,
+  art: null as number | null,
+  address: '',
+  activity: ''
+})
 
 const router = useRouter()
 
 onMounted(() => {
-  form.value = cloneDeep(self.value.company)
+  if (self.value.company) {
+    form.value = cloneDeep(self.value.company)
+  }
 })
 
 function submitNewProfile($v: Validation) {
   $v.$touch()
   if (!$v.$invalid) {
-    self.value.company = form.value
+    self.value.company = form.value as Company
     router.push({ name: 'home' })
   }
 }
