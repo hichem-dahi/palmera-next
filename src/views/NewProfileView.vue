@@ -31,7 +31,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, watch, watchEffect } from 'vue'
+import { onMounted, reactive, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -45,18 +45,6 @@ import ClientForm from './ClientsView/ClientForm.vue'
 
 import type { Validation } from '@vuelidate/core'
 import type { Company } from '@/models/models'
-
-interface Form {
-  id: string
-  name: string
-  phone: string
-  rc: string
-  nif: string | null
-  nis: string | null
-  art: string | null
-  address: string
-  activity: string
-}
 
 const userForm = reactive({
   full_name: '',
@@ -80,18 +68,17 @@ const router = useRouter()
 const updateProfileApi = useUpdateProfileApi()
 const upsertCompanyApi = useUpsertCompanyApi()
 
-const getProfileApi = useGetProfileApi()
-
-watchEffect(() => {
-  if (self.value.user.id) {
-    getProfileApi.userId.value = self.value.user.id
-    getProfileApi.execute()
-  }
+onMounted(() => {
+  Object.assign(userForm, {
+    full_name: self.value.user?.full_name,
+    phone: self.value.user?.phone
+  })
+  Object.assign(companyForm, self.value.user?.companies)
 })
 
 function submitProfile() {
   updateProfileApi.params.profileForm = {
-    id: self.value.user.id,
+    id: self.value.user?.id,
     full_name: userForm.full_name,
     phone: userForm.phone
   }
@@ -107,23 +94,11 @@ function submitNewProfile(v: Validation) {
 }
 
 watch(
-  () => getProfileApi.isReady.value,
-  (isReady) => {
-    if (isReady) {
-      Object.assign(userForm, {
-        full_name: getProfileApi.data?.value?.full_name ?? '',
-        phone: getProfileApi.data?.value?.phone ?? ''
-      })
-    }
-  }
-)
-
-watch(
   () => upsertCompanyApi.isReady.value,
   (isReady) => {
     if (isReady && upsertCompanyApi.data.value?.id) {
       Object.assign(updateProfileApi.params.form, {
-        id: self.value.user.id,
+        id: self.value.user?.id,
         company_id: upsertCompanyApi.data.value.id
       })
       updateProfileApi.execute()
