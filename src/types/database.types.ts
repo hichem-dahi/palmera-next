@@ -206,7 +206,7 @@ export type Database = {
         }
         Insert: {
           code: string
-          id: string
+          id?: string
           name: string
           price?: number | null
           qte?: number | null
