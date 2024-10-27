@@ -46,21 +46,13 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { mdiAccount, mdiDotsVertical } from '@mdi/js'
-
-import self from '@/composables/localStore/useSelf'
 
 import MenuBar from './HomeView/MenuBar.vue'
 
 const deferredPrompt = ref()
-const router = useRouter()
 
 onMounted(() => {
-  if (!self.value.session) {
-    router.push({ name: 'self' })
-  }
-
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferredPrompt.value = e
