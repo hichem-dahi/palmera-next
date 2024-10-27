@@ -36,10 +36,11 @@ watchOnce(
     }
   }
 )
+
 watch(
-  () => getProfileApi.isReady.value,
-  (isReady) => {
-    if (isReady) {
+  () => getProfileApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
       self.value.user = getProfileApi.data.value
     }
   }

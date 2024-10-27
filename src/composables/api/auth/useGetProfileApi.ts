@@ -3,41 +3,45 @@ import { useAsyncState } from '@vueuse/core'
 
 import { supabase } from '@/supabase/supabase'
 
-export function useGetProfileApi() {
-  const userId = ref()
+// Define QueryProfile based on the query function
 
-  const query = async () =>
-    userId.value
-      ? supabase
-          .from('profiles')
-          .select(
-            `
-            id, 
-            full_name, 
-            email, 
-            phone, 
-            company_id,
-            companies (
-              id,
-              name,
-              activity,
-              address,
-              art,
-              nif,
-              nis,
-              phone,
-              rc
-            )
+// Define the query function outside of useGetProfileApi to reuse its type
+const query = async (userId: string | undefined) =>
+  userId
+    ? supabase
+        .from('profiles')
+        .select(
           `
+          id, 
+          full_name, 
+          email, 
+          phone, 
+          company_id,
+          companies (
+            id,
+            name,
+            activity,
+            address,
+            art,
+            nif,
+            nis,
+            phone,
+            rc
           )
-          .eq('id', userId.value)
-          .single()
-      : undefined
+        `
+        )
+        .eq('id', userId)
+        .single()
+    : undefined
 
-  const q = useAsyncState(query, undefined, { immediate: false })
+export function useGetProfileApi() {
+  const userId = ref<string | undefined>(undefined)
+
+  const q = useAsyncState(() => query(userId.value), undefined, { immediate: false })
 
   const data = computed(() => q.state.value?.data)
   const error = computed(() => q.state.value?.error)
+  const isSuccess = computed(() => q.isReady.value && q.state.value?.statusText === 'OK')
 
-  return { ...q, data, error, userId }
+  return { ...q, data, error, isSuccess, userId }
 }
