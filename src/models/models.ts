@@ -76,7 +76,7 @@ export interface Company {
 }
 
 export interface Product {
-  id: string
+  id?: string
   code: string
   name: string
   price: number | null
