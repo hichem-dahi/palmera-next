@@ -106,11 +106,11 @@
 </template>
 
 <script setup lang="ts">
+import { toRef } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, numeric } from '@vuelidate/validators'
-import { toRef } from 'vue'
 
 const props = defineProps<{ title: string }>()
 const model = defineModel({
