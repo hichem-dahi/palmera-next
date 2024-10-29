@@ -20,7 +20,7 @@ const consumerType = ref<ConsumerType>()
 const defaultForm = () => ({
   id: uuidv4(),
   index: undefined as any,
-  company: undefined as any,
+  organization_id: undefined as any,
   individual: {
     id: uuidv4(),
     name: '',
@@ -77,12 +77,12 @@ function cleanForm() {
       break
   }
 
-  if (consumerType.value === ConsumerType.Company) {
+  if (consumerType.value === ConsumerType.Organization) {
     form.individual = undefined as any
     form.tva = round(form.total_price * 0.19, 0)
     form.ttc = round(form.total_price * 1.19, 0)
   } else if (consumerType.value === ConsumerType.Individual) {
-    form.company = undefined
+    form.organization_id = undefined
   }
 }
 

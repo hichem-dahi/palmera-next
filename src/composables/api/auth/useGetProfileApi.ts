@@ -16,8 +16,8 @@ const query = async (userId: string | undefined) =>
           full_name, 
           email, 
           phone, 
-          company_id,
-          companies (
+          organization_id,
+          organizations (
             id,
             name,
             activity,

@@ -136,7 +136,7 @@ function getRouteNameByDocumentType(documentType: DocumentType) {
     case DocumentType.Voucher:
       return 'voucher'
     case DocumentType.DeliveryNote:
-      return order.value?.company ? 'invoice' : 'voucher'
+      return order.value?.organization_id ? 'invoice' : 'voucher'
     default:
       return null
   }

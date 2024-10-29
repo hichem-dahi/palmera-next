@@ -7,9 +7,9 @@
     :to="{ name: 'create-client' }"
     >{{ $t('add-client') }}
   </v-btn>
-  <v-row v-for="(_, i) in companies" :key="i">
+  <v-row v-for="(_, i) in organizations" :key="i">
     <v-col sm="12" md="6">
-      <ClientCard v-model="companies[i]" />
+      <ClientCard v-model="organizations[i]" />
     </v-col>
   </v-row>
   <v-row v-for="(_, i) in individuals" :key="i">
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { mdiPlus } from '@mdi/js'
 
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 
 import ClientCard from '@/views/ClientsView/ClientCard.vue'

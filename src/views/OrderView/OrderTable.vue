@@ -122,7 +122,7 @@ import { cloneDeep, isEqual, isNumber, sum } from 'lodash'
 import { mdiDelete, mdiPlus } from '@mdi/js'
 
 import products from '@/composables/localStore/useProductStore'
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 import orders from '@/composables/localStore/useOrdersStore'
 
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
@@ -166,11 +166,12 @@ const isValidOrderlines = computed(() =>
 
 const consumerName = computed(
   () =>
-    companies.value.find((e) => e.id === order.value.company)?.name || order.value.individual?.name
+    organizations.value.find((e) => e.id === order.value.organization_id)?.name ||
+    order.value.individual?.name
 )
 
 const consumerType = computed(() =>
-  order.value?.company ? ConsumerType.Company : ConsumerType.Individual
+  order.value?.organization_id ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)

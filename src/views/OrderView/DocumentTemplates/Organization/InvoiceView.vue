@@ -99,7 +99,7 @@ import { mdiChevronLeft } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType, DocumentType } from '@/models/models'
@@ -113,7 +113,7 @@ const title = computed(() => (order.value?.delivery ? 'bon de livraison' : 'fact
 const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
 
 const consumerType = computed(() =>
-  order.value?.company ? ConsumerType.Company : ConsumerType.Individual
+  order.value?.organization_id ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const totalWords = computed(() => {
@@ -140,7 +140,7 @@ const deliveryInfo = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.company
+  let selfInfo = self.value.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,
@@ -153,13 +153,13 @@ const selfInfo = computed(() => {
 })
 
 const consumer = computed(() => {
-  let company = { ...companies.value.find((c) => c.id === order.value?.company) }
+  let organization = { ...organizations.value.find((c) => c.id === order.value?.organization_id) }
   let individual = order.value?.individual as any
 
-  if (Object.keys(company).length) {
-    company = { ...company, client: company.name } as any
+  if (Object.keys(organization).length) {
+    organization = { ...organization, client: organization.name } as any
     const desiredOrder = ['client', 'rc', 'nif', 'nis', 'art', 'address', 'activity']
-    return pick(company, desiredOrder)
+    return pick(organization, desiredOrder)
   } else if (Object.keys(individual).length) {
     individual = { ...individual, client: individual.name }
     const desiredOrder = ['client', 'phone']
@@ -181,8 +181,8 @@ const items = computed(() =>
 )
 
 const totalItems = computed(() => {
-  const isCompany = consumerType.value == ConsumerType.Company
-  if (isCompany) {
+  const isOrganization = consumerType.value == ConsumerType.Organization
+  if (isOrganization) {
     return {
       total: order.value?.total_price,
       'T.V.A 19%': round((order.value?.total_price! * 19) / 100, 0),

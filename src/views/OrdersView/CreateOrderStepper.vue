@@ -64,8 +64,8 @@ import { cloneDeep, isString } from 'lodash'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import proformas from '@/composables/localStore/useProformaStore'
-import companies from '@/composables/localStore/useCompanyStore'
 import { individuals, upsertIndividuals } from '@/composables/localStore/useIndividualsStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
@@ -105,9 +105,9 @@ onMounted(() => {
 
   if (isString(consumer)) {
     // Check if the consumer is a company
-    const company = companies.value.find((c) => c.id === consumer)
-    if (company) {
-      form.company = company.id
+    const organization = organizations.value.find((c) => c.id === consumer)
+    if (organization) {
+      form.organization_id = organization.id
     } else {
       // Check if the consumer is an individual
       const individual = individuals.value.find((i) => i.id === consumer)

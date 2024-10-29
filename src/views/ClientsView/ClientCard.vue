@@ -2,7 +2,7 @@
   <v-card
     v-if="client"
     class="pa-4 pb-0 mx-auto"
-    :prepend-icon="consumerType == ConsumerType.Company ? mdiDomain : mdiAccount"
+    :prepend-icon="consumerType == ConsumerType.Organization ? mdiDomain : mdiAccount"
     :title="client?.name"
   >
     <v-card-subtitle style="line-height: 150%">
@@ -59,25 +59,25 @@
 import { computed, ref } from 'vue'
 import { mdiAccount, mdiDomain, mdiDotsVertical, mdiHistory, mdiPlus } from '@mdi/js'
 
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 
 import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
-import { ConsumerType, type Company, type Individual } from '@/models/models'
+import { ConsumerType, type Organization, type Individual } from '@/models/models'
 
-const client = defineModel<Company | Individual>()
+const client = defineModel<Organization | Individual>()
 
 const deleteDialog = ref(false)
 
 const consumerType = computed(() => {
-  return client.value && 'rc' in client.value ? ConsumerType.Company : ConsumerType.Individual
+  return client.value && 'rc' in client.value ? ConsumerType.Organization : ConsumerType.Individual
 })
 
 function deleteClient() {
-  if (consumerType.value == ConsumerType.Company && client.value) {
-    const index = companies.value.indexOf(client.value as Company)
-    companies.value.splice(index, 1)
+  if (consumerType.value == ConsumerType.Organization && client.value) {
+    const index = organizations.value.indexOf(client.value as Organization)
+    organizations.value.splice(index, 1)
   } else if (consumerType.value == ConsumerType.Individual && client.value) {
     const index = individuals.value.indexOf(client.value as Individual)
     individuals.value.splice(index, 1)

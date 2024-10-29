@@ -34,45 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      companies: {
-        Row: {
-          activity: string
-          address: string
-          art: number
-          id: string
-          name: string
-          nif: number
-          nis: number
-          phone: string
-          rc: string
-          updated_at: string
-        }
-        Insert: {
-          activity: string
-          address: string
-          art: number
-          id?: string
-          name: string
-          nif: number
-          nis: number
-          phone: string
-          rc: string
-          updated_at?: string
-        }
-        Update: {
-          activity?: string
-          address?: string
-          art?: number
-          id?: string
-          name?: string
-          nif?: number
-          nis?: number
-          phone?: string
-          rc?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       individuals: {
         Row: {
           id: string
@@ -132,7 +93,6 @@ export type Database = {
       }
       orders: {
         Row: {
-          company_id: string | null
           date: string
           doc_index: number | null
           document_type: number
@@ -140,6 +100,7 @@ export type Database = {
           index: number
           individual_id: string | null
           order_lines: Json
+          organization_id: string | null
           paid_price: number
           payment_method: string | null
           state: number
@@ -148,7 +109,6 @@ export type Database = {
           tva: number | null
         }
         Insert: {
-          company_id?: string | null
           date: string
           doc_index?: number | null
           document_type: number
@@ -156,6 +116,7 @@ export type Database = {
           index?: number
           individual_id?: string | null
           order_lines: Json
+          organization_id?: string | null
           paid_price: number
           payment_method?: string | null
           state: number
@@ -164,7 +125,6 @@ export type Database = {
           tva?: number | null
         }
         Update: {
-          company_id?: string | null
           date?: string
           doc_index?: number | null
           document_type?: number
@@ -172,6 +132,7 @@ export type Database = {
           index?: number
           individual_id?: string | null
           order_lines?: Json
+          organization_id?: string | null
           paid_price?: number
           payment_method?: string | null
           state?: number
@@ -181,83 +142,133 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "orders_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "orders_individual_id_fkey"
             columns: ["individual_id"]
             isOneToOne: false
             referencedRelation: "individuals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      organizations: {
+        Row: {
+          activity: string | null
+          address: string | null
+          art: number | null
+          id: string
+          name: string
+          nif: number | null
+          nis: number | null
+          phone: string
+          rc: string | null
+          updated_at: string
+        }
+        Insert: {
+          activity?: string | null
+          address?: string | null
+          art?: number | null
+          id?: string
+          name: string
+          nif?: number | null
+          nis?: number | null
+          phone: string
+          rc?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activity?: string | null
+          address?: string | null
+          art?: number | null
+          id?: string
+          name?: string
+          nif?: number | null
+          nis?: number | null
+          phone?: string
+          rc?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
           code: string
           id: string
           name: string
-          price: number | null
-          qte: number | null
+          organization_id: string
+          price: number
+          qte: number
         }
         Insert: {
           code: string
           id?: string
           name: string
-          price?: number | null
-          qte?: number | null
+          organization_id: string
+          price: number
+          qte: number
         }
         Update: {
           code?: string
           id?: string
           name?: string
-          price?: number | null
-          qte?: number | null
+          organization_id?: string
+          price?: number
+          qte?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
-          company_id: string | null
           email: string | null
           full_name: string | null
           id: string
+          organization_id: string | null
           phone: string | null
           updated_at: string | null
         }
         Insert: {
-          company_id?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          organization_id?: string | null
           phone?: string | null
           updated_at?: string | null
         }
         Update: {
-          company_id?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          organization_id?: string | null
           phone?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]

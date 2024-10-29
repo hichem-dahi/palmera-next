@@ -130,12 +130,11 @@ const model = defineModel({
 const rules = {
   name: { required, minLength: minLength(3) },
   phone: { required, minLength: minLength(10), numeric },
-  rc: { required },
-  nif: { required, numeric },
-  nis: { required, numeric },
-  art: { required, numeric },
-  address: { required, minLength: minLength(10) },
-  activity: { required }
+  nif: { numeric },
+  nis: { numeric },
+  art: { numeric },
+  address: { minLength: minLength(10) },
+  activity: {}
 }
 
 const $v = useVuelidate(

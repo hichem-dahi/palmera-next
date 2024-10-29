@@ -1,7 +1,7 @@
 <template>
   <div class="pa-4">
     <v-radio-group v-model="consumerType">
-      <v-radio :label="$t('company')" :value="ConsumerType.Company" />
+      <v-radio :label="$t('company')" :value="ConsumerType.Organization" />
       <v-radio :label="$t('individual')" :value="ConsumerType.Individual" />
     </v-radio-group>
 
@@ -21,13 +21,13 @@
       />
     </div>
     <v-select
-      v-else-if="consumerType == ConsumerType.Company"
+      v-else-if="consumerType == ConsumerType.Organization"
       :label="$t('client')"
-      :items="companiesItems"
+      :items="organizationsItems"
       :error="!v1$.$pending && v1$.$error"
       item-title="name"
       item-value="id"
-      v-model="form.company"
+      v-model="form.organization_id"
     />
   </div>
   <slot name="actions" :v="v$"></slot>
@@ -41,7 +41,7 @@ import useVuelidate from '@vuelidate/core'
 import { minLength, numeric, required } from '@vuelidate/validators'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import { ConsumerType } from '@/models/models'
 
@@ -68,7 +68,7 @@ const rules2 = {
 // Initialize the Vuelidate validation instance
 const v1$ = useVuelidate(
   rules1,
-  toRef(() => form.company)
+  toRef(() => form.organization_id)
 )
 
 const v2$ = useVuelidate(
@@ -76,10 +76,12 @@ const v2$ = useVuelidate(
   toRef(() => form.individual)
 )
 
-const v$ = computed(() => (consumerType.value === ConsumerType.Company ? v1$.value : v2$.value))
+const v$ = computed(() =>
+  consumerType.value === ConsumerType.Organization ? v1$.value : v2$.value
+)
 
-const companiesItems = computed(() =>
-  companies.value.map((c) => {
+const organizationsItems = computed(() =>
+  organizations.value.map((c) => {
     return { id: c.id, name: c.name }
   })
 )

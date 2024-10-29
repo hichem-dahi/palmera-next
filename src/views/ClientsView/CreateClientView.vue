@@ -18,12 +18,12 @@ import { useRouter } from 'vue-router'
 import { cloneDeep } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import CreateClient from './ClientForm.vue'
 
-import type { Company } from '@/models/models'
 import type { Validation } from '@vuelidate/core'
+import type { Organization } from '@/models/models'
 
 const router = useRouter()
 
@@ -42,7 +42,7 @@ const form = ref({
 function submitForm($v: Validation<typeof form.value>) {
   $v.$touch()
   if (!$v.$invalid) {
-    companies.value.push(cloneDeep(form.value as any) as Company)
+    organizations.value.push(cloneDeep(form.value as any) as Organization)
     router.go(-1)
   }
 }

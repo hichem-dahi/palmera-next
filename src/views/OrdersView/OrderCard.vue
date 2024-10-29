@@ -70,8 +70,8 @@ import { format } from 'date-fns'
 import { kebabCase } from 'lodash'
 import { mdiDotsVertical } from '@mdi/js'
 
-import companies from '@/composables/localStore/useCompanyStore'
 import orders from '@/composables/localStore/useOrdersStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
@@ -91,7 +91,7 @@ const docTitle = computed(() =>
 
 const consumerName = computed(
   () =>
-    companies.value.find((e) => e.id === order.value?.company)?.name ||
+    organizations.value.find((e) => e.id === order.value?.organization_id)?.name ||
     order.value?.individual?.name
 )
 

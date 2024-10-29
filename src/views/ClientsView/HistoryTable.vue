@@ -59,19 +59,19 @@ import { sortBy } from 'lodash'
 import { mdiOpenInNew } from '@mdi/js'
 
 import products from '@/composables/localStore/useProductStore'
-import companies from '@/composables/localStore/useCompanyStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 import orders from '@/composables/localStore/useOrdersStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import { ConsumerType, OrderStatus } from '@/models/models'
 
 const emits = defineEmits(['close'])
-const route = useRoute()
 const { t } = useI18n()
+const route = useRoute()
 
 const client = computed(
   () =>
-    companies.value.find((c) => c.id == route.params.client_id) ||
+    organizations.value.find((c) => c.id == route.params.client_id) ||
     individuals.value.find((i) => i.id == route.params.client_id)
 )
 
@@ -79,12 +79,12 @@ const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 // Determine if the client is a Company or an Individual
 const consumerType = computed(() => {
-  return client.value && 'rc' in client.value ? ConsumerType.Company : ConsumerType.Individual
+  return client.value && 'rc' in client.value ? ConsumerType.Organization : ConsumerType.Individual
 })
 
 const historyItems = computed(() => {
   const clientOrders = orders.value.filter(
-    (o) => o.company == client.value?.id || o.individual?.id == client.value?.id
+    (o) => o.organization_id == client.value?.id || o.individual?.id == client.value?.id
   )
   const items = clientOrders.map((o) => {
     const orderLinesInfo = o.order_lines.map((ol) => {

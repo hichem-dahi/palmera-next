@@ -115,7 +115,7 @@ const totalWords = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.company
+  let selfInfo = self.value.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,

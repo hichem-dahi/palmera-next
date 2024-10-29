@@ -30,14 +30,14 @@
 import { computed } from 'vue'
 import { format } from 'date-fns'
 
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import type { Proforma } from '@/models/models'
 
 const proforma = defineModel<Proforma>('proforma')
 
 const consumerName = computed(
-  () => companies.value.find((e) => e.id === proforma.value?.company)?.name
+  () => organizations.value.find((e) => e.id === proforma.value?.organization)?.name
 )
 </script>
 

@@ -23,7 +23,7 @@
         <h3 class="type">{{ title }}</h3>
         <div class="d-flex justify-space-between ga-4">
           <div>
-            <div v-for="(value, key) in companyInfo" :key="key">{{ key }}: {{ value }}</div>
+            <div v-for="(value, key) in organizationInfo" :key="key">{{ key }}: {{ value }}</div>
           </div>
           <div class="date">SPA LE: {{ format(proforma.date, 'dd-MM-yyyy') }}</div>
         </div>
@@ -74,14 +74,14 @@ import { pick, round } from 'lodash'
 import html2pdf from 'html2pdf.js'
 import n2words from 'n2words'
 import { mdiChevronLeft } from '@mdi/js'
+import { format } from 'date-fns'
 
 import products from '@/composables/localStore/useProductStore'
-import companies from '@/composables/localStore/useCompanyStore'
+import organizations from '@/composables/localStore/useOrganizationsStore'
+import proformas from '@/composables/localStore/useProformaStore'
+import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType } from '@/models/models'
-import self from '@/composables/localStore/useSelf'
-import { format } from 'date-fns'
-import proformas from '@/composables/localStore/useProformaStore'
 
 const route = useRoute()
 
@@ -90,7 +90,7 @@ const title = computed(() => 'Facture préforma')
 const proforma = computed(() => proformas.value.find((o) => o.id == route.params.proforma_id))
 
 const consumerType = computed(() =>
-  proforma.value?.company ? ConsumerType.Company : ConsumerType.Individual
+  proforma.value?.organization ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const totalWords = computed(() => {
@@ -107,7 +107,7 @@ const totalWords = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.company
+  let selfInfo = self.value.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,
@@ -119,13 +119,13 @@ const selfInfo = computed(() => {
   return pick(selfInfo, desiredOrder)
 })
 
-const companyInfo = computed(() => {
-  let company = { ...companies.value.find((c) => c.id === proforma.value?.company) }
+const organizationInfo = computed(() => {
+  let organization = { ...organizations.value.find((c) => c.id === proforma.value?.organization) }
 
-  if (Object.keys(company).length) {
-    company = { ...company, client: company.name } as any
+  if (Object.keys(organization).length) {
+    organization = { ...organization, client: organization.name } as any
     const desiredOrder = ['client', 'rc', 'nif', 'nis', 'art', 'address', 'activity']
-    return pick(company, desiredOrder)
+    return pick(organization, desiredOrder)
   } else return undefined
 })
 
