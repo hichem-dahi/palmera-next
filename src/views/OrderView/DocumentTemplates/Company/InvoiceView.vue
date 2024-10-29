@@ -1,4 +1,13 @@
 <template>
+  <v-btn
+    class="mt-3 no-print"
+    size="small"
+    color="grey"
+    variant="text"
+    :prepend-icon="mdiChevronLeft"
+    @click="$router.go(-1)"
+    :text="$t('back')"
+  />
   <div class="invoice-wrapper">
     <div v-if="order" ref="invoice" class="invoice">
       <div class="row-1">
@@ -86,6 +95,7 @@ import { pick, round, padStart } from 'lodash'
 import html2pdf from 'html2pdf.js'
 import n2words from 'n2words'
 import { format } from 'date-fns'
+import { mdiChevronLeft } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
