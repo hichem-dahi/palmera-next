@@ -1,4 +1,13 @@
 <template>
+  <v-btn
+    class="mt-3 no-print"
+    size="small"
+    color="grey"
+    variant="text"
+    :prepend-icon="mdiChevronLeft"
+    @click="$router.go(-1)"
+    :text="$t('back')"
+  />
   <div class="voucher-wrapper" v-if="order">
     <div class="voucher">
       <div class="d-flex justify-space-between align-center">
@@ -76,6 +85,7 @@ import { useRoute } from 'vue-router'
 import { pick } from 'lodash'
 import n2words from 'n2words'
 import { format } from 'date-fns'
+import { mdiChevronLeft } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
@@ -162,6 +172,7 @@ function print() {
   text-transform: capitalize;
   white-space: nowrap;
   margin: auto;
+  transform: scale(0.7); /* Scale down for screen display */
   transform-origin: top; /* Ensure scaling happens from the top */
   max-height: calc(100% / 3);
 
@@ -213,6 +224,7 @@ function print() {
     max-width: none;
     margin: 0;
     page-break-inside: avoid; /* Prevent breaking inside voucher */
+    transform: none;
     max-height: calc(100vh / 3);
   }
 

@@ -10,8 +10,10 @@ import {
   OrderStatus,
   type Delivery,
   type Individual,
-  type OrderLine
+  type OrderLine,
+  type Payment
 } from '@/models/models'
+import payments from '@/composables/localStore/usePaymentsStore'
 
 const consumerType = ref<ConsumerType>()
 
@@ -44,7 +46,7 @@ const defaultForm = () => ({
   document_type: 0,
   docIndex: null,
   status: OrderStatus.Pending,
-  payments_ids: [],
+  payments_ids: [] as string[],
   payment_method: '',
   paid_price: 0 as any,
   total_price: 0,
@@ -54,19 +56,23 @@ const defaultForm = () => ({
 
 const form = reactive(defaultForm())
 
+const payment = reactive({
+  id: uuidv4(),
+  date: new Date(),
+  amount: null as number | null
+})
+
 function cleanForm() {
   switch (form.document_type) {
     case DocumentType.Invoice:
     case DocumentType.Voucher:
       form.delivery = undefined as any
       break
-
     case DocumentType.Proforma:
       form.delivery = undefined as any
       form.index = undefined
       form.paid_price = undefined
       break
-
     default:
       break
   }
@@ -84,9 +90,30 @@ function resetForm() {
   Object.assign(form, defaultForm())
 }
 
+function resetPayment() {
+  Object.assign(payment, {
+    id: uuidv4(),
+    date: new Date(),
+    amount: null
+  })
+}
+
+function processPayment(p: typeof payment) {
+  const remaining = form.total_price - form.paid_price
+  if (form && p.amount && p.amount > 0 && p.amount <= remaining) {
+    payments.value.push(p as Payment)
+  }
+}
+
 watchEffect(() => {
+  const remaining = form.total_price - form.paid_price
   form.total_price = sum(form.order_lines.map((e) => e.total_price))
   form.index = (max(orders.value.map((o) => o.index)) || 0) + 1
+
+  if (payment.amount && payment.amount > 0 && payment.amount <= remaining) {
+    form.payments_ids = [payment.id]
+    form.paid_price = form.total_price - (form.total_price - payment.amount)
+  }
 })
 
-export { form, consumerType, cleanForm, resetForm }
+export { form, payment, consumerType, cleanForm, resetForm, resetPayment, processPayment }

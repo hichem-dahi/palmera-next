@@ -130,7 +130,7 @@ import DeleteItemModal from './DeleteItemModal.vue'
 
 import { ConsumerType, OrderStatus, type Order, type OrderLine } from '@/models/models'
 
-const order = defineModel<Order>('order')
+const order = defineModel<Order>('order', { required: true })
 const emits = defineEmits(['close'])
 
 const { t } = useI18n()
@@ -138,7 +138,7 @@ const { t } = useI18n()
 const newlineDialog = ref(false)
 const deleteDialog = ref(false)
 const isSuccess = ref(false)
-const proxyOrder = ref<Order | undefined>(cloneDeep(order.value))
+const proxyOrder = ref<Order>(cloneDeep(order.value))
 const selectedOrderline = ref<OrderLine>()
 
 const headers = computed(
@@ -157,17 +157,16 @@ const headers = computed(
     ] as any
 )
 
-const isModified = computed(() => !isEqual(order.value, proxyOrder.value))
+const isModified = computed(() => !isEqual(order.value.order_lines, proxyOrder.value.order_lines))
 const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
-  proxyOrderlines.value?.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
+  proxyOrderlines.value.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
 )
 
 const consumerName = computed(
   () =>
-    companies.value.find((e) => e.id === order.value?.company)?.name ||
-    order.value?.individual?.name
+    companies.value.find((e) => e.id === order.value.company)?.name || order.value.individual?.name
 )
 
 const consumerType = computed(() =>
@@ -180,7 +179,7 @@ const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
 const isConfirmable = computed(() => !isModified.value && isValidOrderlines.value)
 
-const proxyOrderlines = computed(() => proxyOrder.value?.order_lines)
+const proxyOrderlines = computed(() => proxyOrder.value.order_lines)
 
 const totalItems = computed(() => {
   return {
@@ -190,7 +189,7 @@ const totalItems = computed(() => {
 })
 
 const items = computed(() =>
-  proxyOrder.value?.order_lines.map((o, i) => {
+  proxyOrder.value.order_lines.map((o, i) => {
     const product = getProduct(o.product_id)
     return {
       id: o.id,
@@ -223,7 +222,7 @@ const deleteItem = (item: any) => {
 }
 
 const deleteItemConfirm = () => {
-  const index = proxyOrderlines.value?.findIndex((e) => e.id === selectedOrderline.value?.id)
+  const index = proxyOrderlines.value.findIndex((e) => e.id === selectedOrderline.value?.id)
   if (isNumber(index)) {
     proxyOrderlines.value?.splice(index, 1)
     closeDelete()
@@ -244,17 +243,15 @@ function addOrderline(form: OrderLine, validation: { touch: () => void; invalid:
 }
 
 function cancelEdit() {
-  proxyOrder.value = cloneDeep(order.value)
+  proxyOrder.value.order_lines = cloneDeep(order.value.order_lines)
 }
 
 function confirmEdit() {
-  if (order.value && proxyOrder.value) {
-    const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
-    if (orderIndex !== -1) {
-      orders.value[orderIndex] = cloneDeep(proxyOrder.value)
-    }
-    isSuccess.value = true
+  const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
+  if (orderIndex !== -1) {
+    orders.value[orderIndex] = cloneDeep(proxyOrder.value)
   }
+  isSuccess.value = true
 }
 
 watch(

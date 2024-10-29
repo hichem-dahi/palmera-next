@@ -1,4 +1,13 @@
 <template>
+  <v-btn
+    class="mt-3 no-print"
+    size="small"
+    color="grey"
+    variant="text"
+    :prepend-icon="mdiChevronLeft"
+    @click="$router.go(-1)"
+    :text="$t('back')"
+  />
   <div class="voucher-wrapper" v-if="order">
     <div class="voucher" v-for="i in 3" :key="i">
       <div class="d-flex justify-space-between align-center">
@@ -80,6 +89,7 @@ import { useRoute } from 'vue-router'
 import { pick, padStart } from 'lodash'
 import n2words from 'n2words'
 import { format } from 'date-fns'
+import { mdiChevronLeft } from '@mdi/js'
 
 import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
