@@ -71,7 +71,14 @@ import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
 import ExtraInfo from './CreateOrderStepper/ExtraInfo.vue'
 
-import { form, cleanForm, resetForm } from './CreateOrderStepper/state'
+import {
+  form,
+  payment,
+  cleanForm,
+  processPayment,
+  resetForm,
+  resetPayment
+} from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
 import { DocumentType } from '@/models/models'
@@ -117,10 +124,9 @@ onMounted(() => {
 function nextStep(v: Validation) {
   v.$touch()
   if (!v.$invalid) {
-    if (step.value === 3) {
+    if (step.value === Steps.ExtraInfo) {
       cleanForm()
       const order = cloneDeep(form)
-      resetForm()
       if (order.document_type === DocumentType.Proforma) {
         proformas.value.unshift(order)
         emits('success')
@@ -128,6 +134,9 @@ function nextStep(v: Validation) {
       }
       orders.value.unshift(order)
       if (order.individual) upsertIndividuals(order.individual)
+      if (payment) processPayment(cloneDeep(payment))
+      resetForm()
+      resetPayment()
       emits('success')
     }
     step.value++

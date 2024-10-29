@@ -10,6 +10,16 @@
     <v-radio :label="$t('delivery-note')" :value="DocumentType.DeliveryNote" />
   </v-radio-group>
   <div v-if="form.document_type && form.document_type != DocumentType.Proforma">
+    <v-number-input
+      :label="$t('payment')"
+      inset
+      controlVariant="stacked"
+      :error="!$v.paid_price.$pending && $v.paid_price.$error"
+      :suffix="`/${form.total_price} DA`"
+      :max="form.total_price"
+      :min="0"
+      v-model="payment.amount"
+    />
     <v-text-field
       v-if="form?.company"
       :label="$t('payment-method')"
@@ -32,7 +42,7 @@ import CreateDelivery from '../CreateDelivery.vue'
 
 import { DocumentType } from '@/models/models'
 
-import { form } from './state'
+import { form, payment } from './state'
 
 const rules = {
   payment_method: {
@@ -40,5 +50,6 @@ const rules = {
   },
   paid_price: { numeric }
 }
+
 const $v = useVuelidate(rules, form)
 </script>
