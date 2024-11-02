@@ -30,6 +30,7 @@ import ProductCard from '@/views/WarehouseView/ProductCard.vue'
 
 import type { Product } from '@/models/models'
 import type { Validation } from '@vuelidate/core'
+import type { TablesInsert } from '@/types/database.types'
 
 const dialog = ref(false)
 
@@ -38,10 +39,11 @@ const getProductsApi = useGetProductsApi()
 
 const products = computed(() => getProductsApi.data.value || [])
 
-function submitForm(form: Product, v: Validation<Product>) {
+function submitForm(form: TablesInsert<'products'>, v: Validation<Product>) {
   v.$touch()
+  debugger
   if (!v.$invalid) {
-    insertProductApi.form.value = form
+    insertProductApi.form.value = { ...form }
     insertProductApi.execute()
     dialog.value = false
   }

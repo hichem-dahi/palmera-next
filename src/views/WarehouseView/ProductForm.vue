@@ -42,15 +42,18 @@ import { cloneDeep } from 'lodash'
 import useVuelidate from '@vuelidate/core'
 import { required, minValue, numeric } from '@vuelidate/validators'
 
+import self from '@/composables/localStore/useSelf'
+
 import type { Product } from '@/models/models'
 
 const props = defineProps<{ form?: Product }>()
 
-const proxyForm = ref<Product>({
+const proxyForm = ref({
   code: '',
   name: '',
-  qte: null,
-  price: null
+  organization_id: self.value.user?.organization_id || '',
+  qte: null as number | null,
+  price: null as number | null
 })
 
 if (props.form) proxyForm.value = cloneDeep(props.form)
@@ -58,6 +61,7 @@ if (props.form) proxyForm.value = cloneDeep(props.form)
 const rules = {
   code: { required },
   name: { required },
+  organization_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
   price: { required, numeric, minValue: minValue(1) }
 }
