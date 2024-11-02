@@ -20,10 +20,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { mdiPlus } from '@mdi/js'
 
-import organizations from '@/composables/localStore/useOrganizationsStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 
 import ClientCard from '@/views/ClientsView/ClientCard.vue'
+import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOrganizationsApi'
+
+const getOrganizationsApi = useGetOrganizationsApi()
+getOrganizationsApi.execute()
+
+const organizations = computed(() => getOrganizationsApi.data.value)
 </script>

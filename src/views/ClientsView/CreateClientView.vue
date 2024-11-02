@@ -13,10 +13,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { cloneDeep } from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
+
+import { useInsertOrganizationApi } from '@/composables/api/organizations/useInsertOrganizationApi'
 
 import organizations from '@/composables/localStore/useOrganizationsStore'
 
@@ -27,8 +27,9 @@ import type { Organization } from '@/models/models'
 
 const router = useRouter()
 
+const insertOrganizationApi = useInsertOrganizationApi()
+
 const form = ref({
-  id: uuidv4(),
   name: '',
   phone: '',
   rc: '',
@@ -36,14 +37,26 @@ const form = ref({
   nis: null as number | null,
   art: null as number | null,
   address: '',
-  activity: ''
+  activity: '',
+  updated_at: new Date().toISOString()
 })
 
-function submitForm($v: Validation<typeof form.value>) {
-  $v.$touch()
-  if (!$v.$invalid) {
-    organizations.value.push(cloneDeep(form.value as any) as Organization)
-    router.go(-1)
-  }
+function submitForm($v: Validation) {
+  insertOrganizationApi.form.value = form.value
+  insertOrganizationApi.execute()
 }
+
+watch(
+  () => insertOrganizationApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertOrganizationApi.data.value) {
+      organizations.value.push(insertOrganizationApi.data.value as Organization)
+      router.go(-1)
+    }
+  }
+)
+watch(
+  () => insertOrganizationApi.error.value,
+  (error) => {}
+)
 </script>
