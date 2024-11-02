@@ -41,7 +41,6 @@ const products = computed(() => getProductsApi.data.value || [])
 
 function submitForm(form: TablesInsert<'products'>, v: Validation<Product>) {
   v.$touch()
-  debugger
   if (!v.$invalid) {
     insertProductApi.form.value = { ...form }
     insertProductApi.execute()
