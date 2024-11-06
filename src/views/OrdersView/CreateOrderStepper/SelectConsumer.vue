@@ -27,7 +27,7 @@
       :error="!v1$.$pending && v1$.$error"
       item-title="name"
       item-value="id"
-      v-model="form.organization_id"
+      v-model="form.client_id"
     />
   </div>
   <slot name="actions" :v="v$"></slot>
@@ -35,27 +35,21 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
 import { isString } from 'lodash'
 import useVuelidate from '@vuelidate/core'
 import { minLength, numeric, required } from '@vuelidate/validators'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
-import organizations from '@/composables/localStore/useOrganizationsStore'
+
+import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOrganizationsApi'
 
 import { ConsumerType } from '@/models/models'
 
 import { form, consumerType } from './state'
 
-//TODO: to refactor form.individual type
-
-// Validation rules ensuring either individual or company is required
 const rules1 = { required }
 
 const rules2 = {
-  id: {
-    required
-  },
   name: {
     required
   },
@@ -68,7 +62,7 @@ const rules2 = {
 // Initialize the Vuelidate validation instance
 const v1$ = useVuelidate(
   rules1,
-  toRef(() => form.organization_id)
+  toRef(() => form.client_id)
 )
 
 const v2$ = useVuelidate(
@@ -80,8 +74,13 @@ const v$ = computed(() =>
   consumerType.value === ConsumerType.Organization ? v1$.value : v2$.value
 )
 
+const getOrganizationsApi = useGetOrganizationsApi()
+getOrganizationsApi.execute()
+
+const organizations = computed(() => getOrganizationsApi.data.value)
+
 const organizationsItems = computed(() =>
-  organizations.value.map((c) => {
+  organizations.value?.map((c) => {
     return { id: c.id, name: c.name }
   })
 )
@@ -101,7 +100,6 @@ const itemProps = (item: any) => {
 }
 
 function handleCustomerChange(item: any) {
-  form.individual.id = uuidv4()
   form.individual.name = ''
   form.individual.phone = ''
 

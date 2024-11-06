@@ -7,14 +7,15 @@
         variant="underlined"
         inset
         :error="!$v.product_id.$pending && $v.product_id.$error"
-        :items="productsItems"
-        item-value="value"
+        :items="selectedProducts"
+        item-value="id"
+        item-title="name"
         v-model="form.product_id"
         hide-no-data
         hide-details
       >
         <template v-slot:selection>
-          <span>{{ product?.name }}</span>
+          <span>{{ selectedProduct?.name }}</span>
         </template>
       </v-select>
     </v-col>
@@ -27,8 +28,8 @@
         hide-details
         control-variant="stacked"
         :error="!$v.qte.$pending && $v.qte.$error"
-        :suffix="`/${product?.qte}`"
-        :max="product?.qte || undefined"
+        :suffix="`/${selectedProduct?.qte}`"
+        :max="selectedProduct?.qte || undefined"
         :min="0"
         v-model="form.qte"
       />
@@ -76,14 +77,7 @@ import useVuelidate from '@vuelidate/core'
 import { minValue, numeric, required } from '@vuelidate/validators'
 import { mdiDelete } from '@mdi/js'
 
-import products from '@/composables/localStore/useProductStore'
-
-import type { OrderLine } from '@/models/models'
-
-interface Item {
-  title: string
-  value: string
-}
+import type { OrderLine, Product } from '@/models/models'
 
 const model = defineModel<OrderLine>({
   default: {
@@ -96,10 +90,10 @@ const model = defineModel<OrderLine>({
   required: false
 })
 
-const props = defineProps<{ productsItems: Item[]; isNew: boolean }>()
+const props = defineProps<{ selectedProducts: Product[]; products: Product[]; isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
 
-const product = computed(() => products.value.find((e) => e.id == form.product_id))
+const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
 
 const form = reactive(model.value)
 
@@ -118,7 +112,7 @@ watchEffect(() => {
   }
 })
 
-watch(product, (newProduct) => {
+watch(selectedProduct, (newProduct) => {
   if (newProduct) form.unit_price = newProduct.price || 0
 })
 </script>

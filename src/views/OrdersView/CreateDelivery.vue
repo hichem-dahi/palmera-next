@@ -18,13 +18,13 @@
       @blur="v$.phone.$touch()"
     />
 
-    <!-- Matricule Field with Error Messages -->
+    <!-- license_plate Field with Error Messages -->
     <v-text-field
       :label="$t('registration-number')"
       density="compact"
-      v-model="form.matricule"
-      :error="!v$.matricule.$pending && v$.matricule.$error"
-      @blur="v$.matricule.$touch()"
+      v-model="form.license_plate"
+      :error="!v$.license_plate.$pending && v$.license_plate.$error"
+      @blur="v$.license_plate.$touch()"
     />
 
     <!-- Destination Field with Error Messages -->
@@ -53,7 +53,7 @@ const rules = {
     numeric,
     minLength: minLength(10)
   },
-  matricule: { required, minLength: minLength(6) },
+  license_plate: { required, minLength: minLength(6) },
   destination: { required, minLength: minLength(3) }
 }
 

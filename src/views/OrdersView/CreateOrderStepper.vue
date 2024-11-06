@@ -46,7 +46,9 @@
                 <v-card-actions>
                   <v-btn @click="step--">{{ $t('back') }}</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn @click="nextStep(v)">{{ $t('confirm') }}</v-btn>
+                  <v-btn :loading="insertOrderApi.isLoading.value" @click="nextStep(v)">
+                    {{ $t('confirm') }}
+                  </v-btn>
                 </v-card-actions>
               </template>
             </ExtraInfo>
@@ -58,14 +60,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { cloneDeep, isString } from 'lodash'
 
-import orders from '@/composables/localStore/useOrdersStore'
-import proformas from '@/composables/localStore/useProformaStore'
-import { individuals, upsertIndividuals } from '@/composables/localStore/useIndividualsStore'
+import { individuals } from '@/composables/localStore/useIndividualsStore'
 import organizations from '@/composables/localStore/useOrganizationsStore'
+
+import { useInsertOrderApi } from '@/composables/api/orders/useInsertOrderApi'
+import { useInsertDeliveryApi } from '@/composables/api/deliveries/useInsertDeliveryApi'
+import { useInsertIndividualApi } from '@/composables/api/individuals/useInsertIndivudualApi'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
@@ -81,7 +85,6 @@ import {
 } from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
-import { DocumentType } from '@/models/models'
 
 enum Steps {
   SelectConsumer = 1,
@@ -96,6 +99,11 @@ const route = useRoute()
 const numericSteps: Steps[] = Object.values(Steps).filter(
   (value) => typeof value === 'number'
 ) as Steps[]
+
+const insertOrderApi = useInsertOrderApi()
+const insertDeliveryApi = useInsertDeliveryApi()
+const insertIndividualApi = useInsertIndividualApi()
+
 const step = ref(Steps.SelectConsumer)
 
 const consumerPicked = computed(() => route.query.consumer)
@@ -126,20 +134,62 @@ function nextStep(v: Validation) {
   if (!v.$invalid) {
     if (step.value === Steps.ExtraInfo) {
       cleanForm()
-      const order = cloneDeep(form)
-      if (order.document_type === DocumentType.Proforma) {
-        proformas.value.unshift(order)
-        emits('success')
-        return
+      insertOrderApi.form.value = { ...form }
+      if (form.delivery) {
+        insertOrderApi.form.value!.document_type = 'DeliveryNote'
+        insertDeliveryApi.form.value = { ...form.delivery }
+        insertDeliveryApi.execute()
+      } else if (form.individual) {
+        insertIndividualApi.form.value = { ...form.individual }
+        insertIndividualApi.execute()
+      } else {
+        insertOrderApi.execute()
       }
-      orders.value.unshift(order)
-      if (order.individual) upsertIndividuals(order.individual)
-      if (payment) processPayment(cloneDeep(payment))
-      resetForm()
-      resetPayment()
-      emits('success')
+
+      return
     }
     step.value++
   }
 }
+
+watch(
+  () => insertDeliveryApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertDeliveryApi.data.value) {
+      delete insertOrderApi.form.value?.delivery
+      Object.assign(insertOrderApi.form.value!, {
+        delivery_id: insertDeliveryApi.data.value.id
+      })
+      if (form.individual) {
+        insertIndividualApi.form.value = { ...form.individual }
+        insertIndividualApi.execute()
+      } else {
+        insertOrderApi.execute()
+      }
+    }
+  }
+)
+
+watch(
+  () => insertIndividualApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertIndividualApi.data.value) {
+      delete insertOrderApi.form.value?.individual
+      Object.assign(insertOrderApi.form.value!, {
+        individual_id: insertIndividualApi.data.value.id
+      })
+      insertOrderApi.execute()
+    }
+  }
+)
+
+watch(
+  () => insertOrderApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertOrderApi.data.value) {
+      resetForm()
+      resetPayment()
+    }
+  }
+)
 </script>

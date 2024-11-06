@@ -5,7 +5,8 @@
       :key="i"
       v-model="form.order_lines[i]"
       :is-new="i == 0"
-      :products-items="productsItems"
+      :products="products"
+      :selectedProducts="selectedProducts"
       @delete="deleteOrderline"
     />
 
@@ -29,9 +30,9 @@ import { required, numeric, minValue } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import { mdiPlus } from '@mdi/js'
 
-import products from '@/composables/localStore/useProductStore'
-
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
+
+import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
 
 import type { OrderLine } from '@/models/models'
 
@@ -52,15 +53,15 @@ const rules = {
 // Initialize Vuelidate for `order_lines`
 const $v = useVuelidate(rules, form)
 
-const productsItems = computed(() =>
-  products.value
-    .map((c) => {
-      return { title: c.name, value: c.id }
-    })
-    .filter((e) => {
-      const alreadySelected = form.order_lines.map((ol) => ol.product_id)
-      return !alreadySelected.includes(e.value)
-    })
+const getProductsApi = useGetProductsApi()
+
+const products = computed(() => getProductsApi.data.value || [])
+
+const selectedProducts = computed(() =>
+  products.value.filter((e) => {
+    const alreadySelected = form.order_lines.map((ol) => ol.product_id)
+    return !alreadySelected.includes(e.id)
+  })
 )
 
 function addEmptyOrderline() {
