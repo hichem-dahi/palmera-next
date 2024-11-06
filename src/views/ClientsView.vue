@@ -25,8 +25,9 @@ import { mdiPlus } from '@mdi/js'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 
-import ClientCard from '@/views/ClientsView/ClientCard.vue'
 import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOrganizationsApi'
+
+import ClientCard from '@/views/ClientsView/ClientCard.vue'
 
 const getOrganizationsApi = useGetOrganizationsApi()
 getOrganizationsApi.execute()
