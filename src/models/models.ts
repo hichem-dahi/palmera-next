@@ -12,7 +12,7 @@ export interface Order {
   docIndex: number | null
   organization_id?: Organization | string
   individual?: Individual
-  date: Date
+  date: Date | string
   order_lines: OrderLine[]
   delivery?: Delivery
   document_type: DocumentType
@@ -41,8 +41,8 @@ export interface OrderLine {
 
 export interface Proforma {
   id: string
-  organization: Organization | string
-  date: Date
+  organization_id: Organization | string
+  date: Date | string
   order_lines: OrderLine[]
   total_price: number
   tva: number
@@ -59,7 +59,7 @@ export interface Delivery {
   id: string
   driver_name: string
   phone: string | undefined
-  matricule: string //xxxxx xxx xx
+  license_plate: string //xxxxx xxx xx
   destination: string
 }
 
