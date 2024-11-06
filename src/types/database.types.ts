@@ -34,6 +34,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      deliveries: {
+        Row: {
+          destination: string
+          driver_name: string
+          id: string
+          license_plate: string
+          phone: string | null
+        }
+        Insert: {
+          destination: string
+          driver_name: string
+          id?: string
+          license_plate: string
+          phone?: string | null
+        }
+        Update: {
+          destination?: string
+          driver_name?: string
+          id?: string
+          license_plate?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       individuals: {
         Row: {
           id: string
@@ -41,7 +65,7 @@ export type Database = {
           phone: string | null
         }
         Insert: {
-          id: string
+          id?: string
           name: string
           phone?: string | null
         }
@@ -93,9 +117,11 @@ export type Database = {
       }
       orders: {
         Row: {
+          client_id: string | null
           date: string
+          delivery_id: string | null
           doc_index: number | null
-          document_type: number
+          document_type: Database["public"]["Enums"]["document_type"]
           id: string
           index: number
           individual_id: string | null
@@ -103,31 +129,35 @@ export type Database = {
           organization_id: string | null
           paid_price: number
           payment_method: string | null
-          state: number
+          status: Database["public"]["Enums"]["order_state"]
           total_price: number
           ttc: number | null
           tva: number | null
         }
         Insert: {
+          client_id?: string | null
           date: string
+          delivery_id?: string | null
           doc_index?: number | null
-          document_type: number
-          id: string
+          document_type: Database["public"]["Enums"]["document_type"]
+          id?: string
           index?: number
           individual_id?: string | null
           order_lines: Json
           organization_id?: string | null
           paid_price: number
           payment_method?: string | null
-          state: number
+          status?: Database["public"]["Enums"]["order_state"]
           total_price: number
           ttc?: number | null
           tva?: number | null
         }
         Update: {
+          client_id?: string | null
           date?: string
+          delivery_id?: string | null
           doc_index?: number | null
-          document_type?: number
+          document_type?: Database["public"]["Enums"]["document_type"]
           id?: string
           index?: number
           individual_id?: string | null
@@ -135,12 +165,26 @@ export type Database = {
           organization_id?: string | null
           paid_price?: number
           payment_method?: string | null
-          state?: number
+          status?: Database["public"]["Enums"]["order_state"]
           total_price?: number
           ttc?: number | null
           tva?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "deliveries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_individual_id_fkey"
             columns: ["individual_id"]
@@ -321,7 +365,7 @@ export type Database = {
     }
     Enums: {
       document_type: "Invoice" | "DeliveryNote" | "Voucher" | "Proforma"
-      order_state: "Pending" | "Confirmed"
+      order_state: "Pending" | "Confirmed" | "Cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
