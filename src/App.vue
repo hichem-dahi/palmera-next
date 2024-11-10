@@ -4,13 +4,13 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { watchOnce } from '@vueuse/core'
 
 import { supabase } from './supabase/supabase'
 
-import { useGetProfileApi } from './composables/api/auth/useGetProfileApi'
-
 import self from './composables/localStore/useSelf'
-import { watchOnce } from '@vueuse/core'
+
+import { useGetProfileApi } from './composables/api/auth/useGetProfileApi'
 
 const route = useRoute()
 const router = useRouter()

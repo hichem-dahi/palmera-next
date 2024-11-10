@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from '@/views/AuthView.vue'
 import HomeView from '@/views/HomeView.vue'
 import WarehouseView from '@/views/WarehouseView.vue'
-import PersonnelView from '@/views/PersonnelView.vue'
 import ClientsView from '@/views/ClientsView.vue'
 import OrdersView from '@/views/OrdersView.vue'
 import OrderView from '@/views/OrderView.vue'
@@ -30,11 +29,6 @@ const router = createRouter({
           path: '/clients',
           name: 'clients',
           component: ClientsView
-        },
-        {
-          path: '/personnel',
-          name: 'personnel',
-          component: PersonnelView
         },
         {
           path: '/warehouse',
