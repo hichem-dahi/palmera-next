@@ -10,7 +10,7 @@ export function useUpdateProfileApi() {
 
   const query = async () =>
     params.form.id
-      ? supabase.from('profiles').update(params.form).eq('id', params.form.id).select()
+      ? supabase.from('profiles').update(params.form).eq('id', params.form.id).select().single()
       : undefined
 
   const q = useAsyncState(query, undefined, { immediate: false })

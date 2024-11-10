@@ -70,11 +70,11 @@ onMounted(() => {
     full_name: self.value.user?.full_name,
     phone: self.value.user?.phone
   })
-  Object.assign(organizationForm, self.value.user?.organizations)
+  Object.assign(organizationForm, self.value.user?.organization)
 })
 
 function submitProfile() {
-  updateProfileApi.params.profileForm = {
+  updateProfileApi.params.form = {
     id: self.value.user?.id,
     full_name: userForm.full_name,
     phone: userForm.phone
