@@ -1,16 +1,16 @@
-import { computed, ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAsyncState } from '@vueuse/core'
 
 import { supabase } from '@/supabase/supabase'
 
 import type { TablesInsert } from '@/types/database.types'
 
-export function useInsertOrderApi() {
-  const form = ref<TablesInsert<'orders'>>() // Use ref to make it reactive
+export function useInsertOrderlinesApi() {
+  const form = ref<TablesInsert<'order_lines'>[]>() // Use ref to make it reactive
 
   const query = async () => {
     if (form.value) {
-      return supabase.from('orders').insert(form.value).select().single()
+      return supabase.from('order_lines').insert(form.value).select()
     } else {
       throw new Error('Form is null or incomplete')
     }
