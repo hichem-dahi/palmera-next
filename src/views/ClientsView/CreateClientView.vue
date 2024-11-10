@@ -2,11 +2,11 @@
   <div class="w-100 mx-auto">
     <v-row justify="center">
       <v-col sm="12" md="6">
-        <CreateClient v-model="form" :title="$t('create-client')">
-          <template v-slot:actions="{ validation }">
-            <v-btn block @click="submitForm(validation)">{{ $t('confirm') }}</v-btn>
+        <ClientForm v-model="form" :title="$t('create-client')">
+          <template v-slot:actions>
+            <v-btn block @click="submitForm()">{{ $t('confirm') }}</v-btn>
           </template>
-        </CreateClient>
+        </ClientForm>
       </v-col>
     </v-row>
   </div>
@@ -20,14 +20,16 @@ import { useInsertOrganizationApi } from '@/composables/api/organizations/useIns
 
 import organizations from '@/composables/localStore/useOrganizationsStore'
 
-import CreateClient from './ClientForm.vue'
+import ClientForm from './ClientForm.vue'
 
-import type { Validation } from '@vuelidate/core'
+import { useVuelidate } from '@vuelidate/core'
 import type { Organization } from '@/models/models'
 
 const router = useRouter()
 
 const insertOrganizationApi = useInsertOrganizationApi()
+
+const $v = useVuelidate()
 
 const form = ref({
   name: '',
@@ -37,13 +39,15 @@ const form = ref({
   nis: null as number | null,
   art: null as number | null,
   address: '',
-  activity: '',
-  updated_at: new Date().toISOString()
+  activity: ''
 })
 
-function submitForm($v: Validation) {
-  insertOrganizationApi.form.value = form.value
-  insertOrganizationApi.execute()
+function submitForm() {
+  $v.value.$touch()
+  if (!$v.value.$invalid) {
+    insertOrganizationApi.form.value = form.value
+    insertOrganizationApi.execute()
+  }
 }
 
 watch(
