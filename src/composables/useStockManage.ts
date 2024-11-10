@@ -1,49 +1,62 @@
-import { v4 as uuidv4 } from 'uuid'
-
-import stock from './localStore/useStockStore'
 import products from './localStore/useProductStore'
 
-import type { Order, StockMovement } from '@/models/models'
+import type { Order, Product } from '@/models/models'
 
-export function processOrder(order: Order): void {
+import type { TablesInsert } from '@/types/database.types'
+
+// Generate stock movements for a given order based on its order lines
+export function generateStockMovementsForOrder(order: Order): TablesInsert<'stock_movements'>[] {
+  const stockMovements: TablesInsert<'stock_movements'>[] = []
+
   order.order_lines.forEach((orderLine) => {
-    const product = products.value.find((p) => p.id === orderLine.product_id)
+    const product = orderLine.product
     if (product && product.qte !== null && orderLine.qte !== null) {
       if (product.qte >= orderLine.qte) {
         product.qte -= orderLine.qte // Deduct stock
-        logStockMovement(product.id, -orderLine.qte, order.id)
+        stockMovements.push(createStockMovement(product.id, -orderLine.qte, order.id))
       }
     }
   })
+
+  return stockMovements
 }
-export function reverseOrder(order: Order): void {
+
+// Restore stock quantities from a reversed order
+export function restoreStockFromOrder(order: Order): TablesInsert<'stock_movements'>[] {
+  const stockMovements: TablesInsert<'stock_movements'>[] = []
+
   order.order_lines.forEach((orderLine) => {
-    const product = products.value.find((p) => p.id === orderLine.product_id)
+    const product = orderLine.product
     if (product && product.qte !== null && orderLine.qte !== null) {
       if (product.qte >= orderLine.qte) {
-        product.qte += orderLine.qte // Deduct stock
-        logStockMovement(product.id, +orderLine.qte, order.id)
+        product.qte += orderLine.qte // Add back stock
+        stockMovements.push(createStockMovement(product.id, orderLine.qte, order.id))
       }
     }
   })
+
+  return stockMovements
 }
 
-export function logStockMovement(product_id: string, qte_change: number, order_id?: string): void {
-  const movement: StockMovement = {
-    id: uuidv4(),
+// Adjust the stock quantity of a product by a given amount
+export function updateProductStock(
+  product: Product,
+  adjustment: number
+): TablesInsert<'stock_movements'> {
+  product.qte = Math.max(0, Number(product.qte || 0) + Number(adjustment)) // Ensure qte is at least 0
+  return createStockMovement(product.id, adjustment)
+}
+
+// Create a stock movement entry for tracking changes in stock
+export function createStockMovement(
+  product_id: string,
+  qte_change: number,
+  order_id?: string
+): TablesInsert<'stock_movements'> {
+  return {
     product_id,
     qte_change,
-    date: new Date(),
+    date: new Date().toISOString(),
     order_id
-  }
-
-  stock.value.push(movement)
-}
-
-export function adjustStock(product_id: string, adjustment: number): void {
-  const product = products.value.find((p) => p.id === product_id)
-  if (product) {
-    product.qte = Math.max(0, Number(product.qte || 0) + Number(adjustment)) // Ensure qte is at least 0
-    logStockMovement(product_id, adjustment)
   }
 }
