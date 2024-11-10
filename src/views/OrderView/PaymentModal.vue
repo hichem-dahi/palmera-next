@@ -14,38 +14,54 @@
       <template v-slot:actions>
         <v-spacer></v-spacer>
         <v-btn @click="dialog = false">Cancel</v-btn>
-        <v-btn :disabled="amount <= 0 || amount > remaining" @click="addPayment">Confirm</v-btn>
+        <v-btn
+          :disabled="amount <= 0 || amount > remaining"
+          :loading="insertPaymentApi.isLoading.value"
+          @click="addPayment"
+          >Confirm</v-btn
+        >
       </template>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
+import { computed, ref, watch } from 'vue'
 
-import payments from '@/composables/localStore/usePaymentsStore'
+import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 
 import type { Order } from '@/models/models'
+import type { TablesInsert } from '@/types/database.types'
 
 const order = defineModel<Order>('order')
 const dialog = defineModel<boolean>('dialog')
+
+const insertPaymentApi = useInsertPaymentsApi()
 
 const amount = ref<number>(0)
 const remaining = computed(() => (order.value?.total_price || 0) - (order.value?.paid_price || 0))
 
 function addPayment() {
   if (order.value && amount.value > 0 && amount.value <= remaining.value) {
-    const payment = {
-      id: uuidv4(),
-      date: new Date(),
+    const payment: TablesInsert<'payments'> = {
+      date: new Date().toISOString(),
+      order_id: order.value.id,
       amount: amount.value
     }
-    payments.value.unshift(payment)
-    order.value.payments_ids.push(payment.id)
-    order.value.paid_price = (order.value.paid_price || 0) + amount.value
+    insertPaymentApi.form.value = payment
+    insertPaymentApi.execute()
+    //order.value.paid_price = (order.value.paid_price || 0) + amount.value
     amount.value = 0
     dialog.value = false
   }
 }
+
+watch(
+  () => insertPaymentApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
+      dialog.value = false
+    }
+  }
+)
 </script>
