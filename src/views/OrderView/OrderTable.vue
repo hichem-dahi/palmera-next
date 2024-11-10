@@ -37,7 +37,11 @@
             <v-card>
               <v-card-title>{{ $t('add-product') }}</v-card-title>
               <v-card-text>
-                <OrderLineForm :is-new="true" :products-items="productsItems">
+                <OrderLineForm
+                  :is-new="true"
+                  :selected-products="productsItems"
+                  :products="getProductsApi.data.value || []"
+                >
                   <template v-slot:actions="{ form, validation }">
                     <v-card-actions>
                       <v-spacer></v-spacer>
@@ -102,7 +106,14 @@
       <v-btn :disabled="!isModified" variant="text" size="small" @click="cancelEdit">
         {{ $t('cancel') }}
       </v-btn>
-      <v-btn :disabled="!isModfiable" variant="text" color="blue" size="small" @click="confirmEdit">
+      <v-btn
+        :disabled="!isModfiable"
+        :loading="isLoading"
+        variant="text"
+        color="blue"
+        size="small"
+        @click="confirmEdit"
+      >
         {{ $t('save') }}
       </v-btn>
     </v-card-actions>
@@ -121,9 +132,12 @@ import { format } from 'date-fns'
 import { cloneDeep, isEqual, isNumber, sum } from 'lodash'
 import { mdiDelete, mdiPlus } from '@mdi/js'
 
-import products from '@/composables/localStore/useProductStore'
 import organizations from '@/composables/localStore/useOrganizationsStore'
-import orders from '@/composables/localStore/useOrdersStore'
+
+import { useUpsertOrderlinesApi } from '@/composables/api/orderlines/useUpsertOrderlinesApi'
+import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
+import { useUpdateOrderApi } from '@/composables/api/orders/useUpdateOrderApi'
+import { useDeleteOrderlinesApi } from '@/composables/api/orderlines/useDeleteOrderlinesApi'
 
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
@@ -134,6 +148,11 @@ const order = defineModel<Order>('order', { required: true })
 const emits = defineEmits(['close'])
 
 const { t } = useI18n()
+
+const deleteOrderlinesApi = useDeleteOrderlinesApi()
+const upsertOrderlinesApi = useUpsertOrderlinesApi()
+const getProductsApi = useGetProductsApi()
+const updateOrderApi = useUpdateOrderApi()
 
 const newlineDialog = ref(false)
 const deleteDialog = ref(false)
@@ -157,11 +176,15 @@ const headers = computed(
     ] as any
 )
 
+const isLoading = computed(
+  () => deleteOrderlinesApi.isLoading.value || upsertOrderlinesApi.isLoading.value
+)
+
 const isModified = computed(() => !isEqual(order.value.order_lines, proxyOrder.value.order_lines))
 const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
-  proxyOrderlines.value.every((o) => o.qte! <= getProduct(o.product_id)?.qte!)
+  proxyOrderlines.value.every((o) => o.qte! <= o.product.qte!)
 )
 
 const consumerName = computed(
@@ -191,7 +214,7 @@ const totalItems = computed(() => {
 
 const items = computed(() =>
   proxyOrder.value.order_lines.map((o, i) => {
-    const product = getProduct(o.product_id)
+    const product = o.product
     return {
       id: o.id,
       index: i,
@@ -205,17 +228,11 @@ const items = computed(() =>
 )
 
 const productsItems = computed(() =>
-  products.value
-    .map((c) => {
-      return { title: c.name, value: c.id }
-    })
-    .filter((e) => {
-      const alreadySelected = proxyOrder.value?.order_lines.map((ol) => ol.product_id)
-      return !alreadySelected?.includes(e.value)
-    })
+  (getProductsApi.data.value || []).filter((e) => {
+    const alreadySelected = proxyOrder.value?.order_lines.map((ol) => ol.product_id)
+    return !alreadySelected?.includes(e.id)
+  })
 )
-
-const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 const deleteItem = (item: any) => {
   selectedOrderline.value = proxyOrderlines.value?.[item.index]
@@ -248,12 +265,47 @@ function cancelEdit() {
 }
 
 function confirmEdit() {
-  const orderIndex = orders.value.findIndex((o) => o.id === order.value?.id)
-  if (orderIndex !== -1) {
-    orders.value[orderIndex] = cloneDeep(proxyOrder.value)
-  }
-  isSuccess.value = true
+  deleteOrderlinesApi.orderId.value = order.value.id
+  deleteOrderlinesApi.execute()
 }
+
+watch(
+  () => deleteOrderlinesApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
+      upsertOrderlinesApi.form.value = proxyOrderlines.value.map(({ product, ...rest }) => {
+        rest.order_id = order.value.id
+        return rest
+      })
+      upsertOrderlinesApi.execute()
+    }
+  }
+)
+watch(
+  () => upsertOrderlinesApi.isSuccess.value,
+  (isSuccessApi) => {
+    if (isSuccessApi && upsertOrderlinesApi.data.value) {
+      const total_price = sum(upsertOrderlinesApi.data.value.map((o) => o.total_price))
+      updateOrderApi.form.value = Object.assign({}, updateOrderApi.form.value, {
+        id: order.value.id,
+        total_price,
+        tva: total_price * 0.19,
+        ttc: total_price * 1.19
+      })
+      updateOrderApi.execute()
+    }
+  }
+)
+
+watch(
+  () => updateOrderApi.isSuccess.value,
+  (isSuccessApi) => {
+    if (isSuccessApi && updateOrderApi.data.value) {
+      order.value = updateOrderApi.data.value
+      isSuccess.value = true
+    }
+  }
+)
 
 watch(
   proxyOrderlines,
