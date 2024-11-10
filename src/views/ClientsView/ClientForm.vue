@@ -46,6 +46,8 @@ import useVuelidate from '@vuelidate/core'
 import { required, minLength, numeric } from '@vuelidate/validators'
 
 const props = defineProps<{ title: string }>()
+
+//TODO: review default model usage
 const model = defineModel({
   default: {
     name: '',
@@ -55,8 +57,7 @@ const model = defineModel({
     nis: null as number | null,
     art: null as number | null,
     address: '',
-    activity: '',
-    updated_at: new Date().toString()
+    activity: ''
   }
 })
 
