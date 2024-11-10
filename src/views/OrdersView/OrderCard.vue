@@ -84,16 +84,12 @@ const order = defineModel<Order>('order', { required: true })
 const deleteDialog = ref(false)
 
 const docTitle = computed(() =>
-  order.value.docIndex
-    ? `${t(kebabCase(DocumentType[order.value!.document_type]))} ${t('N°')} ${order.value.docIndex}`
+  order.value.doc_index
+    ? `${t(kebabCase(DocumentType[order.value!.document_type]))} ${t('N°')} ${order.value.doc_index}`
     : null
 )
 
-const consumerName = computed(
-  () =>
-    organizations.value.find((e) => e.id === order.value?.organization_id)?.name ||
-    order.value?.individual?.name
-)
+const consumerName = computed(() => order.value.client?.name || order.value.individual?.name)
 
 const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
 const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
