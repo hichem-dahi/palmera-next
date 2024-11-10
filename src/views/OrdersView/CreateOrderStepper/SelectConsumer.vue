@@ -10,14 +10,14 @@
         :label="$t('name')"
         :items="individualsItems"
         :error="!v2$.name.$pending && v2$.name.$error"
-        v-model="form.individual.name"
+        v-model="individualForm.name"
         :item-props="itemProps"
         @update:model-value="handleCustomerChange"
       />
       <v-text-field
         :label="$t('phone')"
         :error="!v2$.phone.$pending && v2$.phone.$error"
-        v-model="form.individual.phone"
+        v-model="individualForm.phone"
       />
     </div>
     <v-select
@@ -45,7 +45,7 @@ import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOr
 
 import { ConsumerType } from '@/models/models'
 
-import { form, consumerType } from './state'
+import { form, consumerType, individualForm } from './state'
 
 const rules1 = { required }
 
@@ -65,10 +65,7 @@ const v1$ = useVuelidate(
   toRef(() => form.client_id)
 )
 
-const v2$ = useVuelidate(
-  rules2,
-  toRef(() => form.individual)
-)
+const v2$ = useVuelidate(rules2, individualForm)
 
 const v$ = computed(() =>
   consumerType.value === ConsumerType.Organization ? v1$.value : v2$.value
@@ -100,15 +97,15 @@ const itemProps = (item: any) => {
 }
 
 function handleCustomerChange(item: any) {
-  form.individual.name = ''
-  form.individual.phone = ''
+  individualForm.value.name = ''
+  individualForm.value.phone = ''
 
   const existingIndividual = individualsItems.value.find((individual) => individual.id === item.id)
 
   if (existingIndividual) {
-    form.individual = { ...existingIndividual }
+    individualForm.value = { ...existingIndividual }
   } else if (isString(item)) {
-    form.individual.name = item
+    individualForm.value.name = item
   }
 }
 </script>

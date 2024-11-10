@@ -4,7 +4,7 @@
       <v-radio :label="$t('invoice')" :value="DocumentType.Invoice" />
       <v-radio :label="$t('proforma')" :value="DocumentType.Proforma" />
     </div>
-    <div v-else-if="form.individual">
+    <div v-else-if="individualForm">
       <v-radio :label="$t('voucher')" :value="DocumentType.Voucher" />
     </div>
     <v-radio :label="$t('delivery-note')" :value="DocumentType.DeliveryNote" />
@@ -27,8 +27,8 @@
       v-model="form.payment_method"
     />
     <CreateDelivery
-      v-if="form.delivery && form.document_type == DocumentType.DeliveryNote"
-      v-model:delivery="form.delivery"
+      v-if="deliveryForm && form.document_type == DocumentType.DeliveryNote"
+      v-model:delivery="deliveryForm"
     />
   </div>
   <slot name="actions" :v="$v"></slot>
@@ -42,7 +42,7 @@ import CreateDelivery from '../CreateDelivery.vue'
 
 import { DocumentType } from '@/models/models'
 
-import { form, payment } from './state'
+import { deliveryForm, form, individualForm, payment } from './state'
 
 const rules = {
   payment_method: {

@@ -44,7 +44,6 @@ import { minLength, numeric, required } from '@vuelidate/validators'
 
 import type { Delivery } from '@/models/models'
 
-const dialog = defineModel<boolean>('dialog')
 const form = defineModel<Delivery>('delivery', { required: true })
 
 const rules = {

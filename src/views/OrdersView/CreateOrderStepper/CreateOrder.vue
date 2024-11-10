@@ -1,9 +1,9 @@
 <template>
   <div class="pa-4">
     <OrderLineForm
-      v-for="(_, i) in form.order_lines"
+      v-for="(_, i) in orderlinesForm"
       :key="i"
-      v-model="form.order_lines[i]"
+      v-model="orderlinesForm[i]"
       :is-new="i == 0"
       :products="products"
       :selectedProducts="selectedProducts"
@@ -25,8 +25,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
-import { required, numeric, minValue } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import { mdiPlus } from '@mdi/js'
 
@@ -36,22 +34,9 @@ import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
 
 import type { OrderLine } from '@/models/models'
 
-import { form } from './state'
+import { orderlinesForm } from './state'
 
-// Validation rules for `order_lines`
-const rules = {
-  order_lines: {
-    $each: {
-      product_id: { required },
-      qte: { required, numeric, minValue: minValue(1) },
-      unit_price: { required, numeric, minValue: minValue(1) },
-      total_price: { required, numeric, minValue: minValue(0) }
-    }
-  }
-}
-
-// Initialize Vuelidate for `order_lines`
-const $v = useVuelidate(rules, form)
+const $v = useVuelidate()
 
 const getProductsApi = useGetProductsApi()
 
@@ -59,23 +44,24 @@ const products = computed(() => getProductsApi.data.value || [])
 
 const selectedProducts = computed(() =>
   products.value.filter((e) => {
-    const alreadySelected = form.order_lines.map((ol) => ol.product_id)
+    const alreadySelected = orderlinesForm.value.map((ol) => ol.product_id)
     return !alreadySelected.includes(e.id)
   })
 )
 
 function addEmptyOrderline() {
-  form.order_lines.push({
-    id: uuidv4(),
+  orderlinesForm.value.push({
     product_id: '',
-    qte: null,
+    qte: 0,
     unit_price: 0,
-    total_price: 0
+    total_price: 0,
+    order_id: ''
   })
 }
+addEmptyOrderline()
 
 function deleteOrderline(orderLine: OrderLine) {
-  const index = form.order_lines.indexOf(orderLine)
-  form.order_lines.splice(index, 1)
+  const index = orderlinesForm.value.indexOf(orderLine)
+  orderlinesForm.value.splice(index, 1)
 }
 </script>

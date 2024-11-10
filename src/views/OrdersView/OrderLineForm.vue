@@ -72,25 +72,24 @@
 
 <script setup lang="ts">
 import { reactive, watchEffect, computed, watch } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
 import useVuelidate from '@vuelidate/core'
 import { minValue, numeric, required } from '@vuelidate/validators'
 import { mdiDelete } from '@mdi/js'
 
-import type { OrderLine, Product } from '@/models/models'
+import type { Product } from '@/models/models'
 
-const model = defineModel<OrderLine>({
+const model = defineModel({
   default: {
-    id: uuidv4(),
+    order_id: '',
     product_id: '',
-    qte: null,
+    qte: 0,
     unit_price: 0,
     total_price: 0
   },
   required: false
 })
 
-const props = defineProps<{ selectedProducts: Product[]; products: Product[]; isNew: boolean }>()
+const props = defineProps<{ selectedProducts?: Product[]; products: Product[]; isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
 
 const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
@@ -98,12 +97,12 @@ const selectedProduct = computed(() => props.products.find((e) => e.id === form.
 const form = reactive(model.value)
 
 const orderLineRules = {
-  id: { required },
   product_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
   unit_price: { required, numeric, minValue: minValue(1) },
   total_price: { required, numeric, minValue: minValue(1) }
 }
+
 const $v = useVuelidate(orderLineRules, form)
 
 watchEffect(() => {
@@ -114,5 +113,6 @@ watchEffect(() => {
 
 watch(selectedProduct, (newProduct) => {
   if (newProduct) form.unit_price = newProduct.price || 0
+  form.product = newProduct
 })
 </script>
