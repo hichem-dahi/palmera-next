@@ -22,8 +22,8 @@
         </div>
         <h3 class="type pa-4">
           {{ title }}
-          <span v-if="order.docIndex">
-            N°: {{ padStart(order.docIndex.toString(), 4, '0') }}/2024
+          <span v-if="order.doc_index">
+            N°: {{ padStart(order.doc_index.toString(), 4, '0') }}/2024
           </span>
         </h3>
         <div class="d-flex justify-space-between align-center ga-4">
@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick, round, padStart } from 'lodash'
 import html2pdf from 'html2pdf.js'
@@ -97,20 +97,28 @@ import n2words from 'n2words'
 import { format } from 'date-fns'
 import { mdiChevronLeft } from '@mdi/js'
 
-import orders from '@/composables/localStore/useOrdersStore'
-import products from '@/composables/localStore/useProductStore'
 import organizations from '@/composables/localStore/useOrganizationsStore'
 import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType, DocumentType } from '@/models/models'
+import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
 
 const route = useRoute()
+
+const getOrderApi = useGetOrderApi()
 
 const invoice = ref()
 
 const title = computed(() => (order.value?.delivery ? 'bon de livraison' : 'facture'))
 
-const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
+const order = computed(() => getOrderApi.data.value)
+
+onMounted(() => {
+  if (route.params.order_id) {
+    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.execute()
+  }
+})
 
 const consumerType = computed(() =>
   order.value?.organization_id ? ConsumerType.Organization : ConsumerType.Individual
@@ -140,7 +148,7 @@ const deliveryInfo = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.organization
+  let selfInfo = self.value.user?.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,
@@ -169,10 +177,9 @@ const consumer = computed(() => {
 
 const items = computed(() =>
   order.value?.order_lines.map((o, i) => {
-    const product = getProduct(o.product_id)
     return {
       index: i,
-      product_name: product?.name,
+      product_name: o.product?.name,
       qte: o.qte,
       unit_price: o.unit_price,
       total_price: o.total_price
@@ -193,8 +200,6 @@ const totalItems = computed(() => {
       total: order.value?.total_price
     }
 })
-
-const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 function print() {
   window.print()

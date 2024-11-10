@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick, round } from 'lodash'
 import html2pdf from 'html2pdf.js'
@@ -82,12 +82,22 @@ import proformas from '@/composables/localStore/useProformaStore'
 import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType } from '@/models/models'
+import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
 
 const route = useRoute()
 
+const getOrderApi = useGetOrderApi()
+
 const title = computed(() => 'Facture préforma')
 
-const proforma = computed(() => proformas.value.find((o) => o.id == route.params.proforma_id))
+const proforma = computed(() => getOrderApi.data.value)
+
+onMounted(() => {
+  if (route.params.order_id) {
+    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.execute()
+  }
+})
 
 const consumerType = computed(() =>
   proforma.value?.organization ? ConsumerType.Organization : ConsumerType.Individual
@@ -107,7 +117,7 @@ const totalWords = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.organization
+  let selfInfo = self.value.user?.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,

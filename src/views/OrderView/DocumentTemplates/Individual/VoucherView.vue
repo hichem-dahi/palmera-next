@@ -23,7 +23,7 @@
           </div>
         </div>
         <h3 class="col-2 flex-grow-1 type">
-          {{ title }} N°: {{ padStart(order.docIndex?.toString(), 4, '0') }}/2024
+          {{ title }} N°: {{ padStart(order.doc_index?.toString(), 4, '0') }}/2024
         </h3>
         <div
           class="col-3 w-25 d-flex flex-column justify-space-between align-end align-self-stretch"
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick, padStart } from 'lodash'
 import n2words from 'n2words'
@@ -96,11 +96,21 @@ import products from '@/composables/localStore/useProductStore'
 import self from '@/composables/localStore/useSelf'
 
 import { DocumentType } from '@/models/models'
+import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
 
 const route = useRoute()
 
 const title = computed(() => (order.value?.delivery ? 'Bon de livraison' : 'Bon'))
-const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
+const order = computed(() => getOrderApi.data.value)
+
+const getOrderApi = useGetOrderApi()
+
+onMounted(() => {
+  if (route.params.order_id) {
+    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.execute()
+  }
+})
 
 const totalWords = computed(() => {
   let number = totalItems.value.total || 0
@@ -115,7 +125,7 @@ const totalWords = computed(() => {
 })
 
 const selfInfo = computed(() => {
-  let selfInfo = self.value.organization
+  let selfInfo = self.value.user?.organization
   if (!selfInfo) return
   selfInfo = {
     ...selfInfo,
@@ -149,10 +159,9 @@ const deliveryInfo = computed(() => {
 
 const items = computed(() =>
   order.value?.order_lines.map((o, i) => {
-    const product = getProduct(o.product_id)
     return {
       index: i,
-      product_name: product?.name,
+      product_name: o.product?.name,
       qte: o.qte,
       unit_price: o.unit_price,
       total_price: o.total_price
@@ -165,8 +174,6 @@ const totalItems = computed(() => {
     total: order.value?.total_price
   }
 })
-
-const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 function print() {
   window.print()
