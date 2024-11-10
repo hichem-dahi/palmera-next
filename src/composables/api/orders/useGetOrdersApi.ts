@@ -4,7 +4,13 @@ import { useAsyncState } from '@vueuse/core'
 import { supabase } from '@/supabase/supabase'
 
 export function useGetOrdersApi() {
-  const query = async () => supabase.from('orders').select()
+  const query = async () =>
+    supabase.from('orders').select(`
+    *,
+    client:organizations!orders_client_id_fkey (*),    
+    delivery:deliveries (*),
+    individual:individuals (*)
+  `)
 
   const q = useAsyncState(query, undefined, { immediate: true }) // Invoke query properly
 
