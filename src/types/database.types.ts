@@ -79,35 +79,38 @@ export type Database = {
       order_lines: {
         Row: {
           id: string
-          order_id: string | null
-          product_id: string | null
-          qte: number | null
+          order_id: string
+          product_id: string
+          qte: number
           total_price: number
+          unit_price: number
         }
         Insert: {
-          id: string
-          order_id?: string | null
-          product_id?: string | null
-          qte?: number | null
+          id?: string
+          order_id: string
+          product_id: string
+          qte: number
           total_price: number
+          unit_price: number
         }
         Update: {
           id?: string
-          order_id?: string | null
-          product_id?: string | null
-          qte?: number | null
+          order_id?: string
+          product_id?: string
+          qte?: number
           total_price?: number
+          unit_price?: number
         }
         Relationships: [
           {
-            foreignKeyName: "order_lines_order_id_fkey"
+            foreignKeyName: "order_line_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "order_lines_product_id_fkey"
+            foreignKeyName: "order_line_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -121,15 +124,14 @@ export type Database = {
           date: string
           delivery_id: string | null
           doc_index: number | null
-          document_type: Database["public"]["Enums"]["document_type"]
+          document_type: number
           id: string
           index: number
           individual_id: string | null
-          order_lines: Json
           organization_id: string | null
           paid_price: number
           payment_method: string | null
-          status: Database["public"]["Enums"]["order_state"]
+          status: number
           total_price: number
           ttc: number | null
           tva: number | null
@@ -139,15 +141,14 @@ export type Database = {
           date: string
           delivery_id?: string | null
           doc_index?: number | null
-          document_type: Database["public"]["Enums"]["document_type"]
+          document_type: number
           id?: string
           index?: number
           individual_id?: string | null
-          order_lines: Json
           organization_id?: string | null
           paid_price: number
           payment_method?: string | null
-          status?: Database["public"]["Enums"]["order_state"]
+          status: number
           total_price: number
           ttc?: number | null
           tva?: number | null
@@ -157,15 +158,14 @@ export type Database = {
           date?: string
           delivery_id?: string | null
           doc_index?: number | null
-          document_type?: Database["public"]["Enums"]["document_type"]
+          document_type?: number
           id?: string
           index?: number
           individual_id?: string | null
-          order_lines?: Json
           organization_id?: string | null
           paid_price?: number
           payment_method?: string | null
-          status?: Database["public"]["Enums"]["order_state"]
+          status?: number
           total_price?: number
           ttc?: number | null
           tva?: number | null
@@ -212,7 +212,6 @@ export type Database = {
           nis: number | null
           phone: string
           rc: string | null
-          updated_at: string
         }
         Insert: {
           activity?: string | null
@@ -224,7 +223,6 @@ export type Database = {
           nis?: number | null
           phone: string
           rc?: string | null
-          updated_at?: string
         }
         Update: {
           activity?: string | null
@@ -236,9 +234,37 @@ export type Database = {
           nis?: number | null
           phone?: string
           rc?: string | null
-          updated_at?: string
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          date: string
+          id: string
+          order_id: string
+        }
+        Insert: {
+          amount: number
+          date: string
+          id?: string
+          order_id: string
+        }
+        Update: {
+          amount?: number
+          date?: string
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -267,7 +293,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "products_organization_id_fkey"
+            foreignKeyName: "product_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -282,15 +308,13 @@ export type Database = {
           id: string
           organization_id: string | null
           phone: string | null
-          updated_at: string | null
         }
         Insert: {
           email?: string | null
           full_name?: string | null
-          id: string
+          id?: string
           organization_id?: string | null
           phone?: string | null
-          updated_at?: string | null
         }
         Update: {
           email?: string | null
@@ -298,16 +322,8 @@ export type Database = {
           id?: string
           organization_id?: string | null
           phone?: string | null
-          updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "profiles_organization_id_fkey"
             columns: ["organization_id"]
@@ -322,33 +338,33 @@ export type Database = {
           date: string
           id: string
           order_id: string | null
-          product_id: string | null
+          product_id: string
           qte_change: number
         }
         Insert: {
           date: string
-          id: string
+          id?: string
           order_id?: string | null
-          product_id?: string | null
+          product_id: string
           qte_change: number
         }
         Update: {
           date?: string
           id?: string
           order_id?: string | null
-          product_id?: string | null
+          product_id?: string
           qte_change?: number
         }
         Relationships: [
           {
-            foreignKeyName: "stock_movements_order_id_fkey"
+            foreignKeyName: "stock_movement_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "stock_movements_product_id_fkey"
+            foreignKeyName: "stock_movement_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -364,8 +380,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      document_type: "Invoice" | "DeliveryNote" | "Voucher" | "Proforma"
-      order_state: "Pending" | "Confirmed" | "Cancelled"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never

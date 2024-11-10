@@ -9,15 +9,15 @@ export interface Profile {
 export interface Order {
   id: string
   index: number
-  docIndex: number | null
+  doc_index: number | null
   organization_id?: Organization | string
-  individual?: Individual
+  individual_id?: string
+  client_id?: string
   date: Date | string
   order_lines: OrderLine[]
   delivery?: Delivery
   document_type: DocumentType
   status: OrderStatus
-  payments_ids: string[]
   payment_method?: string
   paid_price: number
   total_price: number
@@ -33,20 +33,11 @@ export interface Payment {
 
 export interface OrderLine {
   id: string
+  order_id: string
   product_id: string
-  qte: number | null
-  unit_price: number | null
+  qte: number
+  unit_price: number
   total_price: number
-}
-
-export interface Proforma {
-  id: string
-  organization_id: Organization | string
-  date: Date | string
-  order_lines: OrderLine[]
-  total_price: number
-  tva: number
-  ttc: number
 }
 
 export interface Individual {
@@ -92,6 +83,11 @@ export interface StockMovement {
   order_id?: string // To track the order related to the stock reduction
 }
 
+export enum StockMovementType {
+  Sub = 1,
+  Add
+}
+
 export enum DocumentType {
   Invoice = 1,
   DeliveryNote,
@@ -103,11 +99,6 @@ export enum OrderStatus {
   Pending = 0,
   Confirmed,
   Cancelled
-}
-
-export enum HistoryType {
-  Dept = 1,
-  Absence
 }
 
 export enum ConsumerType {
