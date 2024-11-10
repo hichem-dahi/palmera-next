@@ -38,6 +38,8 @@ import { mdiPlus } from '@mdi/js'
 import orders from '@/composables/localStore/useOrdersStore'
 import proformas from '@/composables/localStore/useProformaStore'
 
+import { useGetOrdersApi } from '@/composables/api/orders/useGetOrdersApi'
+
 import OrderCard from '@/views/OrdersView/OrderCard.vue'
 import ProformaCard from './OrdersView/ProformaCard.vue'
 import FilterBar from './OrdersView/FilterBar.vue'
@@ -45,13 +47,15 @@ import FilterBar from './OrdersView/FilterBar.vue'
 import { DocumentType } from '@/models/models'
 import type { Filters } from './OrdersView/models/models'
 
+const getOrdersApi = useGetOrdersApi()
+
 const filters = reactive<Filters>({
   docType: null,
   dateRange: []
 })
 
 const filteredOrders = computed(() => {
-  return orders.value.filter((o) => {
+  return getOrdersApi.data.value?.filter((o) => {
     const docFilter = filters.docType ? o.document_type === filters.docType : true
     const dateFilter = filters.dateRange.length
       ? filters.dateRange.some((selectedDate) => isSameDay(o.date, selectedDate))
