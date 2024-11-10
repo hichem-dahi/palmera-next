@@ -27,7 +27,7 @@
         v-if="order"
         :order="order"
         :isConfirmable="isConfirmable"
-        @go-doc-page="goDocPage"
+        @go-doc-page="processOrder"
       />
 
       <v-btn
@@ -37,29 +37,32 @@
         @click="cancelDialog = true"
         :text="$t('cancel')"
       />
-      <PaymentsCard v-if="orderPayments.length" :order="order" :payments="orderPayments" />
+      <PaymentsCard v-if="order.payments.length" :order="order" :payments="order.payments" />
     </div>
   </div>
   <PaymentMethodModal
     v-model:dialog="paymentMethodDialog"
     v-model:order="order"
-    @go-invoice="goDocPage()"
+    @go-invoice="processOrder()"
   />
   <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
-  <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="goDocPage" />
+  <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="processOrder" />
   <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { mdiCashSync, mdiChevronLeft, mdiCancel } from '@mdi/js'
 
-import orders from '@/composables/localStore/useOrdersStore'
-import { processOrder, reverseOrder } from '@/composables/useStockManage'
+import { generateStockMovementsForOrder, restoreStockFromOrder } from '@/composables/useStockManage'
 import { setDocumentIndex } from '@/composables/Orders/setDocumentIndex'
 import payments from '@/composables/localStore/usePaymentsStore'
+
+import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
+import { useUpdateOrderApi } from '@/composables/api/orders/useUpdateOrderApi'
+import { useInsertStockMovementsApi } from '@/composables/api/stockMovements/useInsertStockMovementsApi'
 
 import OrderTable from './OrderView/OrderTable.vue'
 import CreateDelivery from './OrdersView/CreateDelivery.vue'
@@ -70,11 +73,15 @@ import CancelModal from './OrdersView/CancelModal.vue'
 import PaymentsCard from './OrderView/PaymentsCard.vue'
 import DocumentButtons from './OrderView/DocumentButtons.vue'
 
-import { DocumentType, OrderStatus } from '@/models/models'
+import { DocumentType, OrderStatus, StockMovementType, type Order } from '@/models/models'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+
+const getOrderApi = useGetOrderApi()
+const updateOrderApi = useUpdateOrderApi()
+const insertStockMovementsApi = useInsertStockMovementsApi()
 
 const orderTableRef = ref<InstanceType<typeof OrderTable>>()
 
@@ -84,11 +91,14 @@ const paymentMethodDialog = ref(false)
 const confirmDialog = ref(false)
 const cancelDialog = ref(false)
 
-const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
+onMounted(() => {
+  if (route.params.order_id) {
+    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.execute()
+  }
+})
 
-const orderPayments = computed(() =>
-  payments.value.filter((p) => order.value?.payments_ids.includes(p.id))
-)
+const order = ref<Order>()
 
 const title = computed(() => {
   if (order.value?.document_type == DocumentType.Proforma) {
@@ -103,27 +113,28 @@ const isConfirmable = computed(() => orderTableRef.value?.isConfirmable || false
 const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
 const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
-function goDocPage() {
+function processOrder() {
   if (isPending.value && !confirmDialog.value) {
     confirmDialog.value = true
     return
   }
+  if (isPending.value) {
+    insertStockMovementsApi.type.value = StockMovementType.Sub
+    insertStockMovementsApi.form.value = generateStockMovementsForOrder(order.value!)
+    insertStockMovementsApi.execute()
+    return
+  }
+  goDocPage()
+}
 
-  if (order.value) {
-    if (isPending.value) {
-      setDocumentIndex(order.value)
-      processOrder(order.value)
-      order.value.status = OrderStatus.Confirmed
-    }
-
-    const routeName = getRouteNameByDocumentType(order.value.document_type)
-    if (routeName) {
-      router.push({
-        name: routeName,
-        params: { order_id: order.value?.id },
-        query: { type: order.value.document_type }
-      })
-    }
+function goDocPage() {
+  const routeName = getRouteNameByDocumentType(order.value!.document_type)
+  if (routeName) {
+    router.push({
+      name: routeName,
+      params: { order_id: order.value?.id },
+      query: { type: order.value!.document_type }
+    })
   }
 }
 
@@ -136,20 +147,62 @@ function getRouteNameByDocumentType(documentType: DocumentType) {
     case DocumentType.Voucher:
       return 'voucher'
     case DocumentType.DeliveryNote:
-      return order.value?.organization_id ? 'invoice' : 'voucher'
+      return order.value?.client_id ? 'invoice' : 'voucher'
     default:
       return null
   }
 }
 
 function cancelOrder() {
-  if (order.value) {
-    order.value.status = OrderStatus.Cancelled
-    order.value.paid_price = 0
-    reverseOrder(order.value)
-    cancelDialog.value = false
-  }
+  insertStockMovementsApi.type.value = StockMovementType.Add
+  insertStockMovementsApi.form.value = restoreStockFromOrder(order.value!)
+  insertStockMovementsApi.execute()
 }
+
+watch(
+  () => getOrderApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && getOrderApi.data.value) {
+      order.value = getOrderApi.data.value
+    }
+  }
+)
+
+watch(
+  () => insertStockMovementsApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertStockMovementsApi.type.value === StockMovementType.Sub) {
+      updateOrderApi.form.value = { id: order.value?.id, status: OrderStatus.Confirmed }
+      updateOrderApi.execute()
+    } else if (isSuccess && insertStockMovementsApi.type.value === StockMovementType.Add) {
+      updateOrderApi.form.value = {
+        id: order.value?.id,
+        paid_price: 0,
+        status: OrderStatus.Cancelled
+      }
+      updateOrderApi.execute()
+    }
+  }
+)
+
+watch(
+  () => updateOrderApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && updateOrderApi.data.value?.status === OrderStatus.Confirmed) {
+      goDocPage()
+    }
+  }
+)
+
+watch(
+  () => updateOrderApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && updateOrderApi.data.value?.status === OrderStatus.Cancelled) {
+      order.value = updateOrderApi.data.value
+      cancelDialog.value = false
+    }
+  }
+)
 </script>
 <style>
 .wrapper {
