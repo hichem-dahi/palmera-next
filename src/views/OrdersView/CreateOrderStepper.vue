@@ -46,7 +46,7 @@
                 <v-card-actions>
                   <v-btn @click="step--">{{ $t('back') }}</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn :loading="insertOrderApi.isLoading.value" @click="nextStep(v)">
+                  <v-btn :loading="isLoading" @click="nextStep(v)">
                     {{ $t('confirm') }}
                   </v-btn>
                 </v-card-actions>
@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { cloneDeep, isString } from 'lodash'
+import { isString } from 'lodash'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
 import organizations from '@/composables/localStore/useOrganizationsStore'
@@ -70,6 +70,7 @@ import organizations from '@/composables/localStore/useOrganizationsStore'
 import { useInsertOrderApi } from '@/composables/api/orders/useInsertOrderApi'
 import { useInsertDeliveryApi } from '@/composables/api/deliveries/useInsertDeliveryApi'
 import { useInsertIndividualApi } from '@/composables/api/individuals/useInsertIndivudualApi'
+import { useInsertOrderlinesApi } from '@/composables/api/orderlines/useInsertOrderlinesApi'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
@@ -77,14 +78,17 @@ import ExtraInfo from './CreateOrderStepper/ExtraInfo.vue'
 
 import {
   form,
-  payment,
   cleanForm,
-  processPayment,
   resetForm,
-  resetPayment
+  resetPayment,
+  orderlinesForm,
+  deliveryForm,
+  individualForm
 } from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
+import { DocumentType, type OrderLine } from '@/models/models'
+import type { TablesInsert } from '@/types/database.types'
 
 enum Steps {
   SelectConsumer = 1,
@@ -92,7 +96,7 @@ enum Steps {
   ExtraInfo
 }
 
-const emits = defineEmits(['success'])
+defineEmits(['success'])
 
 const route = useRoute()
 
@@ -103,10 +107,19 @@ const numericSteps: Steps[] = Object.values(Steps).filter(
 const insertOrderApi = useInsertOrderApi()
 const insertDeliveryApi = useInsertDeliveryApi()
 const insertIndividualApi = useInsertIndividualApi()
+const insertOrderlinesApi = useInsertOrderlinesApi()
 
 const step = ref(Steps.SelectConsumer)
 
 const consumerPicked = computed(() => route.query.consumer)
+
+const isLoading = computed(
+  () =>
+    insertOrderApi.isLoading.value ||
+    insertDeliveryApi.isLoading.value ||
+    insertIndividualApi.isLoading.value ||
+    insertOrderlinesApi.isLoading.value
+)
 
 onMounted(() => {
   const consumer = route.query.consumer
@@ -120,7 +133,7 @@ onMounted(() => {
       // Check if the consumer is an individual
       const individual = individuals.value.find((i) => i.id === consumer)
       if (individual) {
-        form.individual = individual
+        individualForm.value = individual
       }
     }
 
@@ -134,13 +147,13 @@ function nextStep(v: Validation) {
   if (!v.$invalid) {
     if (step.value === Steps.ExtraInfo) {
       cleanForm()
-      insertOrderApi.form.value = { ...form }
-      if (form.delivery) {
-        insertOrderApi.form.value!.document_type = 'DeliveryNote'
-        insertDeliveryApi.form.value = { ...form.delivery }
+      insertOrderApi.form.value = { ...(form as TablesInsert<'orders'>) }
+      if (deliveryForm.value) {
+        insertOrderApi.form.value!.document_type = DocumentType.DeliveryNote
+        insertDeliveryApi.form.value = { ...deliveryForm.value }
         insertDeliveryApi.execute()
-      } else if (form.individual) {
-        insertIndividualApi.form.value = { ...form.individual }
+      } else if (individualForm.value) {
+        insertIndividualApi.form.value = { ...individualForm.value }
         insertIndividualApi.execute()
       } else {
         insertOrderApi.execute()
@@ -156,12 +169,11 @@ watch(
   () => insertDeliveryApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertDeliveryApi.data.value) {
-      delete insertOrderApi.form.value?.delivery
       Object.assign(insertOrderApi.form.value!, {
         delivery_id: insertDeliveryApi.data.value.id
       })
-      if (form.individual) {
-        insertIndividualApi.form.value = { ...form.individual }
+      if (individualForm.value) {
+        insertIndividualApi.form.value = { ...individualForm.value }
         insertIndividualApi.execute()
       } else {
         insertOrderApi.execute()
@@ -174,11 +186,12 @@ watch(
   () => insertIndividualApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertIndividualApi.data.value) {
-      delete insertOrderApi.form.value?.individual
-      Object.assign(insertOrderApi.form.value!, {
-        individual_id: insertIndividualApi.data.value.id
-      })
-      insertOrderApi.execute()
+      if (insertOrderApi.form.value) {
+        Object.assign(insertOrderApi.form.value, {
+          individual_id: insertIndividualApi.data.value.id
+        })
+        insertOrderApi.execute()
+      }
     }
   }
 )
@@ -187,6 +200,14 @@ watch(
   () => insertOrderApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertOrderApi.data.value) {
+      insertOrderlinesApi.form.value = orderlinesForm.value.map(
+        ({ product, ...o }) =>
+          ({
+            ...o,
+            order_id: insertOrderApi.data.value?.id ?? ''
+          }) as OrderLine
+      )
+      insertOrderlinesApi.execute()
       resetForm()
       resetPayment()
     }
