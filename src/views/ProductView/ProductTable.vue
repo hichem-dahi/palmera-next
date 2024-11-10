@@ -23,7 +23,11 @@
           <v-btn variant="text" color="primary" size="small" @click="modifyStockDialog = true">
             {{ $t('modify-stock') }}
           </v-btn>
-          <ModifyStock v-model="modifyStockDialog" :product="product" />
+          <ModifyStock
+            v-model="modifyStockDialog"
+            :product="product"
+            @success="getStockMovementsApi.execute()"
+          />
         </div>
       </v-card>
     </template>
@@ -45,28 +49,33 @@
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { format } from 'date-fns'
 import { sortBy } from 'lodash'
 
 import { mdiOpenInNew } from '@mdi/js'
 
-import products from '@/composables/localStore/useProductStore'
-import stock from '@/composables/localStore/useStockStore'
+import { useGetStockMovementsApi } from '@/composables/api/stockMovements/useGetStockMovementsApi'
 
 import ModifyStock from './ModifyStock.vue'
 
-const emits = defineEmits(['close'])
+import type { Product } from '@/models/models'
 
-const route = useRoute()
+const props = defineProps<{ product: Product }>()
+
 const { t } = useI18n()
+
+const getStockMovementsApi = useGetStockMovementsApi()
 
 const modifyStockDialog = ref(false)
 
-const product = computed(() => products.value.find((p) => p.id == route.params.product_id))
-const stockMovements = computed(() => stock.value.filter((s) => s.product_id == product.value?.id))
+onMounted(() => {
+  getStockMovementsApi.productId.value = props.product.id
+  getStockMovementsApi.execute()
+})
+
+const stockMovements = computed(() => getStockMovementsApi.data.value)
 
 const items = computed(() =>
   sortBy(

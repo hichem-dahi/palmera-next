@@ -12,23 +12,34 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="dialog = false">{{ $t('cancel') }}</v-btn>
-        <v-btn variant="text" color="primary" @click="saveStock">{{ $t('confirm') }}</v-btn>
+        <v-btn
+          variant="text"
+          color="primary"
+          :loading="insertStockMovementsApi.isLoading.value"
+          @click="saveStock"
+          >{{ $t('confirm') }}
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { required } from '@vuelidate/validators'
+import { reactive, watch } from 'vue'
 import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
 
-import { adjustStock } from '@/composables/useStockManage'
+import { updateProductStock } from '@/composables/useStockManage'
+
+import { useInsertStockMovementsApi } from '@/composables/api/stockMovements/useInsertStockMovementsApi'
 
 import type { Product } from '@/models/models'
 
+const emits = defineEmits(['success'])
 const dialog = defineModel<boolean>()
 const props = defineProps<{ product: Product }>()
+
+const insertStockMovementsApi = useInsertStockMovementsApi()
 
 const notZero = (value: any) => value !== null && value !== undefined && value !== 0
 
@@ -45,8 +56,19 @@ const $v = useVuelidate(rules, form)
 function saveStock() {
   $v.value.$touch()
   if (!$v.value.$invalid && form.qte) {
-    adjustStock(props.product.id, form.qte)
-    dialog.value = false
+    const stockMovements = updateProductStock(props.product, form.qte)
+    insertStockMovementsApi.form.value = [stockMovements]
+    insertStockMovementsApi.execute()
   }
 }
+
+watch(
+  () => insertStockMovementsApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
+      emits('success')
+      dialog.value = false
+    }
+  }
+)
 </script>
