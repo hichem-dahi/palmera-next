@@ -143,8 +143,9 @@ import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
 import { ConsumerType, OrderStatus, type Order, type OrderLine } from '@/models/models'
+import type { OrderData, OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
-const order = defineModel<Order>('order', { required: true })
+const order = defineModel<OrderData>('order', { required: true })
 const emits = defineEmits(['close'])
 
 const { t } = useI18n()
@@ -157,7 +158,7 @@ const updateOrderApi = useUpdateOrderApi()
 const newlineDialog = ref(false)
 const deleteDialog = ref(false)
 const isSuccess = ref(false)
-const proxyOrder = ref<Order>(cloneDeep(order.value))
+const proxyOrder = ref<OrderData>(cloneDeep(order.value))
 const selectedOrderline = ref<OrderLine>()
 
 const headers = computed(
@@ -184,7 +185,7 @@ const isModified = computed(() => !isEqual(order.value.order_lines, proxyOrder.v
 const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
-  proxyOrderlines.value.every((o) => o.qte! <= o.product.qte!)
+  proxyOrderlines.value.every((o) => o.product !== null && o.qte <= o.product.qte)
 )
 
 const consumerName = computed(
@@ -252,7 +253,7 @@ const closeDelete = () => {
   deleteDialog.value = false
 }
 
-function addOrderline(form: OrderLine, validation: { touch: () => void; invalid: boolean }) {
+function addOrderline(form: OrderLineData, validation: { touch: () => void; invalid: boolean }) {
   validation.touch()
   if (!validation.invalid) {
     proxyOrder.value?.order_lines.push(form)

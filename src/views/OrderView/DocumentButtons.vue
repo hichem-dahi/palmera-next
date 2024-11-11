@@ -16,7 +16,9 @@
 import { mdiInvoice, mdiReceiptText, mdiTruckCheck, mdiNote } from '@mdi/js'
 import { DocumentType, type Order } from '@/models/models'
 
-const props = defineProps<{ order: Order; isConfirmable: boolean }>()
+import type { OrderData } from '@/composables/api/orders/useGetOrderApi'
+
+const props = defineProps<{ order: OrderData; isConfirmable: boolean }>()
 
 const emit = defineEmits(['go-doc-page'])
 

@@ -1,11 +1,11 @@
-import products from './localStore/useProductStore'
-
-import type { Order, Product } from '@/models/models'
-
+import type { Product } from '@/models/models'
 import type { TablesInsert } from '@/types/database.types'
+import type { OrderData } from './api/orders/useGetOrderApi'
 
 // Generate stock movements for a given order based on its order lines
-export function generateStockMovementsForOrder(order: Order): TablesInsert<'stock_movements'>[] {
+export function generateStockMovementsForOrder(
+  order: OrderData
+): TablesInsert<'stock_movements'>[] {
   const stockMovements: TablesInsert<'stock_movements'>[] = []
 
   order.order_lines.forEach((orderLine) => {
@@ -22,7 +22,7 @@ export function generateStockMovementsForOrder(order: Order): TablesInsert<'stoc
 }
 
 // Restore stock quantities from a reversed order
-export function restoreStockFromOrder(order: Order): TablesInsert<'stock_movements'>[] {
+export function restoreStockFromOrder(order: OrderData): TablesInsert<'stock_movements'>[] {
   const stockMovements: TablesInsert<'stock_movements'>[] = []
 
   order.order_lines.forEach((orderLine) => {

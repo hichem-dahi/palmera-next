@@ -39,15 +39,15 @@
       />
       <PaymentsCard v-if="order.payments.length" :order="order" :payments="order.payments" />
     </div>
+    <PaymentMethodModal
+      v-model:dialog="paymentMethodDialog"
+      v-model:order="order"
+      @go-invoice="processOrder()"
+    />
+    <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
+    <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="processOrder" />
+    <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
   </div>
-  <PaymentMethodModal
-    v-model:dialog="paymentMethodDialog"
-    v-model:order="order"
-    @go-invoice="processOrder()"
-  />
-  <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
-  <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="processOrder" />
-  <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
 </template>
 
 <script setup lang="ts">
@@ -57,8 +57,6 @@ import { useI18n } from 'vue-i18n'
 import { mdiCashSync, mdiChevronLeft, mdiCancel } from '@mdi/js'
 
 import { generateStockMovementsForOrder, restoreStockFromOrder } from '@/composables/useStockManage'
-import { setDocumentIndex } from '@/composables/Orders/setDocumentIndex'
-import payments from '@/composables/localStore/usePaymentsStore'
 
 import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
 import { useUpdateOrderApi } from '@/composables/api/orders/useUpdateOrderApi'
@@ -73,7 +71,7 @@ import CancelModal from './OrdersView/CancelModal.vue'
 import PaymentsCard from './OrderView/PaymentsCard.vue'
 import DocumentButtons from './OrderView/DocumentButtons.vue'
 
-import { DocumentType, OrderStatus, StockMovementType, type Order } from '@/models/models'
+import { DocumentType, OrderStatus, StockMovementType } from '@/models/models'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -83,22 +81,21 @@ const getOrderApi = useGetOrderApi()
 const updateOrderApi = useUpdateOrderApi()
 const insertStockMovementsApi = useInsertStockMovementsApi()
 
-const orderTableRef = ref<InstanceType<typeof OrderTable>>()
-
 const paymentDialog = ref(false)
 const deliveryDialog = ref(false)
 const paymentMethodDialog = ref(false)
 const confirmDialog = ref(false)
 const cancelDialog = ref(false)
 
+const orderTableRef = ref<InstanceType<typeof OrderTable>>()
+const order = ref(getOrderApi.data.value)
+
 onMounted(() => {
   if (route.params.order_id) {
-    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.orderId.value = route.params.order_id as string
     getOrderApi.execute()
   }
 })
-
-const order = ref<Order>()
 
 const title = computed(() => {
   if (order.value?.document_type == DocumentType.Proforma) {

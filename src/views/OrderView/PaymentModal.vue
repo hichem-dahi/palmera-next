@@ -30,10 +30,10 @@ import { computed, ref, watch } from 'vue'
 
 import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 
-import type { Order } from '@/models/models'
 import type { TablesInsert } from '@/types/database.types'
+import type { OrderData } from '@/composables/api/orders/useGetOrderApi'
 
-const order = defineModel<Order>('order')
+const order = defineModel<OrderData>('order')
 const dialog = defineModel<boolean>('dialog')
 
 const insertPaymentApi = useInsertPaymentsApi()

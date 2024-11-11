@@ -15,9 +15,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Order } from '@/models/models'
 
-const order = defineModel<Order>('order')
+import type { OrderData } from '@/composables/api/orders/useGetOrderApi'
+
+const order = defineModel<OrderData>('order')
 const dialog = defineModel<boolean>('dialog')
 const emits = defineEmits(['go-invoice'])
 

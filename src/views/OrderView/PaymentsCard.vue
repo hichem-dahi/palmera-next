@@ -30,9 +30,10 @@ import { computed } from 'vue'
 import { format } from 'date-fns'
 import { mdiOpenInNew } from '@mdi/js'
 
-import type { Order, Payment } from '@/models/models'
+import type { Payment } from '@/models/models'
+import type { OrderData } from '@/composables/api/orders/useGetOrderApi'
 
-const props = defineProps<{ order: Order; payments: Payment[] }>()
+const props = defineProps<{ order: OrderData; payments: Payment[] }>()
 
 const paymentItems = computed(() => {
   const lines: { id: string; subtitle: string }[] = []

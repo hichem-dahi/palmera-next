@@ -21,6 +21,7 @@ export function useUpdateOrderApi() {
                 *,
                 product:products (*)
               ),    
+            payments(*),
             delivery:deliveries (*),
             individual:individuals (*)
           `

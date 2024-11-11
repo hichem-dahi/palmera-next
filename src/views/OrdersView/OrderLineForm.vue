@@ -77,8 +77,9 @@ import { minValue, numeric, required } from '@vuelidate/validators'
 import { mdiDelete } from '@mdi/js'
 
 import type { Product } from '@/models/models'
+import type { OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
-const model = defineModel({
+const model = defineModel<OrderLineData>({
   default: {
     order_id: '',
     product_id: '',
@@ -112,7 +113,9 @@ watchEffect(() => {
 })
 
 watch(selectedProduct, (newProduct) => {
-  if (newProduct) form.unit_price = newProduct.price || 0
-  form.product = newProduct
+  if (newProduct) {
+    form.unit_price = newProduct.price || 0
+    form.product = newProduct
+  }
 })
 </script>
