@@ -70,8 +70,8 @@ export interface Product {
   id: string
   code: string
   name: string
-  price: number | null
-  qte: number | null
+  price: number
+  qte: number
   organization_id: string
 }
 
