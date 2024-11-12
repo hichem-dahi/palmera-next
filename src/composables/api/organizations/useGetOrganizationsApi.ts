@@ -6,7 +6,7 @@ import { supabase } from '@/supabase/supabase'
 export function useGetOrganizationsApi() {
   const query = async () => supabase.from('organizations').select()
 
-  const q = useAsyncState(query, undefined, { immediate: false }) // Invoke query properly
+  const q = useAsyncState(query, undefined) // Invoke query properly
 
   const data = computed(() => q.state.value?.data)
   const error = computed(() => q.state.value?.error)
