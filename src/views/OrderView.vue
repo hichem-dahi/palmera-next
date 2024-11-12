@@ -44,9 +44,22 @@
       v-model:order="order"
       @go-invoice="processOrder()"
     />
-    <PaymentModal v-model:order="order" v-model:dialog="paymentDialog" />
-    <ConfirmModal v-model="confirmDialog" @close="confirmDialog = false" @confirm="processOrder" />
-    <CancelModal v-model="cancelDialog" @close="cancelDialog = false" @confirm="cancelOrder" />
+    <PaymentModal
+      v-model:order="order"
+      v-model:dialog="paymentDialog"
+      :is-loading="insertPaymentApi.isLoading.value"
+      @confirm="addPayment"
+    />
+    <ConfirmModal
+      v-model="confirmDialog"
+      :is-loading="updateOrderApi.isLoading.value"
+      @confirm="processOrder"
+    />
+    <CancelModal
+      v-model="cancelDialog"
+      :is-loading="updateOrderApi.isLoading.value"
+      @confirm="cancelOrder"
+    />
   </div>
 </template>
 
@@ -72,6 +85,8 @@ import PaymentsCard from './OrderView/PaymentsCard.vue'
 import DocumentButtons from './OrderView/DocumentButtons.vue'
 
 import { DocumentType, OrderStatus, StockMovementType } from '@/models/models'
+import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
+import type { TablesInsert } from '@/types/database.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -80,6 +95,7 @@ const router = useRouter()
 const getOrderApi = useGetOrderApi()
 const updateOrderApi = useUpdateOrderApi()
 const insertStockMovementsApi = useInsertStockMovementsApi()
+const insertPaymentApi = useInsertPaymentsApi()
 
 const paymentDialog = ref(false)
 const deliveryDialog = ref(false)
@@ -156,6 +172,11 @@ function cancelOrder() {
   insertStockMovementsApi.execute()
 }
 
+function addPayment(payment: TablesInsert<'payments'>) {
+  insertPaymentApi.form.value = payment
+  insertPaymentApi.execute()
+}
+
 watch(
   () => getOrderApi.isSuccess.value,
   (isSuccess) => {
@@ -185,18 +206,40 @@ watch(
 watch(
   () => updateOrderApi.isSuccess.value,
   (isSuccess) => {
-    if (isSuccess && updateOrderApi.data.value?.status === OrderStatus.Confirmed) {
+    if (!isSuccess) return
+
+    const form = updateOrderApi.form.value
+    const status = form?.status
+
+    order.value = updateOrderApi.data.value
+
+    if (form?.paid_price) {
+      paymentDialog.value = false
+      return
+    }
+
+    if (status === OrderStatus.Confirmed) {
+      confirmDialog.value = false
       goDocPage()
+      return
+    }
+
+    if (status === OrderStatus.Cancelled) {
+      cancelDialog.value = false
+      return
     }
   }
 )
 
 watch(
-  () => updateOrderApi.isSuccess.value,
+  () => insertPaymentApi.isSuccess.value,
   (isSuccess) => {
-    if (isSuccess && updateOrderApi.data.value?.status === OrderStatus.Cancelled) {
-      order.value = updateOrderApi.data.value
-      cancelDialog.value = false
+    if (isSuccess && insertPaymentApi.data.value?.amount) {
+      updateOrderApi.form.value = {
+        id: order.value?.id,
+        paid_price: (order.value?.paid_price || 0) + insertPaymentApi.data.value?.amount
+      }
+      updateOrderApi.execute()
     }
   }
 )
@@ -210,6 +253,7 @@ watch(
 }
 
 .table {
-  min-width: 70%;
+  min-width: 60%;
+  height: min-content;
 }
 </style>
