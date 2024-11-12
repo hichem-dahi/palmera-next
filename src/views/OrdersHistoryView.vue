@@ -29,28 +29,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { groupBy, sortBy, sum } from 'lodash'
-import { format, isSameDay } from 'date-fns'
+import { format } from 'date-fns'
 import { useI18n } from 'vue-i18n'
 
-import orders from '@/composables/localStore/useOrdersStore'
 import products from '@/composables/localStore/useProductStore'
+import { useGetOrdersApi } from '@/composables/api/orders/useGetOrdersApi'
 
-import { OrderStatus, type OrderLine } from '@/models/models'
+import { OrderStatus } from '@/models/models'
+import type { OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
 const { t } = useI18n()
 
 const dateRange = ref([])
 
-const filteredOrders = computed(() => {
-  return orders.value.filter((o) => {
-    const dateFilter = dateRange.value.length
-      ? dateRange.value.some((selectedDate) => isSameDay(o.date, selectedDate))
-      : true
-    return dateFilter && o.status === OrderStatus.Confirmed
-  })
-})
+const getOrdersApi = useGetOrdersApi()
+getOrdersApi.params.status = OrderStatus.Confirmed
+getOrdersApi.execute()
+
+const filteredOrders = computed(() => getOrdersApi.data.value || [])
 
 const historyItems = computed(() => {
   let groupedSummary = []
@@ -73,11 +71,11 @@ const groupedOrders = computed(() => {
 })
 
 const allOrderlinesByDate = computed(() => {
-  const result: Record<string, OrderLine[]> = {}
+  const result: Record<string, OrderLineData[]> = {}
 
   Object.keys(groupedOrders.value).forEach((date) => {
     const ordersForDate = groupedOrders.value[date]
-    result[date] = ordersForDate.reduce<OrderLine[]>((linesAcc, order) => {
+    result[date] = ordersForDate.reduce<OrderLineData[]>((linesAcc, order) => {
       return linesAcc.concat(order.order_lines)
     }, [])
   })
@@ -86,9 +84,9 @@ const allOrderlinesByDate = computed(() => {
 })
 
 const allOrderlines = computed(() => {
-  return Object.keys(groupedOrders.value).reduce<OrderLine[]>((acc: OrderLine[], date) => {
+  return Object.keys(groupedOrders.value).reduce<OrderLineData[]>((acc: OrderLineData[], date) => {
     const ordersForDate = groupedOrders.value[date]
-    const orderLinesForDate = ordersForDate.reduce<OrderLine[]>(
+    const orderLinesForDate = ordersForDate.reduce<OrderLineData[]>(
       (linesAcc, order) => linesAcc.concat(order.order_lines),
       []
     )
@@ -96,20 +94,33 @@ const allOrderlines = computed(() => {
   }, [])
 })
 
-function productSummary(orderlines: OrderLine[]) {
+function productSummary(orderlines: OrderLineData[]) {
   let productSummaries: string[] = []
   const orderlinesGrouped = groupBy(orderlines, (o) => o.product_id)
 
   for (const productId in orderlinesGrouped) {
-    const product = getProduct(productId)
-    const totalQte = sum(orderlinesGrouped[productId].map((o) => o.qte))
+    const orderlines = orderlinesGrouped[productId]
+    const product = orderlinesGrouped[productId][0].product
+    const totalQte = sum(orderlines.map((o) => o.qte))
     productSummaries.push(`${totalQte}m ${product?.name}`)
   }
 
   return `${productSummaries.join(', ')}`
 }
 
-const getProduct = (id: string) => products.value.find((e) => e.id == id)
+watch(
+  dateRange,
+  (newDateRange) => {
+    if (newDateRange?.length === 2) {
+      getOrdersApi.params.dateRange[0] = newDateRange[0]
+      getOrdersApi.params.dateRange[1] = newDateRange[1]
+    } else {
+      getOrdersApi.params.dateRange = []
+    }
+    getOrdersApi.execute()
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
