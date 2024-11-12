@@ -5,9 +5,9 @@
       <v-card class="pb-2 d-flex align-end" color="#F7F7F7" elevation="0">
         <div class="col-1 d-flex justify-space-between w-75">
           <v-card-title>
-            <div>{{ client?.name }}</div>
+            <div>{{ clientOrdersData?.name }}</div>
             <div class="text-medium-emphasis text-subtitle-2">
-              {{ $t('phone') }}: {{ client?.phone }}
+              {{ $t('phone') }}: {{ clientOrdersData?.phone }}
             </div>
           </v-card-title>
         </div>
@@ -23,10 +23,20 @@
       </div>
     </template>
     <template v-slot:item.status="{ item }">
-      <v-chip v-if="item.status === OrderStatus.Confirmed" variant="tonal" color="green">
+      <v-chip
+        v-if="item.status === OrderStatus.Confirmed"
+        size="small"
+        variant="tonal"
+        color="green"
+      >
         {{ $t('confirmed') }}
       </v-chip>
-      <v-chip v-else-if="item.status === OrderStatus.Cancelled" variant="tonal" color="red">
+      <v-chip
+        v-else-if="item.status === OrderStatus.Cancelled"
+        size="small"
+        variant="tonal"
+        color="red"
+      >
         {{ $t('cancelled') }}
       </v-chip>
     </template>
@@ -53,26 +63,30 @@ import { sortBy } from 'lodash'
 
 import { mdiOpenInNew } from '@mdi/js'
 
-import { useGetClientOrdersApi } from '@/composables/api/orders/useGetClientOrdersApi'
+import { useGetOrganizationOrdersApi } from '@/composables/api/orders/useGetOrganizationOrdersApi'
+import { useGetIndividualOrdersApi } from '@/composables/api/orders/useGetIndividualOrdersApi'
 
 import { OrderStatus } from '@/models/models'
-
-const emits = defineEmits(['close'])
 
 const { t } = useI18n()
 const route = useRoute()
 
-const getClientOrdersApi = useGetClientOrdersApi()
+const getOrganizationOrdersApi = useGetOrganizationOrdersApi()
+const getIndividualOrdersApi = useGetIndividualOrdersApi()
 
 onMounted(() => {
-  getClientOrdersApi.clientId.value = route.params.client_id as string
-  getClientOrdersApi.execute()
+  getOrganizationOrdersApi.clientId.value = route.params.client_id as string
+  getOrganizationOrdersApi.execute()
+  getIndividualOrdersApi.clientId.value = route.params.client_id as string
+  getIndividualOrdersApi.execute()
 })
 
-const client = computed(() => getClientOrdersApi.data.value?.[0].client)
+const clientOrdersData = computed(
+  () => getOrganizationOrdersApi.data.value || getIndividualOrdersApi.data.value
+)
 
 const historyItems = computed(() => {
-  const clientOrders = getClientOrdersApi.data.value
+  const clientOrders = clientOrdersData.value?.orders
   if (!clientOrders) return
 
   const items = clientOrders.map((o) => {
