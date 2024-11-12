@@ -43,7 +43,7 @@ export interface OrderLine {
 export interface Individual {
   id: string
   name: string
-  phone: string | undefined
+  phone: string | null
 }
 
 export interface Delivery {
