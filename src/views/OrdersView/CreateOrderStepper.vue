@@ -69,7 +69,7 @@ import organizations from '@/composables/localStore/useOrganizationsStore'
 
 import { useInsertOrderApi } from '@/composables/api/orders/useInsertOrderApi'
 import { useInsertDeliveryApi } from '@/composables/api/deliveries/useInsertDeliveryApi'
-import { useInsertIndividualApi } from '@/composables/api/individuals/useInsertIndivudualApi'
+import { useInsertIndividualApi } from '@/composables/api/individuals/useInsertIndividualApi'
 import { useInsertOrderlinesApi } from '@/composables/api/orderlines/useInsertOrderlinesApi'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
@@ -87,7 +87,7 @@ import {
 } from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
-import { DocumentType, type OrderLine } from '@/models/models'
+import { DocumentType } from '@/models/models'
 import type { TablesInsert } from '@/types/database.types'
 
 enum Steps {
@@ -200,13 +200,10 @@ watch(
   () => insertOrderApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertOrderApi.data.value) {
-      insertOrderlinesApi.form.value = orderlinesForm.value.map(
-        ({ product, ...o }) =>
-          ({
-            ...o,
-            order_id: insertOrderApi.data.value?.id ?? ''
-          }) as OrderLine
-      )
+      insertOrderlinesApi.form.value = orderlinesForm.value.map(({ product, ...o }) => ({
+        ...o,
+        order_id: insertOrderApi.data.value?.id ?? ''
+      }))
       insertOrderlinesApi.execute()
       resetForm()
       resetPayment()
