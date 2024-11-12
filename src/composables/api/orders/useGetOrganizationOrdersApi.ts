@@ -3,33 +3,33 @@ import { useAsyncState } from '@vueuse/core'
 
 import { supabase } from '@/supabase/supabase'
 
-export function useGetClientOrdersApi() {
+export function useGetOrganizationOrdersApi() {
   const clientId = ref<string>()
 
   const query = async () => {
     if (clientId.value) {
       return supabase
-        .from('orders')
+        .from('organizations')
         .select(
           `
             *,
-            client:organizations!orders_client_id_fkey (*),  
-            order_lines:order_lines (
-              *,
-              product:products (*)
-            ),      
-            delivery:deliveries (*),
-            individual:individuals (*)
+            orders: orders!orders_client_id_fkey(
+             *, 
+              order_lines:order_lines (
+                *,
+                product:products (*)
+              )   
+            )  
           `
         )
-        .eq('client_id', clientId.value)
+        .eq('id', clientId.value)
     } else {
       throw new Error('Form is null or incomplete')
     }
   }
   const q = useAsyncState(query, undefined, { immediate: false }) // Invoke query properly
 
-  const data = computed(() => q.state.value?.data)
+  const data = computed(() => q.state.value?.data?.[0])
   const error = computed(() => q.state.value?.error)
   const isSuccess = computed(() => q.isReady.value && !error.value)
 
