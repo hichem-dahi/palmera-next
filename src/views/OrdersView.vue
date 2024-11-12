@@ -48,6 +48,7 @@ import { DocumentType } from '@/models/models'
 import type { Filters } from './OrdersView/models/models'
 
 const getOrdersApi = useGetOrdersApi()
+getOrdersApi.execute()
 
 const filters = reactive<Filters>({
   docType: null,
