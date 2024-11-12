@@ -11,10 +11,10 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue-darken-1" variant="text" @click="emits('close')">
+        <v-btn color="blue-darken-1" variant="text" @click="dialog = false">
           {{ $t('cancel') }}
         </v-btn>
-        <v-btn color="blue-darken-1" variant="text" @click="emits('confirm')">
+        <v-btn color="blue-darken-1" variant="text" :loading="isLoading" @click="emits('confirm')">
           {{ $t('confirm') }}
         </v-btn>
       </v-card-actions>
@@ -25,8 +25,9 @@
 <script setup lang="ts">
 import { mdiAlert } from '@mdi/js'
 
+const emits = defineEmits(['confirm'])
+const props = defineProps<{ isLoading: boolean }>()
 const dialog = defineModel<boolean>()
-const emits = defineEmits(['close', 'confirm'])
 </script>
 <style scoped>
 .v-card {

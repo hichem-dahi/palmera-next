@@ -11,7 +11,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue-darken-1" variant="text" @click="emits('close')">
+        <v-btn color="blue-darken-1" variant="text" @click="dialog = false">
           {{ $t('cancel') }}
         </v-btn>
         <v-btn color="blue-darken-1" variant="text" @click="emits('confirm')">
@@ -23,10 +23,10 @@
 </template>
 
 <script setup lang="ts">
-import { mdiAlert, mdiCancel } from '@mdi/js'
+import { mdiCancel } from '@mdi/js'
 
 const dialog = defineModel<boolean>()
-const emits = defineEmits(['close', 'confirm'])
+const emits = defineEmits(['confirm'])
 </script>
 <style scoped>
 .v-card {
