@@ -23,14 +23,14 @@
 import { computed } from 'vue'
 import { mdiPlus } from '@mdi/js'
 
-import { individuals } from '@/composables/localStore/useIndividualsStore'
-
 import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOrganizationsApi'
+import { useGetIndividualsApi } from '@/composables/api/individuals/useGetIndividualsApi'
 
 import ClientCard from '@/views/ClientsView/ClientCard.vue'
 
 const getOrganizationsApi = useGetOrganizationsApi()
-getOrganizationsApi.execute()
+const getIndividualsApi = useGetIndividualsApi()
 
-const organizations = computed(() => getOrganizationsApi.data.value)
+const organizations = computed(() => getOrganizationsApi.data.value?.filter(Boolean) ?? [])
+const individuals = computed(() => getIndividualsApi.data.value?.filter(Boolean) ?? [])
 </script>
