@@ -56,11 +56,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { mdiAccount, mdiDomain, mdiDotsVertical, mdiHistory, mdiPlus } from '@mdi/js'
 
 import organizations from '@/composables/localStore/useOrganizationsStore'
 import { individuals } from '@/composables/localStore/useIndividualsStore'
+
+import { useDeleteIndividualApi } from '@/composables/api/individuals/useDeleteIndividualApi'
 
 import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
@@ -68,11 +70,13 @@ import { ConsumerType, type Organization, type Individual } from '@/models/model
 
 const client = defineModel<Organization | Individual>()
 
+const deleteIndividualApi = useDeleteIndividualApi()
+
 const deleteDialog = ref(false)
 
-const consumerType = computed(() => {
-  return client.value && 'rc' in client.value ? ConsumerType.Organization : ConsumerType.Individual
-})
+const consumerType = computed(() =>
+  client.value && 'rc' in client.value ? ConsumerType.Organization : ConsumerType.Individual
+)
 
 function deleteClient() {
   if (consumerType.value == ConsumerType.Organization && client.value) {
@@ -81,6 +85,17 @@ function deleteClient() {
   } else if (consumerType.value == ConsumerType.Individual && client.value) {
     const index = individuals.value.indexOf(client.value as Individual)
     individuals.value.splice(index, 1)
+    deleteIndividualApi.individualId.value = client.value.id
+    deleteIndividualApi.execute()
   }
 }
+
+watch(
+  () => deleteIndividualApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
+      deleteDialog.value = true
+    }
+  }
+)
 </script>
