@@ -11,11 +11,18 @@
         <v-otp-input label="code" v-model="form.code" />
         <v-btn block @click="submitCode">{{ $t('confirm') }}</v-btn>
       </div>
-      <div v-else-if="step === Steps.FillForm">
+      <div v-else-if="step === Steps.FillUserForm">
         <v-text-field :label="$t('name')" v-model="form.full_name" />
         <v-text-field :label="$t('phone')" v-model="form.phone" />
 
         <v-btn block @click="submitProfile">{{ $t('confirm') }}</v-btn>
+      </div>
+      <div v-else-if="step === Steps.FillOrganizationForm">
+        <ClientForm :title="$t('create-client')" v-model="organizationForm">
+          <template v-slot:actions>
+            <v-btn block @click="submitOrganization">{{ $t('confirm') }} </v-btn>
+          </template>
+        </ClientForm>
       </div>
     </div>
   </div>
@@ -24,6 +31,7 @@
 <script lang="ts" setup>
 import { reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import useVuelidate from '@vuelidate/core'
 
 import self from '@/composables/localStore/useSelf'
 
@@ -31,11 +39,15 @@ import { useSignUpApi } from '@/composables/api/auth/useSignUpApi'
 import { useVerifyCodeApi } from '@/composables/api/auth/useVerifyOtpApi'
 import { useUpdateProfileApi } from '@/composables/api/auth/useUpdateProfileApi'
 import { useGetProfileApi } from '@/composables/api/auth/useGetProfileApi'
+import { useInsertOrganizationApi } from '@/composables/api/organizations/useInsertOrganizationApi'
+
+import ClientForm from './ClientsView/ClientForm.vue'
 
 enum Steps {
   SendEmail = 1,
   SendCode,
-  FillForm
+  FillUserForm,
+  FillOrganizationForm
 }
 
 const router = useRouter()
@@ -46,12 +58,26 @@ const signUpApi = useSignUpApi()
 const veryifyOtpApi = useVerifyCodeApi()
 const updateProfileApi = useUpdateProfileApi()
 const getProfileApi = useGetProfileApi()
+const insertOrganizationApi = useInsertOrganizationApi()
+
+const $v = useVuelidate()
 
 const form = reactive({
   email: '',
   code: '',
   full_name: '',
   phone: ''
+})
+
+const organizationForm = ref({
+  name: '',
+  phone: '',
+  rc: '',
+  nif: null as number | null,
+  nis: null as number | null,
+  art: null as number | null,
+  address: '',
+  activity: ''
 })
 
 function submitEmail() {
@@ -66,12 +92,20 @@ function submitCode() {
 }
 
 function submitProfile() {
-  updateProfileApi.params.profileForm = {
+  updateProfileApi.form.value = {
     id: self.value.session?.user.id,
     full_name: form.full_name,
     phone: form.phone
   }
   updateProfileApi.execute()
+}
+
+function submitOrganization() {
+  $v.value.$touch()
+  if (!$v.value.$invalid) {
+    insertOrganizationApi.form.value = organizationForm.value
+    insertOrganizationApi.execute()
+  }
 }
 
 watch(
@@ -87,7 +121,7 @@ watch(
   () => veryifyOtpApi.isReady.value,
   (isReady) => {
     if (isReady) {
-      step.value = Steps.FillForm
+      step.value = Steps.FillUserForm
       getProfileApi.userId.value = veryifyOtpApi.state.value?.data.user?.id
       getProfileApi.execute()
     }
@@ -95,21 +129,40 @@ watch(
 )
 
 watch(
-  () => getProfileApi.isReady.value,
-  (isReady) => {
-    if (isReady && getProfileApi.data.value?.full_name) {
+  () => getProfileApi.isSuccess.value,
+  (isSuccess) => {
+    const full_name = getProfileApi.data.value?.full_name
+    const organization_id = getProfileApi.data.value?.organization_id
+
+    if (isSuccess && full_name && organization_id) {
       router.push({ name: 'home' })
-    } else if (isReady) {
-      step.value = Steps.FillForm
+    } else if (isSuccess && full_name && !organization_id) {
+      step.value = Steps.FillOrganizationForm
+    } else if (isSuccess && !full_name) {
+      step.value = Steps.FillUserForm
     }
   }
 )
 
 watch(
-  () => updateProfileApi.isReady.value,
-  (isReady) => {
-    if (isReady) {
-      self.value.user = updateProfileApi.state.value?.data
+  () => insertOrganizationApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && insertOrganizationApi.data.value) {
+      updateProfileApi.form.value = {
+        id: self.value.session?.user.id,
+        organization_id: insertOrganizationApi.data.value.id
+      }
+      updateProfileApi.execute()
+    }
+  }
+)
+watch(
+  () => updateProfileApi.isSuccess.value,
+  (isSuccess) => {
+    const organization_id = updateProfileApi.data.value?.organization_id
+    if (isSuccess && !organization_id) {
+      step.value = Steps.FillOrganizationForm
+    } else if (isSuccess && organization_id) {
       router.push({ name: 'home' })
     }
   }
