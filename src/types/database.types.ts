@@ -83,6 +83,7 @@ export type Database = {
           product_id: string
           qte: number
           total_price: number
+          unit_cost_price: number | null
           unit_price: number
         }
         Insert: {
@@ -91,6 +92,7 @@ export type Database = {
           product_id: string
           qte: number
           total_price: number
+          unit_cost_price?: number | null
           unit_price: number
         }
         Update: {
@@ -99,6 +101,7 @@ export type Database = {
           product_id?: string
           qte?: number
           total_price?: number
+          unit_cost_price?: number | null
           unit_price?: number
         }
         Relationships: [
@@ -269,6 +272,7 @@ export type Database = {
       products: {
         Row: {
           code: string
+          cost_price: number | null
           id: string
           name: string
           organization_id: string
@@ -277,6 +281,7 @@ export type Database = {
         }
         Insert: {
           code: string
+          cost_price?: number | null
           id?: string
           name: string
           organization_id: string
@@ -285,6 +290,7 @@ export type Database = {
         }
         Update: {
           code?: string
+          cost_price?: number | null
           id?: string
           name?: string
           organization_id?: string
