@@ -39,13 +39,15 @@ import { isString } from 'lodash'
 import useVuelidate from '@vuelidate/core'
 import { minLength, numeric, required } from '@vuelidate/validators'
 
-import { individuals } from '@/composables/localStore/useIndividualsStore'
-
 import { useGetOrganizationsApi } from '@/composables/api/organizations/useGetOrganizationsApi'
+import { useGetIndividualsApi } from '@/composables/api/individuals/useGetIndividualsApi'
 
 import { ConsumerType } from '@/models/models'
 
 import { form, consumerType, individualForm } from './state'
+
+const getOrganizationsApi = useGetOrganizationsApi()
+const getIndividualsApi = useGetIndividualsApi()
 
 const rules1 = { required }
 
@@ -71,10 +73,11 @@ const v$ = computed(() =>
   consumerType.value === ConsumerType.Organization ? v1$.value : v2$.value
 )
 
-const getOrganizationsApi = useGetOrganizationsApi()
 getOrganizationsApi.execute()
+getIndividualsApi.execute()
 
 const organizations = computed(() => getOrganizationsApi.data.value)
+const individuals = computed(() => getIndividualsApi.data.value || [])
 
 const organizationsItems = computed(() =>
   organizations.value?.map((c) => {
