@@ -3,11 +3,11 @@
     {{ $t('add-product') }}
   </v-btn>
   <v-dialog max-width="400px" v-model="dialog">
-    <ProductForm>
-      <template v-slot:actions="{ form, v }">
-        <v-btn block :loading="insertProductApi.isLoading.value" @click="submitForm(form, v)">{{
-          $t('add')
-        }}</v-btn>
+    <ProductForm v-model="form">
+      <template v-slot:actions>
+        <v-btn block :loading="insertProductApi.isLoading.value" @click="submitForm()">
+          {{ $t('add') }}
+        </v-btn>
       </template>
     </ProductForm>
   </v-dialog>
@@ -20,7 +20,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useVuelidate } from '@vuelidate/core'
 import { mdiPlus } from '@mdi/js'
+
+import self from '@/composables/localStore/useSelf'
 
 import { useInsertProductApi } from '@/composables/api/products/useInsertProductApi'
 import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
@@ -28,23 +31,29 @@ import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
 import ProductForm from '@/views/WarehouseView/ProductForm.vue'
 import ProductCard from '@/views/WarehouseView/ProductCard.vue'
 
-import type { Product } from '@/models/models'
-import type { Validation } from '@vuelidate/core'
-import type { TablesInsert } from '@/types/database.types'
-
-const dialog = ref(false)
+const $v = useVuelidate()
 
 const insertProductApi = useInsertProductApi()
 const getProductsApi = useGetProductsApi()
 
+const dialog = ref(false)
+
+const form = ref({
+  code: '',
+  name: '',
+  organization_id: self.value.user?.organization_id || '',
+  qte: 0,
+  price: 0,
+  cost_price: null as number | null
+})
+
 const products = computed(() => getProductsApi.data.value || [])
 
-function submitForm(form: TablesInsert<'products'>, v: Validation<Product>) {
-  v.$touch()
-  if (!v.$invalid) {
-    insertProductApi.form.value = { ...form }
+function submitForm() {
+  $v.value.$touch()
+  if (!$v.value.$invalid) {
+    insertProductApi.form.value = { ...form.value }
     insertProductApi.execute()
-    dialog.value = false
   }
 }
 
@@ -52,7 +61,8 @@ watch(
   () => insertProductApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertProductApi.data.value) {
-      products.value?.push(insertProductApi.data.value)
+      dialog.value = false
+      getProductsApi.execute()
     }
   }
 )

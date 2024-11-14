@@ -39,7 +39,7 @@
               <v-card-text>
                 <OrderLineForm
                   :is-new="true"
-                  :selected-products="productsItems"
+                  :availableProducts="productsItems"
                   :products="getProductsApi.data.value || []"
                 >
                   <template v-slot:actions="{ form, validation }">
@@ -142,11 +142,10 @@ import { useDeleteOrderlinesApi } from '@/composables/api/orderlines/useDeleteOr
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { ConsumerType, OrderStatus, type Order, type OrderLine } from '@/models/models'
+import { ConsumerType, OrderStatus, type OrderLine } from '@/models/models'
 import type { OrderData, OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
 const order = defineModel<OrderData>('order', { required: true })
-const emits = defineEmits(['close'])
 
 const { t } = useI18n()
 
@@ -172,6 +171,7 @@ const headers = computed(
       },
       { title: t('quantity'), key: 'qte', align: 'start' },
       { title: t('U.P'), key: 'unit_price' },
+      { title: t('C.P'), key: 'unit_cost_price' },
       { title: t('total'), key: 'total_price' },
       { title: '', key: 'actions' }
     ] as any
@@ -223,6 +223,7 @@ const items = computed(() =>
       product_name: product?.name,
       qte: o.qte,
       unit_price: o.unit_price,
+      unit_cost_price: o.unit_cost_price,
       total_price: o.total_price
     }
   })

@@ -7,7 +7,7 @@
         variant="underlined"
         inset
         :error="!$v.product_id.$pending && $v.product_id.$error"
-        :items="selectedProducts"
+        :items="availableProducts"
         item-value="id"
         item-title="name"
         v-model="form.product_id"
@@ -85,12 +85,13 @@ const model = defineModel<OrderLineData>({
     product_id: '',
     qte: 0,
     unit_price: 0,
-    total_price: 0
+    total_price: 0,
+    unit_cost_price: null
   },
   required: false
 })
 
-const props = defineProps<{ selectedProducts?: Product[]; products: Product[]; isNew: boolean }>()
+const props = defineProps<{ availableProducts?: Product[]; products: Product[]; isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
 
 const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
@@ -101,7 +102,8 @@ const orderLineRules = {
   product_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
   unit_price: { required, numeric, minValue: minValue(1) },
-  total_price: { required, numeric, minValue: minValue(1) }
+  total_price: { required, numeric, minValue: minValue(1) },
+  unit_cost_price: { numeric, minValue: minValue(1) }
 }
 
 const $v = useVuelidate(orderLineRules, form)
@@ -116,6 +118,9 @@ watch(selectedProduct, (newProduct) => {
   if (newProduct) {
     form.unit_price = newProduct.price || 0
     form.product = newProduct
+    form.product.cost_price
+      ? (form.unit_cost_price = form.product.cost_price)
+      : (form.unit_cost_price = null)
   }
 })
 </script>

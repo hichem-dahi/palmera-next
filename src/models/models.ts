@@ -37,6 +37,7 @@ export interface OrderLine {
   product_id: string
   qte: number
   unit_price: number
+  unit_cost_price: number | null
   total_price: number
 }
 
@@ -71,6 +72,7 @@ export interface Product {
   code: string
   name: string
   price: number
+  cost_price: number | null
   qte: number
   organization_id: string
 }

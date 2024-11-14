@@ -6,7 +6,7 @@
       v-model="orderlinesForm[i]"
       :is-new="i == 0"
       :products="products"
-      :selectedProducts="selectedProducts"
+      :availableProducts="availableProducts"
       @delete="deleteOrderline"
     />
 
@@ -42,7 +42,7 @@ const getProductsApi = useGetProductsApi()
 
 const products = computed(() => getProductsApi.data.value || [])
 
-const selectedProducts = computed(() =>
+const availableProducts = computed(() =>
   products.value.filter((e) => {
     const alreadySelected = orderlinesForm.value.map((ol) => ol.product_id)
     return !alreadySelected.includes(e.id)
@@ -55,7 +55,8 @@ function addEmptyOrderline() {
     qte: 0,
     unit_price: 0,
     total_price: 0,
-    order_id: ''
+    order_id: '',
+    unit_cost_price: null
   })
 }
 addEmptyOrderline()

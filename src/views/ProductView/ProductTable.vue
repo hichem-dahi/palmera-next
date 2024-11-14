@@ -14,6 +14,12 @@
 
               <span>{{ $t('U.P') }}:</span>
               <span>&nbsp;{{ product?.price }} DA</span> <br />
+
+              <div v-if="product?.cost_price">
+                <span>{{ $t('C.P') }}:</span>
+                <span>&nbsp;{{ product?.cost_price }} DA</span>
+              </div>
+
               <span>{{ $t('quantity') }}:</span>
               <span>&nbsp;{{ product?.qte }}</span> <br />
             </v-card-subtitle>

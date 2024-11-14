@@ -20,9 +20,15 @@
         </template>
       </v-list>
       <div class="total text-end pa-4">
-        {{ $t('total') }}:
+        {{ t('total') }}:
         <span v-html="productSummary(allOrderlines)"></span>
-        <span> {{ `&mdash; ${sum(filteredOrders.map((o) => o.paid_price))} ${t('DA')}` }}</span>
+        &mdash;
+        <span>
+          <span class="text-blue">{{ t('revenue') }}:</span>
+          {{ `${sum(filteredOrders.map((o) => o.paid_price))} ${t('DA')}` }},
+          <span class="text-green">{{ t('profit') }}:</span>
+          {{ `${calculateProfit(allOrderlines)} ${t('DA')}` }}
+        </span>
       </div>
     </v-col>
   </v-row>
@@ -34,7 +40,6 @@ import { groupBy, sortBy, sum } from 'lodash'
 import { format } from 'date-fns'
 import { useI18n } from 'vue-i18n'
 
-import products from '@/composables/localStore/useProductStore'
 import { useGetOrdersApi } from '@/composables/api/orders/useGetOrdersApi'
 
 import { OrderStatus } from '@/models/models'
@@ -42,7 +47,7 @@ import type { OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
 const { t } = useI18n()
 
-const dateRange = ref([])
+const dateRange = ref<Date[]>([])
 
 const getOrdersApi = useGetOrdersApi()
 getOrdersApi.params.status = OrderStatus.Confirmed
@@ -54,9 +59,12 @@ const historyItems = computed(() => {
   let groupedSummary = []
   for (const date in groupedOrders.value) {
     const intro = `<span class="text-primary">${format(date, 'dd-MM-yyyy')}</span>&nbsp;&nbsp;`
+    const totalBenefits = calculateProfit(allOrderlinesByDate.value[date])
+    const totalPaid = sum(groupedOrders.value[date].map((o) => o.paid_price))
+
     const dateSummaryitem = {
       subtitle: `${intro} ${productSummary(allOrderlinesByDate.value[date])} 
-      &mdash; ${sum(groupedOrders.value[date].map((o) => o.paid_price))} ${t('DA')}`
+      &mdash; ${t('revenue')}: ${totalPaid} ${t('DA')}, ${t('profit')}: ${totalBenefits} ${t('DA')}`
     }
     groupedSummary.push(dateSummaryitem)
   }
@@ -95,25 +103,41 @@ const allOrderlines = computed(() => {
 })
 
 function productSummary(orderlines: OrderLineData[]) {
-  let productSummaries: string[] = []
+  let productsSummaries: string[] = []
   const orderlinesGrouped = groupBy(orderlines, (o) => o.product_id)
 
   for (const productId in orderlinesGrouped) {
     const orderlines = orderlinesGrouped[productId]
     const product = orderlinesGrouped[productId][0].product
     const totalQte = sum(orderlines.map((o) => o.qte))
-    productSummaries.push(`${totalQte}m ${product?.name}`)
+
+    productsSummaries.push(`${totalQte}m ${product?.name} `)
   }
 
-  return `${productSummaries.join(', ')}`
+  return `${productsSummaries.join(', ')}`
+}
+
+function calculateProfit(orderlines: OrderLineData[]) {
+  let profit = 0
+  orderlines.forEach((o) => {
+    if (o.unit_cost_price) profit += o.total_price - o.qte * o.unit_cost_price
+  })
+  return profit
 }
 
 watch(
   dateRange,
   (newDateRange) => {
-    if (newDateRange?.length === 2) {
-      getOrdersApi.params.dateRange[0] = newDateRange[0]
-      getOrdersApi.params.dateRange[1] = newDateRange[1]
+    if (newDateRange?.length === 1) {
+      const date1 = new Date(newDateRange[0])
+      const date2 = new Date(newDateRange[0])
+
+      date2.setHours(24, 0, 0, 0)
+      getOrdersApi.params.dateRange[0] = date1.toISOString()
+      getOrdersApi.params.dateRange[1] = date2.toISOString()
+    } else if (newDateRange?.length !== 1) {
+      getOrdersApi.params.dateRange[0] = newDateRange[0].toISOString()
+      getOrdersApi.params.dateRange[1] = newDateRange[newDateRange.length - 1].toISOString()
     } else {
       getOrdersApi.params.dateRange = []
     }

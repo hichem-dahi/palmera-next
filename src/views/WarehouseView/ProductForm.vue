@@ -2,19 +2,19 @@
   <v-card class="pa-4">
     <v-text-field
       :label="$t('code')"
-      v-model="proxyForm.code"
+      v-model="model.code"
       :error-messages="!$v.code.$pending && $v.code.$error ? $t('Code is required') : ''"
       @blur="$v.code.$touch()"
     />
     <v-text-field
       :label="$t('name')"
-      v-model="proxyForm.name"
+      v-model="model.name"
       :error-messages="!$v.name.$pending && $v.name.$error ? $t('Name is required') : ''"
       @blur="$v.name.$touch()"
     />
     <v-text-field
       :label="$t('quantity')"
-      v-model="proxyForm.qte"
+      v-model="model.qte"
       type="number"
       :error-messages="
         !$v.qte.$pending && $v.qte.$error ? $t('Qunatity must be greater than zero') : ''
@@ -24,50 +24,55 @@
 
     <v-text-field
       :label="$t('price')"
-      v-model="proxyForm.price"
+      v-model="model.price"
       type="number"
       :error-messages="
         !$v.price.$pending && $v.price.$error ? $t('Price must be greater than zero') : ''
       "
       @blur="$v.price.$touch()"
     />
-    <slot name="actions" :form="proxyForm" :v="$v"></slot>
+    <v-text-field
+      :label="$t('cost-price')"
+      v-model="model.cost_price"
+      type="number"
+      :error-messages="
+        !$v.price.$pending && $v.cost_price.$error ? $t('Price must be greater than zero') : ''
+      "
+      @blur="$v.cost_price.$touch()"
+    />
+    <slot name="actions" :form="model"></slot>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref, toRef } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
-import { cloneDeep } from 'lodash'
+import { toRef } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { required, minValue, numeric } from '@vuelidate/validators'
 
 import self from '@/composables/localStore/useSelf'
 
-import type { Product } from '@/models/models'
-
-const props = defineProps<{ form?: Product }>()
-
-const proxyForm = ref({
-  code: '',
-  name: '',
-  organization_id: self.value.user?.organization_id || '',
-  qte: null as number | null,
-  price: null as number | null
+const model = defineModel({
+  default: {
+    code: '',
+    name: '',
+    organization_id: self.value.user?.organization_id || '',
+    qte: 0,
+    price: 0,
+    cost_price: null as number | null
+  }
 })
-
-if (props.form) proxyForm.value = cloneDeep(props.form)
 
 const rules = {
   code: { required },
   name: { required },
   organization_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
-  price: { required, numeric, minValue: minValue(1) }
+  price: { required, numeric, minValue: minValue(1) },
+  cost_price: { numeric, minValue: minValue(1) }
 }
 
 const $v = useVuelidate(
   rules,
-  toRef(() => proxyForm.value)
+  toRef(() => model.value)
 )
 </script>

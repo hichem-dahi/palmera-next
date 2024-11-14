@@ -16,6 +16,10 @@
       ><br />
       <span class="font-weight-bold">{{ $t('U.P') }}:</span>
       <span>&nbsp;{{ product?.price }} DA</span>
+      <div v-if="product?.cost_price">
+        <span class="font-weight-bold">{{ $t('C.P') }}:</span>
+        <span>&nbsp;{{ product?.cost_price }} DA</span>
+      </div>
     </v-card-subtitle>
 
     <template v-slot:append>
@@ -45,9 +49,9 @@
       @close="deleteDialog = false"
     />
     <v-dialog max-width="400px" v-model="editDialog">
-      <ProductForm :form="product">
-        <template v-slot:actions="{ form, v }">
-          <v-btn block :loading="updateProductApi.isLoading.value" @click="editProduct(form, v)">
+      <ProductForm v-model="proxyForm">
+        <template v-slot:actions>
+          <v-btn block :loading="updateProductApi.isLoading.value" @click="editProduct()">
             {{ $t('confirm') }}
           </v-btn>
         </template>
@@ -58,9 +62,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { mdiDotsVertical } from '@mdi/js'
-import { isEqual, omitBy } from 'lodash'
-
-import products from '@/composables/localStore/useProductStore'
+import { clone, isEqual, omitBy } from 'lodash'
+import useVuelidate from '@vuelidate/core'
 
 import { useUpdateProductApi } from '@/composables/api/products/useUpdateProductApi'
 
@@ -68,24 +71,21 @@ import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 import ProductForm from './ProductForm.vue'
 
 import type { Product } from '@/models/models'
-import type { Validation } from '@vuelidate/core'
+
+const $v = useVuelidate()
 
 const product = defineModel<Product>()
+const proxyForm = ref(clone(product.value))
 
 const updateProductApi = useUpdateProductApi()
 
 const deleteDialog = ref(false)
 const editDialog = ref(false)
 
-function deleteProduct() {
-  const index = products.value.indexOf(product.value!)
-  products.value.splice(index, 1)
-}
-
-function editProduct(form: Product, v: Validation<Product>) {
-  v.$touch()
-  if (!v.$invalid && product.value) {
-    const modifiedFields = omitBy(form, (value, key) => {
+function editProduct() {
+  $v.value.$touch()
+  if (!$v.value.$invalid && product.value) {
+    const modifiedFields = omitBy(proxyForm.value, (value, key) => {
       if (key == 'id') return false
       return isEqual(value, product.value?.[key as keyof Product])
     })
@@ -93,6 +93,8 @@ function editProduct(form: Product, v: Validation<Product>) {
     updateProductApi.execute()
   }
 }
+
+function deleteProduct() {}
 
 watch(
   () => updateProductApi.isSuccess.value,
