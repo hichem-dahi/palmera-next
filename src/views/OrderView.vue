@@ -74,6 +74,7 @@ import { generateStockMovementsForOrder, restoreStockFromOrder } from '@/composa
 import { useGetOrderApi } from '@/composables/api/orders/useGetOrderApi'
 import { useUpdateOrderApi } from '@/composables/api/orders/useUpdateOrderApi'
 import { useInsertStockMovementsApi } from '@/composables/api/stockMovements/useInsertStockMovementsApi'
+import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 
 import OrderTable from './OrderView/OrderTable.vue'
 import CreateDelivery from './OrdersView/CreateDelivery.vue'
@@ -85,7 +86,6 @@ import PaymentsCard from './OrderView/PaymentsCard.vue'
 import DocumentButtons from './OrderView/DocumentButtons.vue'
 
 import { DocumentType, OrderStatus, StockMovementType } from '@/models/models'
-import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 import type { TablesInsert } from '@/types/database.types'
 
 const { t } = useI18n()
