@@ -16,14 +16,14 @@
       </v-col>
       <v-col sm="12" md="5">
         <ClientForm v-model="organizationForm" :title="$t('your-informations')">
-          <template v-slot:actions="{ validation }">
+          <template v-slot:actions>
             <v-btn
               block
-              :loading="updateProfileApi.isLoading.value"
-              @click="submitNewProfile(validation)"
+              :loading="upsertOrganizationApi.isLoading.value"
+              @click="submitNewProfile()"
             >
-              {{ $t('confirm') }}</v-btn
-            >
+              {{ $t('confirm') }}
+            </v-btn>
           </template>
         </ClientForm>
       </v-col>
@@ -32,8 +32,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { v4 as uuidv4 } from 'uuid'
+import useVuelidate from '@vuelidate/core'
 
 import self from '@/composables/localStore/useSelf'
 
@@ -42,8 +41,9 @@ import { useUpsertOrganizationApi } from '@/composables/api/organizations/useUps
 
 import ClientForm from './ClientsView/ClientForm.vue'
 
-import type { Validation } from '@vuelidate/core'
 import type { Organization } from '@/models/models'
+
+const $v = useVuelidate()
 
 const userForm = reactive({
   full_name: '',
@@ -51,7 +51,6 @@ const userForm = reactive({
 })
 
 const organizationForm = reactive({
-  id: uuidv4(),
   name: '',
   phone: '',
   rc: '',
@@ -74,7 +73,7 @@ onMounted(() => {
 })
 
 function submitProfile() {
-  updateProfileApi.params.form = {
+  updateProfileApi.form.value = {
     id: self.value.user?.id,
     full_name: userForm.full_name,
     phone: userForm.phone
@@ -82,22 +81,23 @@ function submitProfile() {
   updateProfileApi.execute()
 }
 
-function submitNewProfile(v: Validation) {
-  v.$touch()
-  if (!v.$invalid) {
+function submitNewProfile() {
+  $v.value.$touch()
+  if (!$v.value.$invalid) {
     upsertOrganizationApi.form.value = organizationForm as Organization
     upsertOrganizationApi.execute()
   }
 }
 
 watch(
-  () => upsertOrganizationApi.isReady.value,
-  (isReady) => {
-    if (isReady && upsertOrganizationApi.data.value?.id) {
-      Object.assign(updateProfileApi.params.form, {
+  () => upsertOrganizationApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && upsertOrganizationApi.data.value?.id && self.value.user) {
+      self.value.user.organization = upsertOrganizationApi.data.value
+      updateProfileApi.form.value = {
         id: self.value.user?.id,
         organization_id: upsertOrganizationApi.data.value.id
-      })
+      }
       updateProfileApi.execute()
     }
   }
