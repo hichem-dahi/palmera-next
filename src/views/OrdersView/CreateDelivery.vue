@@ -39,12 +39,19 @@
 </template>
 
 <script setup lang="ts">
+import { toRef } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { minLength, numeric, required } from '@vuelidate/validators'
 
-import type { Delivery } from '@/models/models'
-
-const form = defineModel<Delivery>('delivery', { required: true })
+const form = defineModel('delivery', {
+  required: true,
+  default: {
+    driver_name: '',
+    phone: null,
+    license_plate: '',
+    destination: ''
+  }
+})
 
 const rules = {
   driver_name: { required, minLength: minLength(3) },
@@ -56,5 +63,8 @@ const rules = {
   destination: { required, minLength: minLength(3) }
 }
 
-const v$ = useVuelidate(rules, form)
+const v$ = useVuelidate(
+  rules,
+  toRef(() => form.value)
+)
 </script>
