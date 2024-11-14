@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { isString } from 'lodash'
 
 import { individuals } from '@/composables/localStore/useIndividualsStore'
@@ -71,6 +71,7 @@ import { useInsertOrderApi } from '@/composables/api/orders/useInsertOrderApi'
 import { useInsertDeliveryApi } from '@/composables/api/deliveries/useInsertDeliveryApi'
 import { useInsertIndividualApi } from '@/composables/api/individuals/useInsertIndividualApi'
 import { useInsertOrderlinesApi } from '@/composables/api/orderlines/useInsertOrderlinesApi'
+import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
 import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
@@ -83,7 +84,8 @@ import {
   resetPayment,
   orderlinesForm,
   deliveryForm,
-  individualForm
+  individualForm,
+  paymentForm
 } from './CreateOrderStepper/state'
 
 import type { Validation } from '@vuelidate/core'
@@ -96,18 +98,20 @@ enum Steps {
   ExtraInfo
 }
 
-defineEmits(['success'])
-
-const route = useRoute()
-
 const numericSteps: Steps[] = Object.values(Steps).filter(
   (value) => typeof value === 'number'
 ) as Steps[]
+
+defineEmits(['success'])
+
+const route = useRoute()
+const router = useRouter()
 
 const insertOrderApi = useInsertOrderApi()
 const insertDeliveryApi = useInsertDeliveryApi()
 const insertIndividualApi = useInsertIndividualApi()
 const insertOrderlinesApi = useInsertOrderlinesApi()
+const insertPaymentApi = useInsertPaymentsApi()
 
 const step = ref(Steps.SelectConsumer)
 
@@ -148,22 +152,40 @@ function nextStep(v: Validation) {
     if (step.value === Steps.ExtraInfo) {
       cleanForm()
       insertOrderApi.form.value = { ...(form as TablesInsert<'orders'>) }
+
       if (deliveryForm.value) {
         insertOrderApi.form.value!.document_type = DocumentType.DeliveryNote
         insertDeliveryApi.form.value = { ...deliveryForm.value }
         insertDeliveryApi.execute()
-      } else if (individualForm.value) {
+      }
+
+      if (individualForm.value && !insertOrderApi.form.value.individual_id) {
         insertIndividualApi.form.value = { ...individualForm.value }
         insertIndividualApi.execute()
-      } else {
-        insertOrderApi.execute()
       }
 
       return
     }
+
     step.value++
   }
 }
+
+const isReadyInsertOrderApi = computed(() => {
+  const deliveryId = insertDeliveryApi.data.value?.id
+  const deliveryFormId = insertOrderApi.form.value?.delivery_id
+  const individualId = insertOrderApi.form.value?.individual_id
+  const individualFormId = insertOrderApi.form.value?.individual_id
+
+  // Check if `delivery_id` is required
+  const isDeliveryValid = deliveryId ? !!deliveryFormId : true
+
+  // Check if `individual_id` is required
+  const isIndividualValid = individualId ? !!individualFormId : true
+
+  // Return true only if both conditions are satisfied
+  return isDeliveryValid && isIndividualValid
+})
 
 watch(
   () => insertDeliveryApi.isSuccess.value,
@@ -172,12 +194,6 @@ watch(
       Object.assign(insertOrderApi.form.value!, {
         delivery_id: insertDeliveryApi.data.value.id
       })
-      if (individualForm.value) {
-        insertIndividualApi.form.value = { ...individualForm.value }
-        insertIndividualApi.execute()
-      } else {
-        insertOrderApi.execute()
-      }
     }
   }
 )
@@ -190,23 +206,46 @@ watch(
         Object.assign(insertOrderApi.form.value, {
           individual_id: insertIndividualApi.data.value.id
         })
-        insertOrderApi.execute()
       }
     }
   }
 )
 
+watch(isReadyInsertOrderApi, (isReady) => {
+  if (isReady) insertOrderApi.execute()
+})
+
 watch(
   () => insertOrderApi.isSuccess.value,
   (isSuccess) => {
-    if (isSuccess && insertOrderApi.data.value) {
+    if (isSuccess && insertOrderApi.data.value?.id) {
       insertOrderlinesApi.form.value = orderlinesForm.value.map(({ product, ...o }) => ({
         ...o,
-        order_id: insertOrderApi.data.value?.id ?? ''
+        order_id: insertOrderApi.data.value?.id || ''
       }))
       insertOrderlinesApi.execute()
+
+      if (paymentForm?.amount) {
+        insertPaymentApi.form.value = {
+          ...paymentForm,
+          order_id: insertOrderApi.data.value?.id
+        } as TablesInsert<'payments'>
+        insertPaymentApi.execute()
+      }
+
       resetForm()
       resetPayment()
+    }
+  }
+)
+
+watch(
+  [() => insertOrderlinesApi.isSuccess.value, () => insertPaymentApi.isSuccess.value],
+  (isSuccess1, isSuccess2) => {
+    const isSuccess2Valid = insertPaymentApi.data.value?.id ? isSuccess2 : true
+
+    if (isSuccess1 && isSuccess2Valid) {
+      router.go(-1)
     }
   }
 )

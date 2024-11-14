@@ -15,10 +15,10 @@
       inset
       controlVariant="stacked"
       :error="!$v.paid_price.$pending && $v.paid_price.$error"
-      :suffix="`/${form.total_price} DA`"
+      :suffix="`/${form.total_price} ${$t('DA')}`"
       :max="form.total_price"
       :min="0"
-      v-model="payment.amount"
+      v-model="paymentForm.amount"
     />
     <v-text-field
       v-if="form.organization_id"
@@ -42,7 +42,7 @@ import CreateDelivery from '../CreateDelivery.vue'
 
 import { DocumentType } from '@/models/models'
 
-import { deliveryForm, form, individualForm, payment } from './state'
+import { deliveryForm, form, individualForm, paymentForm } from './state'
 
 const rules = {
   payment_method: {
