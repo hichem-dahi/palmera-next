@@ -20,6 +20,7 @@ export function useUpsertOrganizationApi() {
 
   const data = computed(() => q.state.value?.data?.[0])
   const error = computed(() => q.state.value?.error)
+  const isSuccess = computed(() => q.isReady.value && !error.value)
 
-  return { ...q, data, error, form }
+  return { ...q, data, error, form, isSuccess }
 }
