@@ -35,13 +35,12 @@
     <v-text-field :label="$t('activity')" v-model.trim="model.activity" />
 
     <!-- Pass the form and validation as slot props -->
-    <slot name="actions" :validation="$v"></slot>
+    <slot name="actions"></slot>
   </v-card>
 </template>
 
 <script setup lang="ts">
 import { toRef } from 'vue'
-
 import useVuelidate from '@vuelidate/core'
 import { required, minLength, numeric } from '@vuelidate/validators'
 
