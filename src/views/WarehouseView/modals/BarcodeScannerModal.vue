@@ -17,7 +17,7 @@
 import { ref, watch, onBeforeUnmount } from 'vue'
 
 const dialog = defineModel<boolean>('dialog')
-const model = defineModel<string | null>('barcode')
+const model = defineModel<number | null>('barcode')
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 
@@ -72,7 +72,7 @@ const activateScanner = async () => {
             if (barcodes.length > 0) {
               barcodes.forEach((barcode: { rawValue: string | null | undefined }) => {
                 console.log('Detected barcode:', barcode.rawValue)
-                model.value = barcode.rawValue
+                model.value = Number(barcode.rawValue)
               })
               closeScanner() // Stop scanning after a successful detection if needed
             }
