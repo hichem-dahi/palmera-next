@@ -48,7 +48,7 @@
       @confirm="deleteProduct"
       @close="deleteDialog = false"
     />
-    <v-dialog max-width="400px" v-model="editDialog">
+    <v-dialog max-width="500px" v-model="editDialog">
       <ProductForm v-model="proxyForm">
         <template v-slot:actions>
           <v-btn block :loading="updateProductApi.isLoading.value" @click="editProduct()">

@@ -68,13 +68,14 @@ export interface Organization {
 }
 
 export interface Product {
-  id: string
+  id: string | null | undefined
   code: string
   name: string
   price: number
   cost_price: number | null
   qte: number
   organization_id: string
+  bar_code: string | null
 }
 
 export interface StockMovement {
