@@ -85,14 +85,13 @@ const showBarcode = ref(false)
 
 const model = defineModel({
   default: {
-    id: null as string | null | undefined,
     code: '',
     name: '',
     organization_id: self.value.user?.organization_id || '',
     qte: 0,
     price: 0,
     cost_price: null as number | null,
-    bar_code: null as string | null
+    bar_code: null as number | null
   }
 })
 
