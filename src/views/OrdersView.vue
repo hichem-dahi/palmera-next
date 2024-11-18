@@ -35,7 +35,6 @@ import { computed, reactive } from 'vue'
 import { isSameDay } from 'date-fns'
 import { mdiPlus } from '@mdi/js'
 
-import orders from '@/composables/localStore/useOrdersStore'
 import proformas from '@/composables/localStore/useProformaStore'
 
 import { useGetOrdersApi } from '@/composables/api/orders/useGetOrdersApi'
@@ -55,14 +54,15 @@ const filters = reactive<Filters>({
   dateRange: []
 })
 
-const filteredOrders = computed(() => {
-  return getOrdersApi.data.value?.filter((o) => {
-    const docFilter = filters.docType ? o.document_type === filters.docType : true
-    const dateFilter = filters.dateRange.length
-      ? filters.dateRange.some((selectedDate) => isSameDay(o.date, selectedDate))
-      : true
+const filteredOrders = computed(
+  () =>
+    getOrdersApi.data.value?.filter((o) => {
+      const docFilter = filters.docType ? o.document_type === filters.docType : true
+      const dateFilter = filters.dateRange.length
+        ? filters.dateRange.some((selectedDate) => isSameDay(o.date, selectedDate))
+        : true
 
-    return docFilter && dateFilter
-  })
-})
+      return docFilter && dateFilter
+    }) || []
+)
 </script>
