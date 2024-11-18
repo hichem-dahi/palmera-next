@@ -25,9 +25,9 @@
         </div>
         <div>
           <span class="font-weight-bold">{{ $t('remaining') }}:</span>
-          <span class="text-red"
-            >&nbsp;{{ order.total_price - order.paid_price }} {{ $t('DA') }}</span
-          >
+          <span class="text-red">
+            &nbsp;{{ order.total_price - order.paid_price }} {{ $t('DA') }}
+          </span>
         </div>
       </div>
     </template>
@@ -59,7 +59,7 @@
         </v-list>
       </v-menu>
     </template>
-    <DeleteItemModal v-model="deleteDialog" @confirm="deleteOrder" @close="deleteDialog = false" />
+    <DeleteItemModal v-model="deleteDialog" @close="deleteDialog = false" />
   </v-card>
 </template>
 
@@ -70,16 +70,14 @@ import { format } from 'date-fns'
 import { kebabCase } from 'lodash'
 import { mdiDotsVertical } from '@mdi/js'
 
-import orders from '@/composables/localStore/useOrdersStore'
-import organizations from '@/composables/localStore/useOrganizationsStore'
-
 import DeleteItemModal from '@/views/OrderView/DeleteItemModal.vue'
 
-import { DocumentType, OrderStatus, type Order } from '@/models/models'
+import { DocumentType, OrderStatus } from '@/models/models'
+import type { OrderData } from '@/composables/api/orders/useGetOrdersApi'
 
 const { t } = useI18n()
 
-const order = defineModel<Order>('order', { required: true })
+const order = defineModel<OrderData>('order', { required: true })
 
 const deleteDialog = ref(false)
 
@@ -93,12 +91,6 @@ const consumerName = computed(() => order.value.client?.name || order.value.indi
 
 const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
 const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled)
-
-function deleteOrder() {
-  const index = orders.value.indexOf(order.value!)
-  orders.value.splice(index, 1)
-  deleteDialog.value = false
-}
 </script>
 
 <style>
