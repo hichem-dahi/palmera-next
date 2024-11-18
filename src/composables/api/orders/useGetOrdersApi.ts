@@ -43,3 +43,5 @@ export function useGetOrdersApi() {
 
   return { ...q, data, error, isSuccess, params }
 }
+
+export type OrderData = NonNullable<ReturnType<typeof useGetOrdersApi>['data']['value']>[0]
