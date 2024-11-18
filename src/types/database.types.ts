@@ -271,6 +271,7 @@ export type Database = {
       }
       products: {
         Row: {
+          bar_code: number | null
           code: string
           cost_price: number | null
           id: string
@@ -280,6 +281,7 @@ export type Database = {
           qte: number
         }
         Insert: {
+          bar_code?: number | null
           code: string
           cost_price?: number | null
           id?: string
@@ -289,6 +291,7 @@ export type Database = {
           qte: number
         }
         Update: {
+          bar_code?: number | null
           code?: string
           cost_price?: number | null
           id?: string

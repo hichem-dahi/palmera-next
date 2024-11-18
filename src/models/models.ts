@@ -10,12 +10,12 @@ export interface Order {
   id: string
   index: number
   doc_index: number | null
-  organization_id?: Organization | string
-  individual_id?: string
-  client_id?: string
+  organization_id: string
+  individual_id: string | null
+  client_id: string | null
   date: Date | string
   order_lines: OrderLine[]
-  delivery?: Delivery
+  delivery: Delivery
   document_type: DocumentType
   status: OrderStatus
   payment_method?: string
@@ -68,14 +68,14 @@ export interface Organization {
 }
 
 export interface Product {
-  id: string | null | undefined
+  id?: string | null | undefined
   code: string
   name: string
   price: number
   cost_price: number | null
   qte: number
   organization_id: string
-  bar_code: string | null
+  bar_code: number | null
 }
 
 export interface StockMovement {
