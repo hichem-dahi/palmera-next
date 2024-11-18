@@ -1,5 +1,5 @@
 <template>
-  <v-dialog max-width="360" v-model="dialog">
+  <v-dialog max-width="400" v-model="dialog">
     <v-card class="pa-4">
       <!-- Show only one barcode in the dialog -->
       <div id="barcode-container" class="barcode-container text-center pa-4">
@@ -19,7 +19,7 @@ import printJS from 'print-js'
 import type { Product } from '@/models/models'
 
 const dialog = defineModel<boolean>('dialog')
-const model = defineModel<string | null>('barcode')
+const model = defineModel<number | null>('barcode')
 
 const props = defineProps<{ product: Product }>()
 
@@ -51,8 +51,8 @@ const printBarcode = () => {
 
 watchEffect(() => {
   if (barcodeRef.value) {
-    if (typeof model.value === 'string' && model.value.trim() !== '') {
-      JsBarcode(barcodeRef.value, model.value, {
+    if (model.value) {
+      JsBarcode(barcodeRef.value, model.value.toString(), {
         text: `${props.product.price} DA`,
         width: 3
       })
@@ -64,10 +64,10 @@ watchEffect(() => {
 </script>
 
 <style scoped>
-.barcode-video {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: contain; /* Ensure the video scales properly */
+.barcode-svg {
+  width: 100%; /* Make it responsive */
+  max-width: 360px; /* Set a maximum width */
+  height: auto; /* Maintain aspect ratio */
+  image-rendering: crisp-edges; /* Ensure sharp rendering */
 }
 </style>
