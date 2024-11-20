@@ -13,9 +13,9 @@
       $t('scan')
     }}</v-btn>
     <BarcodeScannerModal v-model:barcode="model.barcode" v-model:dialog="showScanner" />
-    <v-chip :value="!!model.barcode" closable @click:close="clearBarcode">{{
-      model.barcode
-    }}</v-chip>
+    <v-chip v-if="model.barcode" :value="!!model.barcode" closable @click:close="clearBarcode">
+      {{ model.barcode }}
+    </v-chip>
   </div>
 </template>
 
