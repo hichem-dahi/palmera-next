@@ -28,7 +28,7 @@
 
           <!-- Step 2: CreateOrder -->
           <v-stepper-window-item :value="Steps.CreateOrder">
-            <CreateOrder>
+            <CreateOrderlines>
               <template v-slot:actions="{ v }">
                 <v-card-actions>
                   <v-btn v-if="!consumerPicked" @click="step--">{{ $t('back') }}</v-btn>
@@ -36,7 +36,7 @@
                   <v-btn @click="nextStep(v)">{{ $t('next') }}</v-btn>
                 </v-card-actions>
               </template>
-            </CreateOrder>
+            </CreateOrderlines>
           </v-stepper-window-item>
 
           <!-- Step 3: ExtraInfo -->
@@ -74,7 +74,7 @@ import { useInsertOrderlinesApi } from '@/composables/api/orderlines/useInsertOr
 import { useInsertPaymentsApi } from '@/composables/api/payments/useInsertPaymentApi'
 
 import SelectConsumer from './CreateOrderStepper/SelectConsumer.vue'
-import CreateOrder from './CreateOrderStepper/CreateOrder.vue'
+import CreateOrderlines from './CreateOrderStepper/CreateOrderlines.vue'
 import ExtraInfo from './CreateOrderStepper/ExtraInfo.vue'
 
 import {
