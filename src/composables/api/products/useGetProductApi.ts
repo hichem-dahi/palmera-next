@@ -15,7 +15,7 @@ export function useGetProductApi() {
       throw new Error('Form is null or incomplete')
     }
   }
-  const q = useAsyncState(query, undefined, { immediate: true }) // Invoke query properly
+  const q = useAsyncState(query, undefined, { immediate: false }) // Invoke query properly
 
   const data = computed(() => q.state.value?.data)
   const error = computed(() => q.state.value?.error)
