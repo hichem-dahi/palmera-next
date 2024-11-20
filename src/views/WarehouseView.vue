@@ -62,13 +62,12 @@ const form = ref({
 
 const products = computed(() => getProductsApi.data.value || [])
 
-const filteredProducts = computed(
-  () =>
-    products.value.filter((o) => {
-      const name = filters.name ? o.name.includes(filters.name) : true
-      const barcode = filters.barcode && o.bar_code ? o.bar_code === filters.barcode : true
-      return name && barcode
-    }) || []
+const filteredProducts = computed(() =>
+  products.value.filter((o) => {
+    const name = filters.name ? o.name.includes(filters.name) : true
+    const barcode = filters.barcode && o.bar_code ? o.bar_code === filters.barcode : true
+    return name && barcode
+  })
 )
 
 function submitForm() {
