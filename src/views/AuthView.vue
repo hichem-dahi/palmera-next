@@ -118,9 +118,9 @@ watch(
 )
 
 watch(
-  () => veryifyOtpApi.isReady.value,
-  (isReady) => {
-    if (isReady) {
+  () => veryifyOtpApi.isSuccess.value,
+  (isSuccess) => {
+    if (isSuccess) {
       step.value = Steps.FillUserForm
       getProfileApi.userId.value = veryifyOtpApi.state.value?.data.user?.id
       getProfileApi.execute()
