@@ -17,12 +17,13 @@
 </template>
 
 <script setup lang="ts">
-import { mdiAccountGroup, mdiHistory, mdiWarehouse, mdiReceiptText } from '@mdi/js'
+import { mdiAccountGroup, mdiHistory, mdiWarehouse, mdiReceiptText, mdiCart } from '@mdi/js'
 
 const menuItems = [
   { label: 'clients', route: 'clients', icon: mdiAccountGroup, color: 'medium-emphasis' },
   { label: 'warehouse', route: 'warehouse', icon: mdiWarehouse, color: 'medium-emphasis' },
   { label: 'orders', route: 'orders', icon: mdiReceiptText, color: 'medium-emphasis' },
-  { label: 'history', route: 'orders-history', icon: mdiHistory, color: 'medium-emphasis' }
+  { label: 'history', route: 'orders-history', icon: mdiHistory, color: 'medium-emphasis' },
+  { label: 'sales', route: 'create-sale', icon: mdiCart, color: 'medium-emphasis' }
 ]
 </script>
