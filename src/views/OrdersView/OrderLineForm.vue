@@ -28,8 +28,8 @@
         hide-details
         control-variant="stacked"
         :error="!$v.qte.$pending && $v.qte.$error"
-        :suffix="`/${selectedProduct?.qte}`"
-        :max="selectedProduct?.qte || undefined"
+        :suffix="`/${selectedProduct?.qte ?? 0}`"
+        :max="selectedProduct?.qte ?? undefined"
         :min="0"
         v-model="form.qte"
       />
@@ -94,8 +94,6 @@ const model = defineModel<OrderLineData>({
 const props = defineProps<{ availableProducts?: Product[]; products: Product[]; isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
 
-const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
-
 const form = reactive(model.value)
 
 const orderLineRules = {
@@ -107,6 +105,8 @@ const orderLineRules = {
 }
 
 const $v = useVuelidate(orderLineRules, form)
+
+const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
 
 watchEffect(() => {
   if (form?.qte && form.unit_price) {
