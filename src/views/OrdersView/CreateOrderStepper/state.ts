@@ -14,10 +14,10 @@ const defaultForm = () => ({
   delivery_id: undefined as string | undefined,
   individual_id: undefined as string | undefined,
   date: new Date().toISOString(),
-  document_type: 0, //TODO: change type
+  document_type: 0,
   doc_index: null,
   status: OrderStatus.Pending,
-  payment_method: '',
+  payment_method: null,
   paid_price: 0 as any,
   total_price: 0,
   tva: 0,
