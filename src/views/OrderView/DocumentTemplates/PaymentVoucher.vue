@@ -13,13 +13,15 @@
       <div class="d-flex justify-space-between align-center">
         <div class="col-1 w-25">
           <div v-for="(value, key) in selfInfo" :key="key">
-            <div v-if="key == 'name'">
-              <h3>{{ value }}</h3>
+            <div v-if="value">
+              <div v-if="key == 'name'">
+                <h3>{{ value }}</h3>
+              </div>
+              <div v-else-if="key == 'activity'">
+                <div>{{ value }}</div>
+              </div>
+              <div v-else>{{ key }}: {{ value }}</div>
             </div>
-            <div v-else-if="key == 'activity'">
-              <div>{{ value }}</div>
-            </div>
-            <div v-else>{{ key }}: {{ value }}</div>
           </div>
         </div>
         <h3 class="col-2 flex-grow-1 type">
@@ -80,23 +82,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick } from 'lodash'
 import n2words from 'n2words'
 import { format } from 'date-fns'
 import { mdiChevronLeft } from '@mdi/js'
 
-import orders from '@/composables/localStore/useOrdersStore'
-import products from '@/composables/localStore/useProductStore'
 import self from '@/composables/localStore/useSelf'
-import payments from '@/composables/localStore/usePaymentsStore'
+
+import { useGetPaymentApi } from '@/composables/api/payments/useGetPaymentApi'
+
+import type { OrderLineData } from '@/composables/api/orders/useGetOrderApi'
+
+const getPaymentApi = useGetPaymentApi()
 
 const route = useRoute()
 
+onMounted(() => {
+  getPaymentApi.paymentId.value = route.params.payment_id as string
+  getPaymentApi.execute()
+})
+
 const title = computed(() => 'Bon de paiement')
-const order = computed(() => orders.value.find((o) => o.id == route.params.order_id))
-const payment = computed(() => payments.value.find((p) => p.id == route.query.payment_id))
+const order = computed(() => payment.value?.order)
+const payment = computed(() => getPaymentApi.data.value)
 
 const totalWords = computed(() => {
   let number = payment.value?.amount || 0
@@ -135,11 +145,10 @@ const individualInfo = computed(() => {
 })
 
 const items = computed(() =>
-  order.value?.order_lines.map((o, i) => {
-    const product = getProduct(o.product_id)
+  order.value?.order_lines.map((o: OrderLineData, i: number) => {
     return {
       index: i,
-      product_name: product?.name,
+      product_name: o.product?.name,
       qte: o.qte,
       unit_price: o.unit_price,
       total_price: o.total_price
@@ -159,8 +168,6 @@ const totalItems = computed(() => {
     }
   }
 })
-
-const getProduct = (id: string) => products.value.find((e) => e.id == id)
 
 function print() {
   window.print()
