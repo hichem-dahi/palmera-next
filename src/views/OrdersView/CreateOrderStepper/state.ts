@@ -50,7 +50,7 @@ const deliveryForm = ref({
 })
 
 const individualForm = ref({
-  id: null as string | null,
+  id: undefined as string | undefined,
   name: '',
   phone: null as string | null
 })
