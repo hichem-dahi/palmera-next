@@ -31,7 +31,17 @@ const paymentForm = reactive({
   amount: null as number | null
 })
 
-const orderlinesForm = ref<TablesInsert<'order_lines'>[]>([])
+const orderlinesForm = ref<
+  {
+    id?: string | undefined
+    order_id: string
+    product_id: string
+    qte: number
+    total_price: number
+    unit_cost_price: number | null | undefined
+    unit_price: number
+  }[]
+>([])
 
 const deliveryForm = ref({
   driver_name: '',

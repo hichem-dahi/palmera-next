@@ -1,5 +1,5 @@
 <template>
-  <v-row v-if="form" align="end" no-gutters>
+  <v-row align="end" no-gutters>
     <v-col>
       <v-select
         class="mr-3"
@@ -10,7 +10,7 @@
         :items="availableProducts"
         item-value="id"
         item-title="name"
-        v-model="form.product_id"
+        v-model="model.product_id"
         hide-no-data
         hide-details
       >
@@ -24,14 +24,14 @@
         :label="$t('quantity')"
         variant="underlined"
         inset
-        :disabled="!form.product_id"
+        :disabled="!model.product_id"
         hide-details
         control-variant="stacked"
         :error="!$v.qte.$pending && $v.qte.$error"
         :suffix="`/${selectedProduct?.qte ?? 0}`"
         :max="selectedProduct?.qte ?? undefined"
         :min="0"
-        v-model="form.qte"
+        v-model="model.qte"
       />
     </v-col>
     <v-col class="mr-3">
@@ -39,17 +39,17 @@
         :label="$t('U.P')"
         variant="underlined"
         inset
-        :disabled="!form.qte"
+        :disabled="!model.qte"
         hide-details
         control-variant="stacked"
         :error="!$v.unit_price.$pending && $v.unit_price.$error"
         :min="0"
-        v-model="form.unit_price"
+        v-model="model.unit_price"
       />
     </v-col>
     <v-col cols="2">
       <div class="pa-2 text-medium-emphasis text-caption">
-        {{ $t('total') }}: {{ form.total_price }}DA
+        {{ $t('total') }}: {{ model.total_price }}DA
       </div>
     </v-col>
     <v-col cols="1">
@@ -59,68 +59,63 @@
         variant="text"
         :icon="mdiDelete"
         size="small"
-        @click="emits('delete', form)"
+        @click="emits('delete', model)"
       />
     </v-col>
   </v-row>
-  <slot
-    name="actions"
-    :form="model"
-    :validation="{ touch: $v.$touch, invalid: $v.$invalid }"
-  ></slot>
+  <slot name="actions" :form="model" :v="$v"></slot>
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, computed, watch } from 'vue'
+import { watchEffect, watch, computed, toRef } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { minValue, numeric, required } from '@vuelidate/validators'
 import { mdiDelete } from '@mdi/js'
 
 import type { Product } from '@/models/models'
-import type { OrderLineData } from '@/composables/api/orders/useGetOrderApi'
 
-const model = defineModel<OrderLineData>({
+const model = defineModel({
   default: {
     order_id: '',
     product_id: '',
     qte: 0,
     unit_price: 0,
     total_price: 0,
-    unit_cost_price: null
-  },
-  required: false
+    unit_cost_price: null as number | null | undefined // Optional property
+  }
 })
 
 const props = defineProps<{ availableProducts?: Product[]; products: Product[]; isNew: boolean }>()
 const emits = defineEmits(['add', 'delete'])
-
-const form = reactive(model.value)
 
 const orderLineRules = {
   product_id: { required },
   qte: { required, numeric, minValue: minValue(1) },
   unit_price: { required, numeric, minValue: minValue(1) },
   total_price: { required, numeric, minValue: minValue(1) },
-  unit_cost_price: { numeric, minValue: minValue(1) }
+  unit_cost_price: {
+    numeric,
+    minValue: minValue(1)
+  }
 }
 
-const $v = useVuelidate(orderLineRules, form)
+const $v = useVuelidate(
+  orderLineRules,
+  toRef(() => model.value)
+)
 
-const selectedProduct = computed(() => props.products.find((e) => e.id === form.product_id))
+const selectedProduct = computed(() => props.products.find((e) => e.id === model.value.product_id))
 
 watchEffect(() => {
-  if (form?.qte && form.unit_price) {
-    form.total_price = form.unit_price * form?.qte
+  if (model.value.qte && model.value.unit_price) {
+    model.value.total_price = model.value.unit_price * model.value?.qte
   }
 })
 
 watch(selectedProduct, (newProduct) => {
   if (newProduct) {
-    form.unit_price = newProduct.price || 0
-    form.product = newProduct
-    form.product.cost_price
-      ? (form.unit_cost_price = form.product.cost_price)
-      : (form.unit_cost_price = null)
+    model.value.unit_price = newProduct.price || 0
+    model.value.unit_cost_price = newProduct.cost_price
   }
 })
 </script>
