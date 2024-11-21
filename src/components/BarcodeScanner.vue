@@ -9,6 +9,7 @@
 
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from 'vue'
+import { BarcodeDetector } from 'barcode-detector/pure'
 
 const emits = defineEmits<{
   (event: 'detected', value: number): void
