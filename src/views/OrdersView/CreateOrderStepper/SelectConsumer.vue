@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue'
+import { computed, reactive, toRef } from 'vue'
 import { isString } from 'lodash'
 import useVuelidate from '@vuelidate/core'
 import { minLength, numeric, required } from '@vuelidate/validators'
@@ -49,7 +49,15 @@ import { form, consumerType, individualForm } from './state'
 const getOrganizationsApi = useGetOrganizationsApi()
 const getIndividualsApi = useGetIndividualsApi()
 
-const rules1 = { required }
+const formClient = reactive({
+  client_id: toRef(() => form.client_id)
+})
+
+const rules1 = {
+  client_id: {
+    required
+  }
+}
 
 const rules2 = {
   name: {
@@ -62,10 +70,7 @@ const rules2 = {
 }
 
 // Initialize the Vuelidate validation instance
-const v1$ = useVuelidate(
-  rules1,
-  toRef(() => form.client_id)
-)
+const v1$ = useVuelidate(rules1, formClient)
 
 const v2$ = useVuelidate(rules2, individualForm)
 

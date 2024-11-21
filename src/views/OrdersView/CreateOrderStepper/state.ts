@@ -4,7 +4,6 @@ import { round, sum } from 'lodash'
 import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType, DocumentType, OrderStatus } from '@/models/models'
-import type { TablesInsert } from '@/types/database.types'
 
 const consumerType = ref<ConsumerType>()
 
@@ -50,7 +49,8 @@ const deliveryForm = ref({
   destination: ''
 })
 
-const individualForm = ref<TablesInsert<'individuals'>>({
+const individualForm = ref({
+  id: null as string | null,
   name: '',
   phone: null as string | null
 })
