@@ -30,15 +30,11 @@
 import { computed } from 'vue'
 import { format } from 'date-fns'
 
-import organizations from '@/composables/localStore/useOrganizationsStore'
+import type { OrderData } from '@/composables/api/orders/useGetOrdersApi'
 
-import type { Proforma } from '@/models/models'
+const proforma = defineModel<OrderData>('proforma')
 
-const proforma = defineModel<Proforma>('proforma')
-
-const consumerName = computed(
-  () => organizations.value.find((e) => e.id === proforma.value?.organization)?.name
-)
+const consumerName = computed(() => proforma.value?.client?.name)
 </script>
 
 <style>
