@@ -94,7 +94,7 @@ const router = createRouter({
       component: ProformaView
     },
     {
-      path: '/payment/:order_id',
+      path: '/payment/:payment_id',
       name: 'payment',
       component: PaymentVoucher
     },

@@ -13,8 +13,7 @@
               :icon="mdiOpenInNew"
               :to="{
                 name: 'payment',
-                params: { order_id: order.id },
-                query: { payment_id: item.id }
+                params: { payment_id: item.id }
               }"
             >
             </v-btn>
