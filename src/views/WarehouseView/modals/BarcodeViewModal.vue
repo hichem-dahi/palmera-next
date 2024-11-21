@@ -16,12 +16,12 @@ import { ref, watchEffect } from 'vue'
 import JsBarcode from 'jsbarcode'
 import printJS from 'print-js'
 
-import type { Product } from '@/models/models'
+import type { TablesUpdate } from '@/types/database.types'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<number | null>('barcode')
 
-const props = defineProps<{ product: Product }>()
+const props = defineProps<{ product: TablesUpdate<'products'> }>()
 
 const barcodeRef = ref()
 
