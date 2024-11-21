@@ -6,27 +6,28 @@ import { supabase } from '@/supabase/supabase'
 // Define QueryProfile based on the query function
 
 export function useGetProfileApi() {
-  const userId = ref<string | undefined>(undefined)
+  const userId = ref<string>()
 
   // Define the query function outside of useGetProfileApi to reuse its type
-  const query = async (userId: string | undefined) =>
-    userId
+  const query = async () =>
+    userId.value
       ? supabase
           .from('profiles')
           .select(
             `
-        id, 
-        full_name, 
-        email, 
-        phone, 
-        organization_id,
-        organization: organizations(*)
-      `
+              id, 
+              full_name, 
+              email, 
+              phone, 
+              organization_id,
+              organization: organizations(*)
+            `
           )
-          .eq('id', userId)
+          .eq('id', userId.value)
           .single()
       : undefined
-  const q = useAsyncState(() => query(userId.value), undefined, { immediate: false })
+
+  const q = useAsyncState(query, undefined, { immediate: false })
 
   const data = computed(() => q.state.value?.data)
   const error = computed(() => q.state.value?.error)
@@ -34,3 +35,5 @@ export function useGetProfileApi() {
 
   return { ...q, data, error, isSuccess, userId }
 }
+
+export type ProfileData = NonNullable<ReturnType<typeof useGetProfileApi>['data']['value']>
