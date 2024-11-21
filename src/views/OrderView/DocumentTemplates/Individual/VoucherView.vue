@@ -13,13 +13,15 @@
       <div class="d-flex justify-space-between align-center">
         <div class="col-1 w-25">
           <div v-for="(value, key) in selfInfo" :key="key">
-            <div v-if="key == 'name'">
-              <h3>{{ value }}</h3>
+            <div v-if="value">
+              <div v-if="key == 'name'">
+                <h3>{{ value }}</h3>
+              </div>
+              <div v-else-if="key == 'activity'">
+                <div>{{ value }}</div>
+              </div>
+              <div v-else>{{ key }}: {{ value }}</div>
             </div>
-            <div v-else-if="key == 'activity'">
-              <div>{{ value }}</div>
-            </div>
-            <div v-else>{{ key }}: {{ value }}</div>
           </div>
         </div>
         <h3 class="col-2 flex-grow-1 type">
@@ -107,7 +109,7 @@ const getOrderApi = useGetOrderApi()
 
 onMounted(() => {
   if (route.params.order_id) {
-    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.orderId.value = route.params.order_id as string
     getOrderApi.execute()
   }
 })

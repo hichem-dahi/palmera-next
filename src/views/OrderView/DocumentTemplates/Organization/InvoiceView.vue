@@ -115,13 +115,13 @@ const order = computed(() => getOrderApi.data.value)
 
 onMounted(() => {
   if (route.params.order_id) {
-    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.orderId.value = route.params.order_id as string
     getOrderApi.execute()
   }
 })
 
 const consumerType = computed(() =>
-  order.value?.organization_id ? ConsumerType.Organization : ConsumerType.Individual
+  order.value?.client_id ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const totalWords = computed(() => {

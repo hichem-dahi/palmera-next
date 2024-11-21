@@ -94,13 +94,13 @@ const proforma = computed(() => getOrderApi.data.value)
 
 onMounted(() => {
   if (route.params.order_id) {
-    getOrderApi.orderId.value = route.params.order_id
+    getOrderApi.orderId.value = route.params.order_id as string
     getOrderApi.execute()
   }
 })
 
 const consumerType = computed(() =>
-  proforma.value?.organization ? ConsumerType.Organization : ConsumerType.Individual
+  proforma.value?.client_id ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const totalWords = computed(() => {
@@ -130,12 +130,12 @@ const selfInfo = computed(() => {
 })
 
 const organizationInfo = computed(() => {
-  let organization = { ...organizations.value.find((c) => c.id === proforma.value?.organization) }
+  let client = proforma.value?.client
 
-  if (Object.keys(organization).length) {
-    organization = { ...organization, client: organization.name } as any
+  if (client) {
+    client = { ...client, client: client.name } as any
     const desiredOrder = ['client', 'rc', 'nif', 'nis', 'art', 'address', 'activity']
-    return pick(organization, desiredOrder)
+    return pick(client, desiredOrder)
   } else return undefined
 })
 
