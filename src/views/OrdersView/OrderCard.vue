@@ -11,7 +11,7 @@
 
     <template v-slot:text>
       <div class="order-info py-0">
-        <div>
+        <div v-if="consumerName">
           <span class="font-weight-bold">{{ $t('client') }}:</span>
           <span>&nbsp;{{ consumerName }}</span>
         </div>
