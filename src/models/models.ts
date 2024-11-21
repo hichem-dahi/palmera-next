@@ -68,7 +68,7 @@ export interface Organization {
 }
 
 export interface Product {
-  id?: string | null | undefined
+  id: string
   code: string
   name: string
   price: number
