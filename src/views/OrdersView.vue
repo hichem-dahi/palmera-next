@@ -13,20 +13,11 @@
     <FilterBar v-model="filters" />
   </div>
   <v-container>
-    <div v-if="filters.docType == DocumentType.Proforma">
-      <v-row v-for="(_, i) in proformas" :key="i">
-        <v-col sm="12" md="6">
-          <ProformaCard v-model:proforma="proformas[i]" />
-        </v-col>
-      </v-row>
-    </div>
-    <div v-else>
-      <v-row v-for="(_, i) in filteredOrders" :key="i">
-        <v-col sm="12" md="6">
-          <OrderCard v-model:order="filteredOrders[i]" />
-        </v-col>
-      </v-row>
-    </div>
+    <v-row v-for="(_, i) in filteredOrders" :key="i">
+      <v-col sm="12" md="6">
+        <OrderCard v-model:order="filteredOrders[i]" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -35,15 +26,11 @@ import { computed, reactive } from 'vue'
 import { isSameDay } from 'date-fns'
 import { mdiPlus } from '@mdi/js'
 
-import proformas from '@/composables/localStore/useProformaStore'
-
 import { useGetOrdersApi } from '@/composables/api/orders/useGetOrdersApi'
 
 import OrderCard from '@/views/OrdersView/OrderCard.vue'
-import ProformaCard from './OrdersView/ProformaCard.vue'
 import FilterBar from './OrdersView/FilterBar.vue'
 
-import { DocumentType } from '@/models/models'
 import type { Filters } from './OrdersView/models/models'
 
 const getOrdersApi = useGetOrdersApi()

@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { pick, round } from 'lodash'
 import html2pdf from 'html2pdf.js'
@@ -77,8 +77,6 @@ import { mdiChevronLeft } from '@mdi/js'
 import { format } from 'date-fns'
 
 import products from '@/composables/localStore/useProductStore'
-import organizations from '@/composables/localStore/useOrganizationsStore'
-import proformas from '@/composables/localStore/useProformaStore'
 import self from '@/composables/localStore/useSelf'
 
 import { ConsumerType } from '@/models/models'
