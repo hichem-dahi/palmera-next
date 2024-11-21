@@ -28,24 +28,30 @@
                 size="small"
                 :append-icon="mdiPlus"
                 color="primary"
-                :disabled="!productsItems.length"
+                :disabled="!availableProducts.length"
                 v-bind="props"
               >
                 New product
               </v-btn>
             </template>
-            <v-card>
+            <v-card class="pa-4 pb-0">
               <v-card-title>{{ $t('add-product') }}</v-card-title>
               <v-card-text>
                 <OrderLineForm
+                  v-model="newOrderline"
                   :is-new="true"
-                  :availableProducts="productsItems"
+                  :availableProducts="availableProducts"
                   :products="getProductsApi.data.value || []"
                 >
-                  <template v-slot:actions="{ form, validation }">
+                  <template v-slot:actions="{ form, v }">
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn variant="text" color="blue" @click="addOrderline(form, validation)">
+                      <v-btn
+                        variant="text"
+                        size="small"
+                        color="blue"
+                        @click="addOrderline(form, v)"
+                      >
                         {{ $t('add') }}
                       </v-btn>
                     </v-card-actions>
@@ -132,8 +138,6 @@ import { format } from 'date-fns'
 import { cloneDeep, isEqual, isNumber, sum } from 'lodash'
 import { mdiDelete, mdiPlus } from '@mdi/js'
 
-import organizations from '@/composables/localStore/useOrganizationsStore'
-
 import { useUpsertOrderlinesApi } from '@/composables/api/orderlines/useUpsertOrderlinesApi'
 import { useGetProductsApi } from '@/composables/api/products/useGetProductsApi'
 import { useUpdateOrderApi } from '@/composables/api/orders/useUpdateOrderApi'
@@ -142,8 +146,10 @@ import { useDeleteOrderlinesApi } from '@/composables/api/orderlines/useDeleteOr
 import OrderLineForm from '@/views/OrdersView/OrderLineForm.vue'
 import DeleteItemModal from './DeleteItemModal.vue'
 
-import { ConsumerType, OrderStatus, type OrderLine } from '@/models/models'
+import { ConsumerType, OrderStatus } from '@/models/models'
 import type { OrderData, OrderLineData } from '@/composables/api/orders/useGetOrderApi'
+import type { Validation } from '@vuelidate/core'
+import type { TablesInsert } from '@/types/database.types'
 
 const order = defineModel<OrderData>('order', { required: true })
 
@@ -158,7 +164,18 @@ const newlineDialog = ref(false)
 const deleteDialog = ref(false)
 const isSuccess = ref(false)
 const proxyOrder = ref<OrderData>(cloneDeep(order.value))
-const selectedOrderline = ref<OrderLine>()
+const proxyOrderlines = ref<(Omit<OrderLineData, 'id'> & { id?: string | undefined })[]>(
+  proxyOrder.value.order_lines
+)
+const selectedOrderlineIndex = ref<number>()
+const newOrderline = ref({
+  product_id: '',
+  qte: 0,
+  unit_price: 0,
+  total_price: 0,
+  order_id: '',
+  unit_cost_price: null
+})
 
 const headers = computed(
   () =>
@@ -181,21 +198,17 @@ const isLoading = computed(
   () => deleteOrderlinesApi.isLoading.value || upsertOrderlinesApi.isLoading.value
 )
 
-const isModified = computed(() => !isEqual(order.value.order_lines, proxyOrder.value.order_lines))
+const isModified = computed(() => !isEqual(order.value.order_lines, proxyOrderlines.value))
 const isModfiable = computed(() => isModified.value && isValidOrderlines.value)
 
 const isValidOrderlines = computed(() =>
   proxyOrderlines.value.every((o) => o.product !== null && o.qte <= o.product.qte)
 )
 
-const consumerName = computed(
-  () =>
-    organizations.value.find((e) => e.id === order.value.organization_id)?.name ||
-    order.value.individual?.name
-)
+const consumerName = computed(() => order.value.client?.name || order.value.individual?.name)
 
 const consumerType = computed(() =>
-  order.value?.organization_id ? ConsumerType.Organization : ConsumerType.Individual
+  order.value?.client_id ? ConsumerType.Organization : ConsumerType.Individual
 )
 
 const isConfirmed = computed(() => order.value?.status === OrderStatus.Confirmed)
@@ -203,8 +216,6 @@ const isCancelled = computed(() => order.value?.status === OrderStatus.Cancelled
 const isPending = computed(() => order.value?.status === OrderStatus.Pending)
 
 const isConfirmable = computed(() => !isModified.value && isValidOrderlines.value)
-
-const proxyOrderlines = computed(() => proxyOrder.value.order_lines)
 
 const totalItems = computed(() => {
   return {
@@ -214,10 +225,9 @@ const totalItems = computed(() => {
 })
 
 const items = computed(() =>
-  proxyOrder.value.order_lines.map((o, i) => {
+  proxyOrderlines.value.map((o, i) => {
     const product = o.product
     return {
-      id: o.id,
       index: i,
       product: product,
       product_name: product?.name,
@@ -229,41 +239,44 @@ const items = computed(() =>
   })
 )
 
-const productsItems = computed(() =>
-  (getProductsApi.data.value || []).filter((e) => {
-    const alreadySelected = proxyOrder.value?.order_lines.map((ol) => ol.product_id)
+const products = computed(() => getProductsApi.data.value || [])
+
+const availableProducts = computed(() =>
+  products.value.filter((e) => {
+    const alreadySelected = proxyOrderlines.value.map((ol) => ol.product_id)
     return !alreadySelected?.includes(e.id)
   })
 )
 
-const deleteItem = (item: any) => {
-  selectedOrderline.value = proxyOrderlines.value?.[item.index]
+const deleteItem = (item: (typeof items.value)[0]) => {
+  selectedOrderlineIndex.value = item.index
   deleteDialog.value = true
 }
 
 const deleteItemConfirm = () => {
-  const index = proxyOrderlines.value.findIndex((e) => e.id === selectedOrderline.value?.id)
-  if (isNumber(index)) {
-    proxyOrderlines.value?.splice(index, 1)
+  if (isNumber(selectedOrderlineIndex.value)) {
+    proxyOrderlines.value?.splice(selectedOrderlineIndex.value, 1)
     closeDelete()
   }
 }
 
 const closeDelete = () => {
-  selectedOrderline.value = undefined
+  selectedOrderlineIndex.value = undefined
   deleteDialog.value = false
 }
 
-function addOrderline(form: OrderLineData, validation: { touch: () => void; invalid: boolean }) {
-  validation.touch()
-  if (!validation.invalid) {
-    proxyOrder.value?.order_lines.push(form)
+function addOrderline(form: TablesInsert<'order_lines'>, v: Validation) {
+  v.$touch()
+  if (!v.$invalid) {
+    const product = products.value.find((p) => p.id === form.product_id)
+    if (!product) return
+    proxyOrderlines.value.push({ ...form, product } as OrderLineData)
     newlineDialog.value = false
   }
 }
 
 function cancelEdit() {
-  proxyOrder.value.order_lines = cloneDeep(order.value.order_lines)
+  proxyOrderlines.value = cloneDeep(order.value.order_lines)
 }
 
 function confirmEdit() {
@@ -283,6 +296,7 @@ watch(
     }
   }
 )
+
 watch(
   () => upsertOrderlinesApi.isSuccess.value,
   (isSuccessApi) => {
