@@ -3,10 +3,10 @@ import { useLocalStorage } from '@vueuse/core'
 import type { Session } from '@supabase/supabase-js'
 
 import type { Organization } from '@/models/models'
-import type { Tables } from '@/types/database.types'
+import type { ProfileData } from '../api/auth/useGetProfileApi'
 
 interface Self {
-  user?: Tables<'profiles'>
+  user?: ProfileData
   session?: Session
   organization?: Organization
 }
