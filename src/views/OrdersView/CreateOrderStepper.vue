@@ -219,7 +219,7 @@ watch(
   () => insertOrderApi.isSuccess.value,
   (isSuccess) => {
     if (isSuccess && insertOrderApi.data.value?.id) {
-      insertOrderlinesApi.form.value = orderlinesForm.value.map(({ product, ...o }) => ({
+      insertOrderlinesApi.form.value = orderlinesForm.value.map((o) => ({
         ...o,
         order_id: insertOrderApi.data.value?.id || ''
       }))
