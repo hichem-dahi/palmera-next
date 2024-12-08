@@ -16,6 +16,7 @@ import ProformaView from '@/views/OrderView/DocumentTemplates/Company/ProformaVi
 import InvoiceView from '@/views/OrderView/DocumentTemplates/Company/InvoiceView.vue'
 import VoucherView from '@/views/OrderView/DocumentTemplates/Individual/VoucherView.vue'
 import PaymentVoucher from '@/views/OrderView/DocumentTemplates/PaymentVoucher.vue'
+import SalesStatement from '@/views/OrdersHistroyView/SalesStatement.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -96,6 +97,11 @@ const router = createRouter({
       path: '/payment/:order_id',
       name: 'payment',
       component: PaymentVoucher
+    },
+    {
+      path: '/sales-statement',
+      name: 'sales-statement',
+      component: SalesStatement
     },
     {
       path: '/self',
