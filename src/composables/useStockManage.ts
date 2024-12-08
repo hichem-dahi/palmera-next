@@ -37,7 +37,7 @@ export function logStockMovement(product_id: string, qte_change: number, order_i
     order_id
   }
 
-  stock.value.push(movement)
+  stock.value = [...stock.value, movement]
 }
 
 export function adjustStock(product_id: string, adjustment: number): void {
