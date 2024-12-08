@@ -105,13 +105,12 @@ onMounted(() => {
 const filteredOrders = computed(() => {
   if (dateRange.value.length === 2) {
     const [from, to] = dateRange.value.map((date, index) =>
-      index === 0 ? startOfDay(parseISO(date)) : endOfDay(parseISO(date))
+      index === 0 ? startOfDay(date) : endOfDay(date)
     ) // Adjust from/to to cover the entire days
 
     return orders.value.filter(
       (o) =>
-        isWithinInterval(parseISO(o.date), { start: from, end: to }) &&
-        o.status === OrderStatus.Confirmed
+        isWithinInterval(o.date, { start: from, end: to }) && o.status === OrderStatus.Confirmed
     )
   }
   return orders.value.filter((o) => o.status === OrderStatus.Confirmed)
@@ -131,7 +130,7 @@ const historyItems = computed(() => {
       paid: sum(ordersForDate.map((o) => o.paid_price)) || 0, // Total paid
       remaining: sum(ordersForDate.map((o) => o.total_price - o.paid_price)) || 0 // Remaining balance
     }
-    debugger
+
     groupedSummary.push(dateSummaryItem)
   }
 
