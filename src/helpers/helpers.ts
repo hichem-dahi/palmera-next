@@ -1,7 +1,9 @@
 export const formatPrice = (str?: string | number | null) => {
-  if (!str) return
-  const st1: string | number = str.toString().replace(/\s+/g, '')
-  const st2: string | number = new Number(st1).toLocaleString('fr-Fr')
+  if (str === null || str === undefined) return // Handle null/undefined
+  if (str === 0 || str === '0') return '0' // Explicitly check for 0
+
+  const st1: string = str.toString().replace(/\s+/g, '') // Remove any spaces
+  const st2: string = new Number(st1).toLocaleString('fr-FR') // Format number
   return st2
 }
 
